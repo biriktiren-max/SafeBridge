@@ -21,7 +21,6 @@
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>SafeBridge <span style="color:var(--success)">V3.8</span></h1>
     <div class="grid">
@@ -50,7 +49,6 @@
         </div>
     </div>
 </div>
-
 <script>
     const contractAddress = "0x53805B737A4358607A6679549fC6D68644e5f762";
     const abi = [
@@ -91,9 +89,7 @@
             );
             await tx.wait();
             updateLog("BAŞARILI! Para kilitlendi.");
-        } catch (e) { 
-            updateLog("HATA: Bilgileri kontrol et abi."); 
-        }
+        } catch (e) { updateLog("HATA: Bilgileri kontrol et abi."); }
     }
     async function checkEscrowStatus() {
         const id = document.getElementById('targetId').value;
