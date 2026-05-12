@@ -32,8 +32,8 @@
             <input type="text" id="receiver" placeholder="0x...">
             <label>Birim:</label>
             <select id="currency"><option value="ETH">Sepolia ETH</option></select>
-            <label>Miktar (Nokta kullan):</label>
-            <input type="number" id="amount" value="0.01" step="0.01">
+            <label>Miktar (Nokta kullanın):</label>
+            <input type="text" id="amount" value="0.01">
             <label>Şifre:</label>
             <input type="text" id="lockPass" placeholder="Örn: 1234">
             <button onclick="createEscrow()" class="btn-blue" style="margin-top:20px;">Parayı Kilitle ve Gönder</button>
@@ -44,10 +44,10 @@
             <label>İşlem ID:</label>
             <input type="number" id="targetId" placeholder="Örn: 0">
             <button onclick="checkEscrowStatus()" class="btn-blue" style="background:#475569">⌛ DURUMU SORGULA</button>
-            <label style="margin-top:20px;">Çözme Şifresi:</label>
+            <label style="margin-top:20px;">Kilit Açma Şifresi:</label>
             <input type="text" id="unlockPass">
             <button onclick="withdrawFunds()" class="btn-green">Cüzdanıma Çek (Withdraw)</button>
-            <div id="logBox" class="status-box">> Bağlantı bekleniyor...</div>
+            <div id="logBox" class="status-box">> Hazırız İsmail abi...</div>
         </div>
     </div>
 </div>
@@ -69,22 +69,25 @@
         await provider.send("eth_requestAccounts", []);
         const network = await provider.getNetwork();
         if (network.chainId !== 11155111) {
-            alert("Lütfen MetaMask'tan SEPOLIA ağını seçin!");
+            updateLog("HATA: MetaMask'tan SEPOLIA ağını seçin!");
             return;
         }
         signer = provider.getSigner();
-        updateLog("Cüzdan bağlandı abi!");
+        updateLog("Bağlantı kuruldu abi.");
         document.getElementById('connBtn').innerText = "✅ Bağlı";
         document.getElementById('receiver').value = await signer.getAddress();
     }
 
     async function createEscrow() {
-        if (!signer) return updateLog("Önce bağlan!");
+        if (!signer) return updateLog("Önce bağlan abi!");
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
-            // Kritik düzeltme: Adresi otomatik formatlıyoruz
-            const receiver = ethers.utils.getAddress(document.getElementById('receiver').value.trim());
-            const amount = document.getElementById('amount').value.toString();
+            
+            // CHECKSUM TAMİRCİSİ: Adresi otomatik formatlar
+            let rawAddr = document.getElementById('receiver').value.trim();
+            const receiver = ethers.utils.getAddress(rawAddr); 
+            
+            let amountStr = document.getElementById('amount').value.replace(',', '.');
             const pass = document.getElementById('lockPass').value.trim();
 
             updateLog("Onay Bekleniyor...");
@@ -92,12 +95,15 @@
                 receiver,
                 ethers.utils.keccak256(ethers.utils.toUtf8Bytes(pass)),
                 Math.floor(Date.now() / 1000) + 60,
-                { value: ethers.utils.parseEther(amount) }
+                { value: ethers.utils.parseEther(amountStr) }
             );
             updateLog("İşlem blokzincirine gönderildi...");
             await tx.wait();
-            updateLog("BAŞARILI! Para kilitlendi.");
-        } catch (e) { updateLog("HATA: " + (e.reason || e.message).substring(0,50)); }
+            updateLog("BAŞARILI! Para kilitlendi abi.");
+        } catch (e) { 
+            console.error(e);
+            updateLog("HATA: " + (e.reason || "Adres/Miktar hatası. Nokta kullandığından emin ol.")); 
+        }
     }
 
     async function checkEscrowStatus() {
@@ -107,7 +113,7 @@
         try {
             const tx = await contract.transactions(id);
             updateLog("ID " + id + ": " + ethers.utils.formatEther(tx.amount) + " ETH kilitli.");
-        } catch (e) { updateLog("Bulunamadı."); }
+        } catch (e) { updateLog("İşlem bulunamadı."); }
     }
 
     async function withdrawFunds() {
@@ -118,7 +124,7 @@
             const pass = document.getElementById('unlockPass').value.trim();
             const tx = await contract.completeTransaction(id, pass);
             await tx.wait();
-            updateLog("BAŞARILI! Para çekildi.");
+            updateLog("BAŞARILI! Para cüzdanına geçti.");
         } catch (e) { updateLog("HATA: Şifre yanlış!"); }
     }
 </script>
