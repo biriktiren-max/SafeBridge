@@ -38,7 +38,6 @@
             <input type="text" id="lockPass" placeholder="Örn: 1234">
             <button onclick="createEscrow()" class="btn-blue" style="margin-top:20px;">Parayı Kilitle ve Gönder</button>
         </div>
-
         <div class="card">
             <h2>🔓 Emaneti Geri Al</h2>
             <label>İşlem ID:</label>
@@ -59,10 +58,8 @@
         "function completeTransaction(uint256 _id, string memory _password) public",
         "function transactions(uint256) public view returns (address sender, address receiver, uint256 amount, bytes32 passwordHash, uint256 unlockTime, bool completed, bool refunded)"
     ];
-
     let signer;
     function updateLog(msg) { document.getElementById('logBox').innerText = "> " + msg; }
-
     async function connectWallet() {
         if (!window.ethereum) return alert("MetaMask yok!");
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -77,19 +74,14 @@
         document.getElementById('connBtn').innerText = "✅ Bağlı";
         document.getElementById('receiver').value = await signer.getAddress();
     }
-
     async function createEscrow() {
         if (!signer) return updateLog("Önce bağlan abi!");
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
-            
-            // CHECKSUM TAMİRCİSİ: Adresi otomatik formatlar
             let rawAddr = document.getElementById('receiver').value.trim();
             const receiver = ethers.utils.getAddress(rawAddr); 
-            
             let amountStr = document.getElementById('amount').value.replace(',', '.');
             const pass = document.getElementById('lockPass').value.trim();
-
             updateLog("Onay Bekleniyor...");
             const tx = await contract.createTransaction(
                 receiver,
@@ -97,15 +89,12 @@
                 Math.floor(Date.now() / 1000) + 60,
                 { value: ethers.utils.parseEther(amountStr) }
             );
-            updateLog("İşlem blokzincirine gönderildi...");
             await tx.wait();
-            updateLog("BAŞARILI! Para kilitlendi abi.");
+            updateLog("BAŞARILI! Para kilitlendi.");
         } catch (e) { 
-            console.error(e);
-            updateLog("HATA: " + (e.reason || "Adres/Miktar hatası. Nokta kullandığından emin ol.")); 
+            updateLog("HATA: Bilgileri kontrol et abi."); 
         }
     }
-
     async function checkEscrowStatus() {
         const id = document.getElementById('targetId').value;
         const prov = new ethers.providers.Web3Provider(window.ethereum);
@@ -115,7 +104,6 @@
             updateLog("ID " + id + ": " + ethers.utils.formatEther(tx.amount) + " ETH kilitli.");
         } catch (e) { updateLog("İşlem bulunamadı."); }
     }
-
     async function withdrawFunds() {
         if (!signer) return;
         try {
@@ -124,7 +112,7 @@
             const pass = document.getElementById('unlockPass').value.trim();
             const tx = await contract.completeTransaction(id, pass);
             await tx.wait();
-            updateLog("BAŞARILI! Para cüzdanına geçti.");
+            updateLog("BAŞARILI! Para çekildi.");
         } catch (e) { updateLog("HATA: Şifre yanlış!"); }
     }
 </script>
