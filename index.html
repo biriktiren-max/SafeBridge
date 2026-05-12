@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -11,7 +10,6 @@
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 900px; }
         h1 { text-align: center; color: var(--main); text-transform: uppercase; }
-        .scanner-btn { width: 100%; background: var(--warning); color: #000; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; border: none; margin-bottom: 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
         .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #334155; }
         label { display: block; margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
@@ -26,8 +24,6 @@
 
 <div class="container">
     <h1>SafeBridge <span style="color:var(--success)">V3.8</span></h1>
-    <button class="scanner-btn" onclick="scanMyTransactions()">🔍 İŞLEMLERİMİ OTOMATİK BUL (SCANNER)</button>
-
     <div class="grid">
         <div class="card">
             <h2>📦 Emanet Oluştur</h2>
@@ -45,7 +41,6 @@
 
         <div class="card">
             <h2>🔓 Emaneti Geri Al</h2>
-            <div id="timer-display" style="text-align:center; color:var(--main); font-weight:bold;"></div>
             <label>İşlem ID:</label>
             <input type="number" id="targetId" placeholder="Örn: 0">
             <button onclick="checkEscrowStatus()" class="btn-blue" style="background:#475569">⌛ DURUMU SORGULA</button>
@@ -66,33 +61,28 @@
     ];
 
     let signer;
-
     function updateLog(msg) { document.getElementById('logBox').innerText = "> " + msg; }
 
     async function connectWallet() {
         if (!window.ethereum) return alert("MetaMask yok!");
         const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
         const network = await provider.getNetwork();
-        
-        // AĞ KONTROLÜ: Eğer Amoy seçiliyse Sepolia'ya geçmesi için uyarır
         if (network.chainId !== 11155111) {
-            updateLog("DİKKAT: MetaMask'tan Sepolia ağını seçin abi!");
+            alert("Lütfen MetaMask'tan SEPOLIA ağını seçin!");
             return;
         }
-
-        await provider.send("eth_requestAccounts", []);
         signer = provider.getSigner();
-        const addr = await signer.getAddress();
-        updateLog("Bağlandı: " + addr);
+        updateLog("Cüzdan bağlandı abi!");
         document.getElementById('connBtn').innerText = "✅ Bağlı";
-        document.getElementById('receiver').value = addr; 
+        document.getElementById('receiver').value = await signer.getAddress();
     }
 
     async function createEscrow() {
-        if (!signer) return updateLog("Önce cüzdanı bağla!");
+        if (!signer) return updateLog("Önce bağlan!");
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
-            // Checksum hatasını engellemek için adresi ethers formatına sokuyoruz
+            // Kritik düzeltme: Adresi otomatik formatlıyoruz
             const receiver = ethers.utils.getAddress(document.getElementById('receiver').value.trim());
             const amount = document.getElementById('amount').value.toString();
             const pass = document.getElementById('lockPass').value.trim();
@@ -104,10 +94,10 @@
                 Math.floor(Date.now() / 1000) + 60,
                 { value: ethers.utils.parseEther(amount) }
             );
-            updateLog("Gönderiliyor...");
+            updateLog("İşlem blokzincirine gönderildi...");
             await tx.wait();
-            updateLog("BAŞARILI! Para kasada.");
-        } catch (e) { updateLog("HATA: " + (e.reason || "Adres veya ağ hatası!")); }
+            updateLog("BAŞARILI! Para kilitlendi.");
+        } catch (e) { updateLog("HATA: " + (e.reason || e.message).substring(0,50)); }
     }
 
     async function checkEscrowStatus() {
