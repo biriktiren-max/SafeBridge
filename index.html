@@ -52,10 +52,10 @@
 <script>
 const contractAddress = "0x362C173676C7B3a4D610d9fAE763fe5ab6A42445"; 
 const abi = [
-    "function createTransaction(address _receiver, string memory _password, uint256 _lockDurationSeconds) public payable",
+"function createTransaction(address _receiver, string memory _password, uint256 _lockDurationSeconds) public payable",
     "function completeTransaction(uint256 _id, string memory _password) public",
     "function getTransaction(uint256 _id) public view returns (address sender, address receiver, uint256 amount, uint256 unlockTime, bool isCompleted)"
-];
+     } 
     let signer;
     function updateLog(msg) { document.getElementById('logBox').innerText = "> " + msg; }
     async function connectWallet() {
