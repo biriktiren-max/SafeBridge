@@ -28,10 +28,10 @@
             <h2>📦 Emanet Oluştur</h2>
             <button onclick="connectWallet()" class="btn-blue" id="connBtn">1. Cüzdanı Bağla</button>
             <label>Alıcı Adresi:</label>
-            <input type="text" id="receiver" placeholder="0x...">
+            <input type="text" id="receiver" value="0x68E77673A76F26e2e5845C9738090C821588D">
             <label>Birim:</label>
-            <select id="currency"><option value="ETH">Sepolia ETH</option></select>
-            <label>Miktar (Nokta kullanın):</label>
+            <select id="currency"><option value="POL">Amoy POL</option></select>
+            <label>Miktar (POL):</label>
             <input type="text" id="amount" value="0.01">
             <label>Şifre:</label>
             <input type="text" id="lockPass" placeholder="Örn: 1234">
@@ -50,68 +50,91 @@
     </div>
 </div>
 <script>
-const contractAddress = "0x362C173676C7B3a4D610d9fAE763fe5ab6A42445"; 
-const abi = [
+    const contractAddress = "0x362C173676C7B3a4D610d9fAE763fe5ab6A42445"; 
+    const abi = [
+        "function createTransaction(address _receiver, string memory _password, uint256 _lockDurationSeconds) public payable",
+        "function completeTransaction(uint256 _id, string memory _password) public",
+        "function getTransaction(uint256 _id) public view returns (address sender, address receiver, uint256 amount, uint256 unlockTime, bool isCompleted)"
+    ];
 
-            "function createTransaction(address _receiver, string memory _password, uint256 _lockDurationSeconds) public payable",
-            "function completeTransaction(uint256 _id, string memory _password) public",
-            "function getTransaction(uint256 _id) public view returns (address sender, address receiver, uint256 amount, uint256 unlockTime, bool isCompleted)"
-        ];
-    
     let signer;
-    function updateLog(msg) { document.getElementById('logBox').innerText = "> " + msg; }
-    async function connectWallet() {
-    const network = await provider.getNetwork();
-    const network = await provider.getNetwork();
-            // Amoy ağının kimlik numarası 80002'dir. 
-            if (Number(network.chainId) !== 80002) {
-                hataMesaji("Lütfen MetaMask üzerinden Amoy ağını seçin abi!");
-                return;
-            } 
-        
-   const receiver = "0x68E77673A76F26e2e5845C9738090C821588D";
-            const amount = document.getElementById('amount').value;
-            const password = document.getElementById('password').value;
-            const lockDuration = 600; // 10 dakika test süresi
+    let provider;
 
-            if (!amount || !password) {
-                hataMesaji("Lütfen miktar ve şifre gir abi!");
+    function updateLog(msg) { 
+        document.getElementById('logBox').innerText = "> " + msg; 
+    }
+
+    async function connectWallet() {
+        if (!window.ethereum) {
+            updateLog("MetaMask yüklü değil abi!");
+            return;
+        }
+        try {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            await provider.send("eth_requestAccounts", []);
+            signer = provider.getSigner();
+            const network = await provider.getNetwork();
+            
+            if (network.chainId !== 80002) {
+                updateLog("Lütfen MetaMask'tan AMOY ağını seç abi!");
                 return;
             }
-            let rawAddr = document.getElementById('receiver').value.trim();
-            const receiver = ethers.utils.getAddress(rawAddr); 
-            let amountStr = document.getElementById('amount').value.replace(',', '.');
+            
+            const addr = await signer.getAddress();
+            document.getElementById('connBtn').innerText = "Bağlandı: " + addr.substring(0,6) + "...";
+            updateLog("Cüzdan bağlandı, marş hazır!");
+        } catch (e) {
+            updateLog("Bağlantı hatası: " + e.message);
+        }
+    }
+
+    async function createEscrow() {
+        if (!signer) { updateLog("Önce cüzdanı bağla abi!"); return; }
+        try {
+            const contract = new ethers.Contract(contractAddress, abi, signer);
+            const receiver = document.getElementById('receiver').value.trim();
+            const amountStr = document.getElementById('amount').value.replace(',', '.');
             const pass = document.getElementById('lockPass').value.trim();
+            
+            if(!pass) { updateLog("Şifre girmelisin abi!"); return; }
+
             updateLog("Onay Bekleniyor...");
             const tx = await contract.createTransaction(
                 receiver,
-                ethers.utils.keccak256(ethers.utils.toUtf8Bytes(pass)),
-                Math.floor(Date.now() / 1000) + 60,
+                pass, // Smart contract düz metin şifre alıyorsa direkt gönderiyoruz
+                600,  // 10 dakika kilit
                 { value: ethers.utils.parseEther(amountStr) }
             );
             await tx.wait();
-            updateLog("BAŞARILI! Para kilitlendi.");
-        } catch (e) { updateLog("HATA: Bilgileri kontrol et abi."); }
+            updateLog("BAŞARILI! Para blockchain'e kilitlendi.");
+        } catch (e) { 
+            updateLog("HATA: İşlem yapılamadı."); 
+            console.error(e);
+        }
     }
+
     async function checkEscrowStatus() {
         const id = document.getElementById('targetId').value;
+        if(!id) return;
         const prov = new ethers.providers.Web3Provider(window.ethereum);
         const contract = new ethers.Contract(contractAddress, abi, prov);
         try {
-            const tx = await contract.transactions(id);
-            updateLog("ID " + id + ": " + ethers.utils.formatEther(tx.amount) + " ETH kilitli.");
+            const tx = await contract.getTransaction(id);
+            updateLog("ID " + id + ": " + ethers.utils.formatEther(tx.amount) + " POL kilitli.\nDurum: " + (tx.isCompleted ? "Tamamlandı" : "Bekliyor"));
         } catch (e) { updateLog("İşlem bulunamadı."); }
     }
+
     async function withdrawFunds() {
-        if (!signer) return;
+        if (!signer) { updateLog("Önce cüzdanı bağla abi!"); return; }
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
             const id = document.getElementById('targetId').value;
             const pass = document.getElementById('unlockPass').value.trim();
+            updateLog("Çekme işlemi onay bekliyor...");
             const tx = await contract.completeTransaction(id, pass);
             await tx.wait();
-            updateLog("BAŞARILI! Para çekildi.");
-        } catch (e) { updateLog("HATA: Şifre yanlış!"); }
+            updateLog("BAŞARILI! Para cüzdanına çekildi.");
+        } catch (e) { updateLog("HATA: Şifre yanlış veya süre dolmadı."); }
     }
 </script>
 </body>
