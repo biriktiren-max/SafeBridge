@@ -62,11 +62,12 @@ const abi = [
     function updateLog(msg) { document.getElementById('logBox').innerText = "> " + msg; }
     async function connectWallet() {
     const network = await provider.getNetwork();
-            // Amoy ağının numarası 80002'dir. Eğer bu değilse uyarı veriyoruz.
+    const network = await provider.getNetwork();
+            // Amoy ağının kimlik numarası 80002'dir. 
             if (Number(network.chainId) !== 80002) {
                 hataMesaji("Lütfen MetaMask üzerinden Amoy ağını seçin abi!");
                 return;
-            }  
+            } 
         
    const receiver = "0x68E77673A76F26e2e5845C9738090C821588D";
             const amount = document.getElementById('amount').value;
