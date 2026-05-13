@@ -55,7 +55,7 @@ const abi = [
 "function createTransaction(address _receiver, string memory _password, uint256 _lockDurationSeconds) public payable",
     "function completeTransaction(uint256 _id, string memory _password) public",
     "function getTransaction(uint256 _id) public view returns (address sender, address receiver, uint256 amount, uint256 unlockTime, bool isCompleted)"
-     } 
+    ];
     let signer;
     function updateLog(msg) { document.getElementById('logBox').innerText = "> " + msg; }
     async function connectWallet() {
