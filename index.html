@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge | Blockchain Escrow V4.2</title>
+    <title>SafeBridge | Blockchain Escrow V4.3</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         :root { --main: #38bdf8; --bg: #0f172a; --card: #1e293b; --success: #10b981; --warning: #fbbf24; }
@@ -27,7 +27,7 @@
 <body>
 
 <div class="container">
-    <h1>SafeBridge <span style="color:var(--success)">V4.2</span> <span class="badge">AMOY TESTNET</span></h1>
+    <h1>SafeBridge <span style="color:var(--success)">V4.3</span> <span class="badge">AMOY TESTNET</span></h1>
     
     <div class="grid">
         <div class="card">
@@ -56,7 +56,7 @@
             <input type="password" id="unlockPass">
             <button onclick="withdrawFunds()" class="btn-green">3. PARAYI CÜZDANA ÇEK</button>
             
-            <div id="logBox" class="status-box">> Yeniden derleme tamamlandı İsmail abi. Beklemedeyiz...</div>
+            <div id="logBox" class="status-box">> Manuel gaz ayarlı kod yüklendi İsmail abi. Beklemedeyiz...</div>
         </div>
     </div>
 </div>
@@ -65,7 +65,7 @@
     // Amoy Testnet Sözleşme Adresi
     const contractAddress = "0x362C173676C7B3a4D610d9fAE763fe5ab6A42445"; 
     
-    // Standart Sözleşme ABI Yapısı (Parametre Uyuşmazlığı Giderildi)
+    // Orijinal Sözleşme Parametre Yapısı
     const abi = [
         "function createTransaction(address _receiver, string memory _password) public payable",
         "function completeTransaction(uint256 _id, string memory _password) public",
@@ -107,7 +107,7 @@
         }
     }
 
-    // 2. ADIM: PARA KİLİTLEME (YALINLAŞTIRILMIŞ FONKSİYON)
+    // 2. ADIM: PARA KİLİTLEME (MANUEL YAKIT LİMİTLİ)
     async function createEscrow() {
         if (!signer) { updateLog("Önce 1 numaralı butona basıp cüzdanı bağlamalısın abi!"); return; }
         try {
@@ -119,11 +119,14 @@
             if (!pass) { updateLog("HATA: Parayı korumak için bir şifre girmelisin."); return; }
             updateLog("Blockchain onayı bekleniyor... MetaMask penceresine bak abi.");
             
-            // Sözleşmeyle tam uyumlu, süre parametresiz doğrudan gönderim
+            // Amoy ağının tıkanıklığını baypas etmek için manuel gaz limiti eklendi
             const tx = await contract.createTransaction(
                 receiver,
                 pass,
-                { value: ethers.utils.parseEther(amount) }
+                { 
+                    value: ethers.utils.parseEther(amount),
+                    gasLimit: ethers.utils.hexlify(150000) // 150k manuel gas limiti ile motoru rahatlattık
+                }
             );
             
             updateLog("İşlem yola çıktı! Onaylanıyor, lütfen sayfayı kapatma...");
@@ -159,7 +162,7 @@
             const pass = document.getElementById('unlockPass').value;
             if (!id || !pass) { updateLog("HATA: ID ve şifreyi eksiksiz gir abi."); return; }
             updateLog("Para çekme talebi iletiliyor...");
-            const tx = await contract.completeTransaction(id, pass);
+            const tx = await contract.completeTransaction(id, pass, { gasLimit: ethers.utils.hexlify(100000) });
             await tx.wait();
             updateLog("TEBRİKLER! Kilit açıldı ve para cüzdana transfer edildi.");
         } catch (err) {
