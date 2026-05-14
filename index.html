@@ -35,7 +35,7 @@
             <button onclick="connectWallet()" class="btn-blue" id="connBtn">1. Cüzdanı Bağla</button>
             
             <label>Alıcı Cüzdan Adresi:</label>
-            <input type="text" id="receiver" value="0x68E77673A76F26e2e5845C9738090C821588D">
+            <input type="text" id="receiver" value="0x68E0c1948900699E23a5490fcE4e376EDe21588D">
             
             <label>Miktar (POL):</label>
             <input type="text" id="amount" value="0.001">
@@ -62,7 +62,7 @@
 </div>
 
 <script>
-    // Fabrika Ayarları (Contract Bilgileri)
+    // Fabrika Ayarları (Amoy Testnet Contract Bilgileri)
     const contractAddress = "0x362C173676C7B3a4D610d9fAE763fe5ab6A42445"; 
     const abi = [
         "function createTransaction(address _receiver, string memory _password, uint256 _lockDurationSeconds) public payable",
@@ -84,7 +84,7 @@
             return;
         }
         try {
-            updateLog("Cüzdan ile el sıkışılıyor...");
+            updateLog("Cüzdan ile el sınıfı el sıkışılıyor...");
             provider = new ethers.providers.Web3Provider(window.ethereum);
             await provider.send("eth_requestAccounts", []);
             signer = provider.getSigner();
@@ -108,7 +108,6 @@
     // 2. MONTAJ: PARA KİLİTLEME
     async function createEscrow() {
         if (!signer) { updateLog("Önce 1 numaralı butona basıp cüzdanı bağlamalısın abi!"); return; }
-        
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
             const receiver = document.getElementById('receiver').value;
@@ -116,14 +115,13 @@
             const pass = document.getElementById('lockPass').value;
 
             if (!pass) { updateLog("HATA: Parayı korumak için bir şifre girmelisin."); return; }
-
             updateLog("Blockchain onayı bekleniyor... MetaMask penceresine bak abi.");
             
-            // İşlemi gönderiyoruz
+            // 600 saniye = 10 dakika test kilidi
             const tx = await contract.createTransaction(
                 receiver,
                 pass,
-                600, // Varsayılan 10 dakika kilit (test amaçlı)
+                600, 
                 { value: ethers.utils.parseEther(amount) }
             );
             
@@ -140,12 +138,10 @@
     async function checkEscrowStatus() {
         const id = document.getElementById('targetId').value;
         if (!id) { updateLog("Sorgulamak için bir ID numarası yaz abi."); return; }
-        
         try {
             const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
             const tempContract = new ethers.Contract(contractAddress, abi, tempProvider);
             const data = await tempContract.getTransaction(id);
-            
             const durum = data.isCompleted ? "TAMAMLANDI (Para Çekilmiş)" : "BEKLEMEDE (Para Kilitli)";
             updateLog(`İŞLEM BİLGİSİ (ID: ${id}):\nMiktar: ${ethers.utils.formatEther(data.amount)} POL\nDurum: ${durum}`);
         } catch (err) {
@@ -156,14 +152,11 @@
     // 4. TESLİMAT: PARA ÇEKME
     async function withdrawFunds() {
         if (!signer) { updateLog("Para çekmek için de cüzdanın bağlı olması lazım abi!"); return; }
-        
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
             const id = document.getElementById('targetId').value;
             const pass = document.getElementById('unlockPass').value;
-            
             if (!id || !pass) { updateLog("HATA: ID ve şifreyi eksiksiz gir abi."); return; }
-
             updateLog("Para çekme talebi iletiliyor...");
             const tx = await contract.completeTransaction(id, pass);
             await tx.wait();
