@@ -3,69 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge | Blockchain Escrow V4.3</title>
+    <title>SafeBridge | Professional Escrow V5.0</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         :root { --main: #38bdf8; --bg: #0f172a; --card: #1e293b; --success: #10b981; --warning: #fbbf24; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .container { width: 100%; max-width: 900px; }
-        h1 { text-align: center; color: var(--main); text-transform: uppercase; letter-spacing: 2px; }
+        h1 { text-align: center; color: var(--main); text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-top: 30px; }
-        .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
-        h2 { font-size: 1.2rem; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-        label { display: block; margin-top: 15px; font-size: 0.85rem; color: #94a3b8; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--main); }
-        button { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; text-transform: uppercase; }
+        .card { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #334155; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); }
+        h2 { font-size: 1.1rem; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        label { display: block; margin-top: 15px; font-size: 0.8rem; color: #94a3b8; font-weight: 600; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; font-family: monospace; }
+        button { width: 100%; padding: 14px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.2s; text-transform: uppercase; }
         .btn-blue { background: var(--main); color: #0f172a; }
-        .btn-blue:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-blue:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-green { background: var(--success); color: white; }
-        .status-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: #000; color: var(--warning); font-family: 'Courier New', monospace; border-left: 4px solid var(--main); min-height: 100px; white-space: pre-wrap; font-size: 0.85rem; line-height: 1.4; }
-        .badge { background: #334155; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; color: var(--main); }
+        .status-box { margin-top: 20px; padding: 15px; border-radius: 8px; background: #000; color: #10b981; font-family: 'Courier New', monospace; border: 1px solid #334155; min-height: 120px; font-size: 0.8rem; line-height: 1.5; overflow: hidden; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>SafeBridge <span style="color:var(--success)">V4.3</span> <span class="badge">AMOY TESTNET</span></h1>
+    <h1>SafeBridge <span style="color:white">V5.0</span> <span style="font-size:0.5em; background:var(--warning); color:black; padding:2px 6px; border-radius:4px; vertical-align:middle">PRO</span></h1>
     
     <div class="grid">
         <div class="card">
-            <h2>📦 Para Kilitle (Escrow)</h2>
-            <button onclick="connectWallet()" class="btn-blue" id="connBtn">1. Cüzdanı Bağla</button>
+            <h2>📦 Akıllı Kasa (Kilitleme)</h2>
+            <button onclick="connectWallet()" class="btn-blue" id="connBtn">1. Cüzdan Hattını Bağla</button>
             
-            <label>Alıcı Cüzdan Adresi:</label>
-            <input type="text" id="receiver" value="0x68E0c1948900699E23a5490fcE4e376EDe21588D">
+            <label>Alıcı Adresi (0x ile başlar)</label>
+            <input type="text" id="receiver" placeholder="0x..." value="0x68E0c1948900699E23a5490fcE4e376EDe21588D">
             
-            <label>Miktar (POL):</label>
-            <input type="text" id="amount" value="0.001">
+            <label>Miktar (POL)</label>
+            <input type="number" id="amount" step="0.0001" value="0.001">
             
-            <label>Kilit Açma Şifresi (Gizli):</label>
+            <label>Güvenlik Şifresi</label>
             <input type="password" id="lockPass" placeholder="Örn: sinop57">
             
-            <button onclick="createEscrow()" class="btn-blue" style="margin-top:20px; background: #0ea5e9;">2. Güvenli Kilitleme Yap</button>
+            <button onclick="createEscrow()" class="btn-blue" style="background:#0284c7; margin-top:20px;">2. Blockchain Kilidini Vur</button>
         </div>
 
         <div class="card">
-            <h2>🔓 Para Çek / Sorgula</h2>
-            <label>İşlem Takip ID:</label>
+            <h2>🔓 Kasa Kontrol ve Çıkış</h2>
+            <label>İşlem Takip Numarası (ID)</label>
             <input type="number" id="targetId" placeholder="Örn: 1">
-            <button onclick="checkEscrowStatus()" class="btn-blue" style="background:#475569">⌛ İŞLEM DURUMUNU GÖR</button>
+            <button onclick="checkEscrowStatus()" style="background:#475569; color:white">⌛ KASA DURUMUNU SORGULA</button>
             
-            <label style="margin-top:25px;">Kilit Açma Şifresini Gir:</label>
+            <label style="margin-top:25px;">Kilit Açma Şifresi</label>
             <input type="password" id="unlockPass">
             <button onclick="withdrawFunds()" class="btn-green">3. PARAYI CÜZDANA ÇEK</button>
             
-            <div id="logBox" class="status-box">> Manuel gaz ayarlı kod yüklendi İsmail abi. Beklemedeyiz...</div>
+            <div id="logBox" class="status-box">> SafeBridge V5.0 Endüstriyel Sürüm Hazır.</div>
         </div>
     </div>
 </div>
 
 <script>
-    // Amoy Testnet Sözleşme Adresi
     const contractAddress = "0x362C173676C7B3a4D610d9fAE763fe5ab6A42445"; 
-    
-    // Orijinal Sözleşme Parametre Yapısı
     const abi = [
         "function createTransaction(address _receiver, string memory _password) public payable",
         "function completeTransaction(uint256 _id, string memory _password) public",
@@ -74,100 +69,78 @@
 
     let provider, signer;
 
-    function updateLog(msg) {
+    function updateLog(msg, isError = false) {
         const time = new Date().toLocaleTimeString();
-        document.getElementById('logBox').innerText = `[${time}] > ${msg}`;
+        const color = isError ? "#ef4444" : "#10b981";
+        const box = document.getElementById('logBox');
+        box.innerHTML = `<span style="color:${color}">[${time}] > ${msg}</span>`;
     }
 
-    // 1. ADIM: CÜZDAN BAĞLANTISI
     async function connectWallet() {
-        if (!window.ethereum) {
-            updateLog("HATA: MetaMask bulunamadı! Şirket bilgisayarındaysan engelleniyor olabilir.");
-            return;
-        }
+        if (!window.ethereum) return updateLog("HATA: MetaMask bulunamadı!", true);
         try {
-            updateLog("Cüzdan ile el sıkışılıyor...");
             provider = new ethers.providers.Web3Provider(window.ethereum);
-            await provider.send("eth_requestAccounts", []);
+            const accounts = await provider.send("eth_requestAccounts", []);
             signer = provider.getSigner();
             const network = await provider.getNetwork();
+            if (network.chainId !== 80002) return updateLog("HATA: Lütfen MetaMask'tan AMOY ağını seçin.", true);
             
-            // Amoy Testnet ChainID: 80002
-            if (network.chainId !== 80002) {
-                updateLog("DİKKAT: Yanlış hat! MetaMask'tan AMOY ağını seçmelisin abi.");
-                return;
-            }
-            
-            const userAddr = await signer.getAddress();
-            document.getElementById('connBtn').innerText = "BAĞLANDI: " + userAddr.substring(0, 6) + "...";
+            document.getElementById('connBtn').innerText = "HAT BAĞLANDI: " + accounts[0].substring(0, 6) + "...";
             document.getElementById('connBtn').style.background = "#10b981";
-            updateLog("Bağlantı başarılı. Amoy hattı üzerinden işlem yapmaya hazırız.");
-        } catch (err) {
-            updateLog("BAĞLANTI HATASI: " + err.message);
-        }
+            updateLog("Sistem senkronize edildi. İşlem yapmaya hazırız abi.");
+        } catch (err) { updateLog("BAĞLANTI HATASI: " + err.message, true); }
     }
 
-    // 2. ADIM: PARA KİLİTLEME (MANUEL YAKIT LİMİTLİ)
     async function createEscrow() {
-        if (!signer) { updateLog("Önce 1 numaralı butona basıp cüzdanı bağlamalısın abi!"); return; }
+        if (!signer) return updateLog("Önce cüzdanı bağla abi!", true);
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
-            const receiver = document.getElementById('receiver').value;
-            const amount = document.getElementById('amount').value.replace(',', '.');
+            const receiver = document.getElementById('receiver').value.trim();
+            const amount = document.getElementById('amount').value;
             const pass = document.getElementById('lockPass').value;
 
-            if (!pass) { updateLog("HATA: Parayı korumak için bir şifre girmelisin."); return; }
-            updateLog("Blockchain onayı bekleniyor... MetaMask penceresine bak abi.");
+            if (receiver.length !== 42) return updateLog("HATA: Alıcı adresi hatalı görünüyor!", true);
+            if (!pass) return updateLog("HATA: Şifre girmelisin!", true);
+
+            updateLog("MetaMask onayı bekleniyor... Lütfen pencereye bak.");
             
-            // Amoy ağının tıkanıklığını baypas etmek için manuel gaz limiti eklendi
-            const tx = await contract.createTransaction(
-                receiver,
-                pass,
-                { 
-                    value: ethers.utils.parseEther(amount),
-                    gasLimit: ethers.utils.hexlify(150000) // 150k manuel gas limiti ile motoru rahatlattık
-                }
-            );
+            const value = ethers.utils.parseEther(amount);
+            const tx = await contract.createTransaction(receiver, pass, { 
+                value,
+                gasLimit: 200000 // Standart güvenli limit
+            });
             
-            updateLog("İşlem yola çıktı! Onaylanıyor, lütfen sayfayı kapatma...");
+            updateLog("İşlem blockchain hattına gönderildi...");
             await tx.wait();
-            updateLog("BAŞARILI! Para blockchain kasasına kilitlendi. Alıcı şifreyle çekebilir.");
-        } catch (err) {
-            updateLog("HATA: İşlem reddedildi veya bakiyen yetersiz abi.");
+            updateLog("MÜJDE: Para kasaya kilitlendi! İşlem başarılı.");
+        } catch (err) { 
             console.error(err);
+            updateLog("İŞLEM İPTAL: Bakiye yetersiz veya ağda sorun var abi.", true); 
         }
     }
 
-    // 3. ADIM: DURUM SORGULAMA
     async function checkEscrowStatus() {
         const id = document.getElementById('targetId').value;
-        if (!id) { updateLog("Sorgulamak için bir ID numarası yaz abi."); return; }
+        if (!id) return updateLog("ID girmelisin abi.", true);
         try {
-            const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
-            const tempContract = new ethers.Contract(contractAddress, abi, tempProvider);
-            const data = await tempContract.getTransaction(id);
-            const durum = data.isCompleted ? "TAMAMLANDI (Para Çekilmiş)" : "BEKLEMEDE (Para Kilitli)";
-            updateLog(`İŞLEM BİLGİSİ (ID: ${id}):\nMiktar: ${ethers.utils.formatEther(data.amount)} POL\nDurum: ${durum}`);
-        } catch (err) {
-            updateLog("HATA: Bu numaralı bir işlem bulunamadı.");
-        }
+            const contract = new ethers.Contract(contractAddress, abi, provider);
+            const data = await contract.getTransaction(id);
+            const durum = data.isCompleted ? "TAMAMLANDI (Para Çekilmiş)" : "BEKLEMEDE (Kilitli)";
+            updateLog(`SORGULAMA SONUCU:\nMiktar: ${ethers.utils.formatEther(data.amount)} POL\nDurum: ${durum}`);
+        } catch (err) { updateLog("HATA: İşlem bulunamadı.", true); }
     }
 
-    // 4. ADIM: PARA ÇEKME
     async function withdrawFunds() {
-        if (!signer) { updateLog("Para çekmek için de cüzdanın bağlı olması lazım abi!"); return; }
+        if (!signer) return updateLog("Cüzdan bağlı değil!", true);
         try {
             const contract = new ethers.Contract(contractAddress, abi, signer);
             const id = document.getElementById('targetId').value;
             const pass = document.getElementById('unlockPass').value;
-            if (!id || !pass) { updateLog("HATA: ID ve şifreyi eksiksiz gir abi."); return; }
-            updateLog("Para çekme talebi iletiliyor...");
-            const tx = await contract.completeTransaction(id, pass, { gasLimit: ethers.utils.hexlify(100000) });
+            updateLog("Kilit açma talebi gönderiliyor...");
+            const tx = await contract.completeTransaction(id, pass, { gasLimit: 150000 });
             await tx.wait();
-            updateLog("TEBRİKLER! Kilit açıldı ve para cüzdana transfer edildi.");
-        } catch (err) {
-            updateLog("HATA: Şifre yanlış olabilir veya kilit süresi henüz dolmadı.");
-        }
+            updateLog("TEBRİKLER! Kasa açıldı, para cüzdana aktarıldı.");
+        } catch (err) { updateLog("HATA: Şifre yanlış veya kilit süresi dolmadı.", true); }
     }
 </script>
 </body>
