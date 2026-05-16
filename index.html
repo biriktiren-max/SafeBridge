@@ -167,15 +167,16 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[13:05:00] > Ham dizi okuyucu milimetrik kalibrasyonla hazır abi.</div>
+    <div id="logKutusu" class="log-box">[13:12:00] > Ham dizi okuyucu ve BigNumber filtresi devrede. Sistem hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
+    // Sizin başarıyla deploy ettiğiniz o orijinal kontrat adresi
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
-    // Ham mapping çıktısını index mantığına göre en sade şekilde okuyan narin ABI kalıbı
+    // Sözleşmenizdeki ham mapping çıktısını index mantığına göre pürüzsüz okuyan narin ABI kalıbı
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
@@ -270,7 +271,8 @@
             const alici = ethers.utils.getAddress(aliciRaw.toLowerCase());
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            const miktarWei = ethers.utils.parseUnits(miktarRaw, 6); // 6 desimal USDT kalibrasyonu
+            // USDT standart 6 desimal kalibrasyonu
+            const miktarWei = ethers.utils.parseUnits(miktarRaw, 6); 
             const sureSaniye = parseInt(sureRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor...", true);
@@ -305,7 +307,7 @@
         }
     }
 
-    // ARTIK PROXY NESNELERİNİ ATLAYIP DOĞRUDAN METİN OKUYAN JİLET GİBİ MOTOR
+    // PROXY TIKANIKLIKLARINI DOĞRUDAN STRİNGE KIRARAK AŞAN ASIL SORGULAMA MOTORU
     async function checkTransactionStatus() {
         logMesaji("Ağdan otonom veri çözülüyor...", true);
         try {
@@ -316,26 +318,24 @@
             }
             if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
 
-            // Doğrudan ham array çıktısını çekiyoruz abi
+            // Doğrudan ham dizi çıktısını çekiyoruz abi
             const txn = await contract.islemler(parseInt(id));
             
-            // KESKİN DÖNÜŞÜM: Gelen her veriyi anında ham metne (string) kırıyoruz abi
+            // KESKİN SENSÖR: Gelen verileri hiçbir kontrole sokmadan ham metne kırıyoruz abi
             const gonderen = txn[0].toString();
             const alici = txn[1].toString();
             const miktarWeiMetin = txn[2].toString();
             const bitisZamaniMetin = txn[3].toString();
-            
-            // Boolean durumları düzgünce çözüyoruz
             const tamamlandi = txn[4];
             const iadeEdildi = txn[5];
 
-            // Eğer gonderen adresi sıfır döndüyse bu ID boştur abi
+            // Eğer gönderen adresi sıfır döndüyse bu ID henüz oluşturulmamıştır
             if (gonderen === "0x0000000000000000000000000000000000000000") {
                 logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
                 return;
             }
 
-            // Metne dönüştürülmüş ham veriyi 6 desimallik USDT formatına kırıyoruz
+            // Çözülen metni 6 desimallik USDT standardına göre formatlıyoruz
             const miktarNormal = ethers.utils.formatUnits(miktarWeiMetin, 6);
             
             const bitisZamani = parseInt(bitisZamaniMetin);
