@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V8.0 KESİN SÜRÜM</title>
+    <title>SafeBridge V8.1 NİHAİ SÜRÜM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V8.0 PRO</h2>
+    <h2>SafeBridge V8.1 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,16 +167,16 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[14:01:00] > Ethers v6 jilet kalibrasyon motoru montaja hazır abi.</div>
+    <div id="logKutusu" class="log-box">[14:05:00] > Nesne kalibrasyonlu otonom motor hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
-    // Sizin aslanlar gibi çalışan orijinal v4 sözleşme adresiniz abi
+    // Sizin çalışan asıl orijinal kontrat adresiniz abi, dokunmuyoruz.
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
-    // Ethers v6 standartlarına göre optimize edilmiş net ABI şeması abi
+    // Ethers v6 nesne yapısına tam kalibre edilmiş net ABI şeması
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
@@ -220,7 +220,7 @@
                     if (!success) return; 
                 }
 
-                // Ethers v6 modern cüzdan bağlantı protokolü abi
+                // v6 BrowserProvider mimarisi
                 provider = new ethers.BrowserProvider(window.ethereum);
                 signer = await provider.getSigner();
                 
@@ -270,7 +270,6 @@
             const alici = ethers.getAddress(aliciRaw.toLowerCase());
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            // Ethers v6 hassas 6 desimal USDT kalibrasyonu
             const miktarWei = ethers.parseUnits(miktarRaw, 6); 
             const sureSaniye = BigInt(sureRaw);
 
@@ -306,7 +305,7 @@
         }
     }
 
-    // %100 KUSURSUZ OKUMA MOTORU: Modern v6 proxy çözücüsüyle kilitlenmeleri bitiren asıl sistem abi
+    // ARTIK KİLİTLENMEYİ BİTİREN GERÇEK V6 NESNE OKUMA SENSÖRÜ
     async function checkTransactionStatus() {
         logMesaji("Blockchain ağından veri paketi çözülüyor...", true);
         try {
@@ -317,23 +316,22 @@
             }
             if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
 
-            // Modern Ethers v6 otomatik çözücü motor doğrudan mapping çıktısını eşliyor abi
+            // Ethers v6 otomatik isimli nesneyi çeker abi
             const txn = await contract.islemler(BigInt(id));
 
-            // Gelen verileri jilet gibi ham metne (string) kırıyoruz
-            const gonderen = txn[0].toString();
-            const alici = txn[1].toString();
-            const miktarWeiMetin = txn[2].toString();
-            const bitisZamaniMetin = txn[3].toString();
-            const tamamlandi = txn[4];
-            const iadeEdildi = txn[5];
+            // KALİBRASYON: v6'nın isimli çıktı şemasına göre nesneleri doğrudan çekiyoruz, dizi mantığı yok abi!
+            const gonderen = txn.gonderen.toString();
+            const alici = txn.alici.toString();
+            const miktarWeiMetin = txn.miktar.toString();
+            const bitisZamaniMetin = txn.bitisZamani.toString();
+            const tamamlandi = txn.tamamlandi;
+            const iadeEdildi = txn.iadeEdildi;
 
             if (gonderen === "0x0000000000000000000000000000000000000000") {
                 logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
                 return;
             }
 
-            // v6 formatUnits kalibrasyonu
             const miktarNormal = ethers.formatUnits(miktarWeiMetin, 6);
             const bitisZamani = Number(bitisZamaniMetin);
             const kalanSureSaniye = bitisZamani - Math.floor(Date.now() / 1000);
@@ -349,6 +347,7 @@
 
             let durumYazisi = "";
             if (tamamlandi) {
+                durumYazonsı = "<span style='color:#00ff00; font-weight:bold;'>TAMAMLANDI (Alıcı Çekti)</span>";
                 durumYazisi = "<span style='color:#00ff00; font-weight:bold;'>TAMAMLANDI (Alıcı Çekti)</span>";
             } else if (iadeEdildi) {
                 durumYazisi = "<span style='color:#ff3333; font-weight:bold;'>İADE EDİLDİ (Gönderene Döndü)</span>";
