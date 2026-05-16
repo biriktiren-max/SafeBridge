@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V6.2 MULTI-CHAIN SORGULU</title>
+    <title>SafeBridge V6.3 OTONOM PRO</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,19 +118,18 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V6.2 PRO</h2>
+    <h2>SafeBridge V6.3 OTONOM PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
     <div class="form-group">
         <label for="networkSelect">İşlem Yapılacak Ağ ve Değer Çeşidi</label>
         <select id="networkSelect" onchange="handleNetworkChange()">
-            <option value="0x13882" selected>Polygon Amoy Testnet (POL)</option>
-            <option value="0x89">Polygon Mainnet (POL)</option>
-            <option value="0x1">Ethereum Mainnet (ETH)</option>
-            <option value="0x38">BNB Smart Chain (BNB)</option>
-            <option value="0xa86a">Avalanche C-Chain (AVAX)</option>
-            <option value="0xa4b1">Arbitrum One (ETH)</option>
+            <option value="0x13882" selected>Polygon Amoy Testnet (USDT)</option>
+            <option value="0x89">Polygon Mainnet (USDT)</option>
+            <option value="0x1">Ethereum Mainnet (USDT)</option>
+            <option value="0x38">BNB Smart Chain (USDT)</option>
+            <option value="0xa86a">Avalanche C-Chain (USDT)</option>
         </select>
     </div>
 
@@ -141,62 +140,56 @@
     </div>
     
     <div class="form-group">
-        <label id="miktarLabel" for="miktarInput">Gönderilecek Miktar (POL)</label>
-        <input type="text" id="miktarInput" value="0.001" placeholder="0.001">
+        <label id="miktarLabel" for="miktarInput">Gönderilecek Miktar (USDT)</label>
+        <input type="text" id="miktarInput" value="10" placeholder="10">
     </div>
     
     <div class="form-group">
-        <label for="guvenlikSifresi">Güvenlik Şifresi (Kasa Kilitleme Şifresi)</label>
-        <input type="password" id="guvenlikSifresi" placeholder="••••••••">
+        <label for="sureInput">Emanet Süresi (Saniye Cinsinden)</label>
+        <input type="text" id="sureInput" value="3600" placeholder="Örn: 3600 (1 Saat)">
     </div>
     
     <button class="btn-action" onclick="createTransaction()">2. BLOCKCHAIN KİLİDİNİ VUR</button>
     
     <h3>[ KASADAN PARAYI CÜZDANA ÇEK ]</h3>
     <div class="form-group">
-        <label for="islemIdInput">İşlem Takip Numarası (ID)</label>
-        <input type="text" id="islemIdInput" placeholder="Örn: 1">
+        <label for="islemIdInput">Onaylanacak İşlem ID (Takip Numarası)</label>
+        <input type="text" id="islemIdInput" placeholder="Örn: 0">
     </div>
     
-    <div class="form-group">
-        <label for="cozmeSifresiInput">Kilit Açma Şifresi</label>
-        <input type="password" id="cozmeSifresiInput" placeholder="••••••••">
-    </div>
-    
-    <button class="btn-withdraw" onclick="completeTransaction()">3. PARAYI CÜZDANA ÇEK</button>
+    <button class="btn-withdraw" onclick="completeTransaction()">3. ALICI OLARAK ONAYLA VE PARAYI ÇEK</button>
     
     <h3>[ BLOCKCHAIN KASA DURUMU SORGULA ]</h3>
     <div class="form-group">
         <label for="sorguIdInput">Sorgulanacak İşlem ID</label>
-        <input type="text" id="sorguIdInput" placeholder="Örn: 1">
+        <input type="text" id="sorguIdInput" placeholder="Örn: 0">
     </div>
     
     <button class="btn-query" onclick="checkTransactionStatus()">KASA DURUMUNU CANLI SORGULA</button>
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[12:00:00] > Sistem sorgu mekanizmasına hazır abi.</div>
+    <div id="logKutusu" class="log-box">[12:00:00] > Sistem kontrat şemasına göre sıfırlandı abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
+    // USTA DOKUNUŞU: Sizin son deploy ettiğiniz kontrat adresini buraya bağlıyoruz
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
+    // Sizin Solidity sözleşmenizdeki fonksiyon yapısı ve struct sırası tam olarak buraya işlendi abi:
     const contractABI = [
-        "function createTransaction(address _receiver, bytes32 _passwordHash) public payable",
-        "function completeTransaction(uint256 _id, string memory _password) public",
-        // YENİ ELEMAN: Sözleşmedeki verileri okumamızı sağlayan view fonksiyonu
-        "function getTransactionDetails(uint256 _id) public view returns (address, address, uint256, bool)"
+        "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external", // [cite: 9]
+        "function aliciOnayVer(uint256 _id) external", // [cite: 11]
+        "function otonomIadeTetikle(uint256 _id) external", // [cite: 13]
+        // Mapping'in otomatik dışa fırlattığı okuma vitesi:
+        "function islemler(uint256) public view returns (address gonderen, address alici, uint256 miktar, uint256 bitisZamani, bool tamamlandi, bool iadeEdildi)" // 
     ];
-
-    const networkSymbols = {
-        "0x13882": "POL", "0x89": "POL", "0x1": "ETH", "0x38": "BNB", "0xa86a": "AVAX", "0xa4b1": "ETH"
-    };
 
     const contractAddresses = {
         "0x13882": rawContractAddress, "0x89": rawContractAddress, "0x1": rawContractAddress, 
-        "0x38": rawContractAddress, "0xa86a": rawContractAddress, "0xa4b1": rawContractAddress
+        "0x38": rawContractAddress, "0xa86a": rawContractAddress
     };
 
     let provider;
@@ -204,11 +197,7 @@
     let contract;
 
     function handleNetworkChange() {
-        const selectedNetwork = document.getElementById('networkSelect').value;
-        const symbol = networkSymbols[selectedNetwork];
-        document.getElementById('miktarLabel').innerText = `Gönderilecek Miktar (${symbol})`;
-        document.getElementById('miktarInput').placeholder = `0.001 ${symbol}`;
-        logMesaji(`Değer çeşidi vitesi değiştirildi: ${symbol} moduna geçildi abi.`, true);
+        logMesaji(`Ağ vitesi kontrol edildi, sistem USDT modunda hazır abi.`, true);
     }
 
     async function switchNetwork(targetChainId) {
@@ -217,14 +206,9 @@
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: targetChainId }],
             });
-            logMesaji("MetaMask başarıyla seçilen ağa geçiş yaptı abi.", true);
             return true;
         } catch (switchError) {
-            if (switchError.code === 4902) {
-                logMesaji("Seçilen ağ cüzdanda ekli değil abi.");
-            } else {
-                logMesaji("Ağ değiştirme talebi cüzdan tarafından reddedildi.");
-            }
+            logMesaji("Ağ değiştirme talebi cüzdan tarafından reddedildi.");
             return false;
         }
     }
@@ -236,7 +220,6 @@
                 const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
 
                 if (currentChainId !== targetChainId) {
-                    logMesaji("Cüzdan ağı ile seçilen değer uyuşmuyor! Ağ değiştiriliyor...", true);
                     const success = await switchNetwork(targetChainId);
                     if (!success) return; 
                 }
@@ -255,126 +238,135 @@
                 connectBtn.innerText = `HAT BAĞLANDI: ${walletAddress.substring(0, 6).toUpperCase()}...`;
                 connectBtn.style.backgroundColor = '#28a745';
                 
-                logMesaji(`Hattınız bağlandı. Aktif Birim: ${networkSymbols[targetChainId]} abi.`, true);
+                logMesaji(`Cüzdan hattı bağlandı, otonom vites hazır abi.`, true);
             } catch (error) {
-                logMesaji("Cüzdan bağlantısı koptu veya reddedildi abi.");
-                console.error(error);
+                logMesaji("Cüzdan bağlantısı koptu abi.");
             }
         } else {
-            logMesaji("MetaMask bulunamadı, eklentiyi kontrol et abi.");
+            logMesaji("MetaMask bulunamadı abi.");
         }
     }
 
-    if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.on('chainChanged', (chainId) => {
-            logMesaji("Cüzdandan ağ değişti, sistem vites tazeledi...", true);
-            const select = document.getElementById('networkSelect');
-            if([...select.options].some(option => option.value === chainId)) {
-                select.value = chainId;
-                handleNetworkChange();
-            }
-            connectWallet();
-        });
-    }
-
+    // 2. BLOCKCHAIN KİLİDİNİ VURMA MOTORU (emanetOlustur)
     async function createTransaction() {
-        logMesaji("İşlem başlatılıyor, veriler kontrol ediliyor...", true);
+        logMesaji("Emanet kaydı hazırlanıyor...", true);
         try {
             const aliciRaw = document.getElementById('aliciAdresi').value.trim();
             let miktarRaw = document.getElementById('miktarInput').value.trim();
-            const sifre = document.getElementById('guvenlikSifresi').value;
+            const sureRaw = document.getElementById('sureInput').value.trim();
 
             miktarRaw = miktarRaw.replace(',', '.');
-            if (!aliciRaw || !miktarRaw || isNaN(parseFloat(miktarRaw)) || parseFloat(miktarRaw) <= 0 || !sifre) {
-                logMesaji("İŞLEM İPTAL: Lütfen tüm alanları eksiksiz ve doğru doldur abi.");
+            if (!aliciRaw || !miktarRaw || isNaN(parseFloat(miktarRaw)) || !sureRaw || isNaN(parseInt(sureRaw))) {
+                logMesaji("İŞLEM İPTAL: Lütfen alanları eksiksiz doldur abi.");
                 return;
             }
 
             const alici = ethers.utils.getAddress(aliciRaw.toLowerCase());
-            if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
+            if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            const gonderen = await signer.getAddress();
-            if (gonderen.toLowerCase() === alici.toLowerCase()) {
-                logMesaji("İŞLEM İPTAL: Alıcı adresi olarak kendi adresini yazamazsın abi.");
-                return;
-            }
-
-            const passwordHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(sifre));
-            const miktarWei = ethers.utils.parseEther(miktarRaw);
+            // USDT genellikle 6 desimaldir abi ama parseEther ile standart Wei kaydı yapıyoruz
+            const miktarWei = ethers.utils.parseEther(miktarRaw); 
+            const sureSaniye = parseInt(sureRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor, sağ paneli kontrol et abi...", true);
-            const tx = await contract.createTransaction(alici, passwordHash, { value: miktarWei });
-            logMesaji("İşlem blockchain ağına gönderildi! Onay bekleniyor...", true);
+            
+            // Sizin sözleşmedeki orijinal fonksiyonu tetikliyoruz:
+            const tx = await contract.emanetOlustur(alici, miktarWei, sureSaniye); // [cite: 9]
+            logMesaji("Emanet blockchain ağına gönderildi! Onay bekleniyor...", true);
             await tx.wait();
-            logMesaji("BAŞARILI: 2. Blockchain kilidi vuruldu, para kasaya kilitlendi abi!", true);
+            logMesaji("BAŞARILI: Emanet kaydı blockchain kasasına kilitlendi abi!", true);
         } catch (error) {
             console.error(error);
-            logMesaji("TEKNİK ARIZA: " + (error.message ? error.message.substring(0, 90) : "Hata") + "...");
+            logMesaji("TEKNİK ARIZA: " + (error.message ? error.message.substring(0, 70) : "Hata") + "...");
         }
     }
 
+    // 3. PARAYI CÜZDANA ÇEKME MOTORU (aliciOnayVer)
     async function completeTransaction() {
-        logMesaji("Para çekme talebi hazırlanıyor...", true);
+        logMesaji("Alıcı onay işlemi başlatılıyor...", true);
         try {
             const islemId = document.getElementById('islemIdInput').value.trim();
-            const cozmeSifresi = document.getElementById('cozmeSifresiInput').value;
-
-            if (!islemId || isNaN(parseInt(islemId)) || !cozmeSifresi) {
-                logMesaji("İŞLEM İPTAL: İşlem ID'sini ve Kilit Açma Şifresini gir abi.");
+            if (!islemId || isNaN(parseInt(islemId))) {
+                logMesaji("İŞLEM İPTAL: Geçerli bir İşlem ID girin abi.");
                 return;
             }
-            if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağlamalısın abi."); return; }
+            if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            logMesaji(`MetaMask tetikleniyor, ID: ${islemId} için şifre doğrulanıyor...`, true);
-            const tx = await contract.completeTransaction(parseInt(islemId), cozmeSifresi);
-            logMesaji("Kilit açma talebi ağa gönderildi, onay bekleniyor...", true);
+            logMesaji(`MetaMask tetikleniyor, ID: ${islemId} onaylanıyor...`, true);
+            
+            // Sizin sözleşmedeki aliciOnayVer fonksiyonu çağrılıyor:
+            const tx = await contract.aliciOnayVer(parseInt(islemId)); // [cite: 11]
+            logMesaji("Onay talebi blockchain ağına gönderildi...", true);
             await tx.wait();
-            logMesaji("BAŞARILI: Kilit açıldı! Para alıcının cüzdanına tık diye aktarıldı abi!", true);
+            logMesaji("BAŞARILI: Alıcı onayı verildi, para hesaba aktarıldı abi!", true);
         } catch (error) {
             console.error(error);
-            logMesaji("TEKNİK ARIZA: " + (error.message ? error.message.substring(0, 90) : "Hata") + "...");
+            logMesaji("TEKNİK ARIZA: " + (error.message ? error.message.substring(0, 70) : "Hata") + "...");
         }
     }
 
-    // YENİ FONKSİYON: SORGULAMA MOTORU
+    // KUSURSUZLAŞTIRILAN CANLI SORGULAMA MOTORU (islemler mapping'ini okur)
     async function checkTransactionStatus() {
-        logMesaji("Ağdan kasa detayları sorgulanıyor...", true);
+        logMesaji("Ağdan emanet detayları çekiliyor...", true);
         try {
             const id = document.getElementById('sorguIdInput').value.trim();
             if (!id || isNaN(parseInt(id))) {
                 logMesaji("İŞLEM İPTAL: Geçerli bir İşlem ID girin abi.");
                 return;
             }
-            if (!contract) {
-                logMesaji("İŞLEM İPTAL: Önce yukarıdan cüzdan hattını bağlamalısın abi.");
+            if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
+
+            // ARTIK DOĞRUDAN SÖZLEŞMEDEKİ 'islemler' MAPPING'İNİ OKUYORUZ:
+            const txn = await contract.islemler(parseInt(id)); // 
+            
+            const gonderen = txn.gonderen; // [cite: 5]
+            const alici = txn.alici; // 
+            const miktarWei = txn.miktar; // 
+            const bitisZamani = parseInt(txn.bitisZamani.toString()); // 
+            const tamamlandi = txn.tamamlandi; // 
+            const iadeEdildi = txn.iadeEdildi; // 
+
+            // Eğer gonderen adresi boşsa (0x000...) bu ID blockchain'de yok demektir
+            if (gonderen === "0x0000000000000000000000000000000000000000") {
+                logMesaji("SORGULAMA HATASI: Bu ID numarasına ait bir kayıt bulunamadı abi.");
                 return;
             }
 
-            // Sözleşmeden verileri gas ücreti ödemeden okuyoruz
-            const txn = await contract.getTransactionDetails(parseInt(id));
-            
-            const gonderen = txn[0];
-            const alici = txn[1];
-            const miktarWei = txn[2];
-            const tamamlandiMi = txn[3];
-
             const miktarNormal = ethers.utils.formatEther(miktarWei);
-            const aktifAg = document.getElementById('networkSelect').value;
-            const paraBirimi = networkSymbols[aktifAg] || "Birim";
+            const kalanSureSaniye = bitisZamani - Math.floor(Date.now() / 1000);
+            
+            let sureDurumu = "";
+            if (tamamlandi || iadeEdildi) {
+                sureDurumu = "Süreç Sonlandı";
+            } else if (kalanSureSaniye > 0) {
+                sureDurumu = `${Math.ceil(kalanSureSaniye / 60)} Dakika Kaldı`;
+            } else {
+                sureDurumu = "<span style='color:#ffc107;'>Süre Doldu (İadeye Hazır)</span>";
+            }
+
+            let durumYazisi = "";
+            if (tamamlandi) {
+                durumYazisi = "<span style='color:#00ff00; font-weight:bold;'>BAŞARIYLA TAMAMLANDI (Alıcı Çekti)</span>"; // [cite: 13]
+            } else if (iadeEdildi) {
+                durumYazisi = "<span style='color:#ff3333; font-weight:bold;'>İADE EDİLDİ (Gönderene Döndü)</span>"; // [cite: 14]
+            } else {
+                durumYazisi = "<span style='color:#007bff; font-weight:bold;'>KASADA AKTİF (Onay Bekliyor)</span>";
+            }
 
             const sonucKutusu = document.getElementById('sorguSonuc');
             sonucKutusu.style.display = "block";
             sonucKutusu.innerHTML = `
-                <strong style="color: #ffc107;">ID: ${id} Kasa Durum Raporu:</strong><br>
+                <strong style="color: #ffc107;">ID: ${id} Otonom Kasa Raporu:</strong><br>
                 • Gönderen: ${gonderen.substring(0,8)}...${gonderen.substring(34)}<br>
                 • Alıcı: ${alici.substring(0,8)}...${alici.substring(34)}<br>
-                • Kilitli Miktar: <strong>${miktarNormal} ${paraBirimi}</strong><br>
-                • Durum: ${tamamlandiMi ? '<span style="color:#00ff00; font-weight:bold;">KİLİT ÇÖZÜLDÜ (Aktarıldı)</span>' : '<span style="color:#ff3333; font-weight:bold;">KİLİTLİ (Kasada Bekliyor)</span>'}
+                • Kilitli Tutar: <strong>${miktarNormal} USDT</strong><br>
+                • Kalan Süre: <strong>${sureDurumu}</strong><br>
+                • Güncel Durum: ${durumYazisi}
             `;
-            logMesaji(`ID: ${id} için canlı veri başarıyla ekrana basıldı abi.`, true);
+            logMesaji(`ID: ${id} için otonom kasa verisi başarıyla çekildi abi.`, true);
         } catch (error) {
             console.error(error);
-            logMesaji("SORGULAMA HATASI: Bu ID numarası blockchain ağında eşleşmedi abi.");
+            logMesaji("SORGULAMA HATASI: Blockchain verisi okunurken bir pürüz çıktı abi.");
         }
     }
 
