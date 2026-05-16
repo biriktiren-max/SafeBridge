@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V7.1 KESİN KALİBRASYON</title>
+    <title>SafeBridge V7.2 TAM ENTEGRE</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V7.1 PRO</h2>
+    <h2>SafeBridge V7.2 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,21 +167,21 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[13:15:00] > Sistem kararlı otonom modda başlatıldı abi.</div>
+    <div id="logKutusu" class="log-box">[13:20:00] > getIslemDetay entegrasyonu tamam, montaja hazırız abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
-    // Sizin halihazırda deploy ettiğiniz kontrat adresini milimetrik olarak koruyoruz
-    const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
+    // ABİ, REMIX'TEN ALDIĞIN YENİ DEPLOY ADRESİNİ AŞAĞIDAKİ ÇİFT TIRNAĞIN İÇİNE YAPIŞTIR:
+    const rawContractAddress = "YENİ_KONTRAT_ADRESİNİ_BURAYA_YAPIŞTIR_ABİ"; 
     
-    // Sözleşmedeki ham mapping yapısını indeks sırasına göre okuyan keskin ABI yapısı
+    // ABI şemamıza yeni yazdığımız özel sorgu vanasını kılavuz olarak ekledik abi
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
         "function otonomIadeTetikle(uint256 _id) external",
-        "function islemler(uint256) public view returns (address, address, uint256, uint256, bool, bool)"
+        "function getIslemDetay(uint256 _id) external view returns (address gonderen, address alici, uint256 miktar, uint256 bitisZamani, bool tamamlandi, bool iadeEdildi)"
     ];
 
     const contractAddresses = {
@@ -193,7 +193,7 @@
     let contract;
 
     function handleNetworkChange() {
-        logMesaji(`Sistem otonom USDT modunda kalibre edildi abi.`, true);
+        logMesaji(`Sistem otonom USDT modunda hazır abi.`, true);
     }
 
     async function switchNetwork(targetChainId) {
@@ -227,6 +227,10 @@
                 signer = provider.getSigner();
                 
                 const activeContractAddress = contractAddresses[targetChainId];
+                if(activeContractAddress.startsWith("YENİ_")) {
+                    logMesaji("HATA: Lütfen kodun 142. satırına taze kontrat adresini yapıştır abi!");
+                    return;
+                }
                 const temizKontratAdresi = ethers.utils.getAddress(activeContractAddress.toLowerCase());
                 contract = new ethers.Contract(temizKontratAdresi, contractABI, signer);
                 
@@ -271,7 +275,6 @@
             const alici = ethers.utils.getAddress(aliciRaw.toLowerCase());
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            // Sizin kontrattaki USDT lojistiği için 6 desimal hassasiyet vitesi
             const miktarWei = ethers.utils.parseUnits(miktarRaw, 6); 
             const sureSaniye = parseInt(sureRaw);
 
@@ -307,9 +310,9 @@
         }
     }
 
-    // PROXY VE TÜR SENSÖRLERİ SIFIRLANMIŞ ASIL VERİ OKUMA MOTORU
+    // ARTIK SÖZLEŞMENİN ÖZEL SORGULA VANASINI (getIslemDetay) ÇALIŞTIRAN EN SAĞLAM SİSTEM
     async function checkTransactionStatus() {
-        logMesaji("Ağdan otonom veri çözülüyor...", true);
+        logMesaji("Özel sorgu vanasından veriler çekiliyor...", true);
         try {
             const id = document.getElementById('sorguIdInput').value.trim();
             if (id === "" || isNaN(parseInt(id))) {
@@ -318,26 +321,23 @@
             }
             if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
 
-            // Doğrudan ham dizi çıktısını çekiyoruz abi
-            const txn = await contract.islemler(parseInt(id));
+            // Sözleşmeye yeni eklediğimiz özel fonksiyonu tetikliyoruz abi
+            const txn = await contract.getIslemDetay(parseInt(id));
             
-            // KESKİN DÖNÜŞÜM: Gelen proxy dizisini daha ilk saniyede düz metne (string) kırıyoruz abi
-            const gonderen = txn[0].toString();
-            const alici = txn[1].toString();
-            const miktarWeiMetin = txn[2].toString();
-            const bitisZamaniMetin = txn[3].toString();
-            const tamamlandi = txn[4];
-            const iadeEdildi = txn[5];
+            // Sözleşme veriyi isimli fırlattığı için JavaScript doğrudan net olarak yakalar
+            const gonderen = txn.gonderen.toString();
+            const alici = txn.alici.toString();
+            const miktarWeiMetin = txn.miktar.toString();
+            const bitisZamaniMetin = txn.bitisZamani.toString();
+            const tamamlandi = txn.tamamlandi;
+            const iadeEdildi = txn.iadeEdildi;
 
-            // Gönderen adresi boş (0x000...) geliyorsa bu ID blockchain'de kayda girmemiştir
             if (gonderen === "0x0000000000000000000000000000000000000000") {
                 logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
                 return;
             }
 
-            // Çözülen metni 6 desimallik USDT standardına göre formatlıyoruz
             const miktarNormal = ethers.utils.formatUnits(miktarWeiMetin, 6);
-            
             const bitisZamani = parseInt(bitisZamaniMetin);
             const kalanSureSaniye = bitisZamani - Math.floor(Date.now() / 1000);
             
