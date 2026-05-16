@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V6.0 MULTI-CHAIN</title>
+    <title>SafeBridge V6.1 MULTI-CHAIN PRO</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -104,17 +104,17 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V6.0 MULTI-CHAIN</h2>
+    <h2>SafeBridge V6.1 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
     <div class="form-group">
-        <label for="networkSelect">İşlem Yapılacak Blockchain Ağı</label>
+        <label for="networkSelect">İşlem Yapılacak Ağ ve Değer Çeşidi</label>
         <select id="networkSelect" onchange="handleNetworkChange()">
-            <option value="0x89">Polygon Mainnet (MATİC / POL)</option>
             <option value="0x13882" selected>Polygon Amoy Testnet (POL)</option>
+            <option value="0x89">Polygon Mainnet (POL)</option>
             <option value="0x1">Ethereum Mainnet (ETH)</option>
-            <option value="0x38">BNB Smart Chain Mainnet (BNB)</option>
+            <option value="0x38">BNB Smart Chain (BNB)</option>
             <option value="0xa86a">Avalanche C-Chain (AVAX)</option>
             <option value="0xa4b1">Arbitrum One (ETH)</option>
         </select>
@@ -122,12 +122,12 @@
 
     <h3>[ EMANET KASASINA PARA KİLİTLE ]</h3>
     <div class="form-group">
-        <label for="aliciAdresi">Alıcı Adresi (Örn: Account 2)</label>
+        <label for="aliciAdresi">Alıcı Adresi</label>
         <input type="text" id="aliciAdresi" placeholder="0x..." autocomplete="off">
     </div>
     
     <div class="form-group">
-        <label id="miktarLabel" for="miktarInput">Miktar (POL)</label>
+        <label id="miktarLabel" for="miktarInput">Gönderilecek Miktar (POL)</label>
         <input type="text" id="miktarInput" value="0.001" placeholder="0.001">
     </div>
     
@@ -151,14 +151,14 @@
     
     <button class="btn-withdraw" onclick="completeTransaction()">3. PARAYI CÜZDANA ÇEK</button>
     
-    <div id="logKutusu" class="log-box">[12:00:00] > Sistem çoklu ağ montajına hazır abi.</div>
+    <div id="logKutusu" class="log-box">[12:00:00] > Sistem çoklu değer montajına hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
-    // USTA AYARI: Her ağın kendi akıllı sözleşme adres matrisi
-    // Şimdilik test için hepsine aynı adresi koydum abi, diğer ağlara deploy ettikçe buraları güncellersin.
+    // MATRİS AYARI: Her ağın kendi akıllı sözleşme (kontrat) adresleri
+    // Not: Farklı ağlara kontratı deploy ettikçe buradaki adresleri güncellersin abi.
     const contractAddresses = {
         "0x13882": "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A", // Polygon Amoy Testnet
         "0x89":    "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A", // Polygon Mainnet
@@ -168,7 +168,7 @@
         "0xa4b1":  "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"  // Arbitrum
     };
 
-    // Ağların para birimi etiketleri
+    // Değer çeşidi etiket matrisi
     const networkSymbols = {
         "0x13882": "POL", "0x89": "POL", "0x1": "ETH", "0x38": "BNB", "0xa86a": "AVAX", "0xa4b1": "ETH"
     };
@@ -182,30 +182,33 @@
     let signer;
     let contract;
 
-    // Siteden ağ değiştirildiğinde etiketleri güncelleyen fonksiyon
+    // DEĞER ÇEŞİDİ DEĞİŞTİRME VANASI
     function handleNetworkChange() {
         const selectedNetwork = document.getElementById('networkSelect').value;
         const symbol = networkSymbols[selectedNetwork];
-        document.getElementById('miktarLabel').innerText = `Miktar (${symbol})`;
-        logMesaji(`Ağ seçimi değiştirildi: Hedef ağ birimi ${symbol} abi.`, true);
+        
+        // Arayüz etiketlerini ve kutu içi yönlendirmeleri dinamik değiştiriyoruz
+        document.getElementById('miktarLabel').innerText = `Gönderilecek Miktar (${symbol})`;
+        document.getElementById('miktarInput').placeholder = `0.001 ${symbol}`;
+        
+        logMesaji(`Değer çeşidi vitesi değiştirildi: ${symbol} moduna geçildi abi.`, true);
     }
 
-    // OTOMATİK AĞ DEĞİŞTİRME VANASI (Bağlantı sorunlarını çözen asıl parça)
+    // OTOMATİK AĞ DEĞİŞTİRİCİ
     async function switchNetwork(targetChainId) {
         try {
             await window.ethereum.request({
                 method: 'wallet_switchEthereumChain',
                 params: [{ chainId: targetChainId }],
             });
-            logMesaji("MetaMask başarıyla hedef ağa geçiş yaptı abi.", true);
+            logMesaji("MetaMask başarıyla seçilen ağa geçiş yaptı abi.", true);
             return true;
         } catch (switchError) {
-            // Eğer ağ MetaMask'ta ekli değilse kullanıcıya ekleme penceresi fırlatır
             if (switchError.code === 4902) {
-                logMesaji("Seçilen ağ MetaMask'ta ekli değil, ekleme talebi gönderiliyor...");
-                // Buraya ileride ağ ekleme parametreleri (wallet_addEthereumChain) konulabilir.
+                logMesaji("Seçilen ağ cüzdanda ekli değil abi, lütfen MetaMask'a ekle.");
+            } else {
+                logMesaji("Ağ değiştirme talebi cüzdan tarafından reddedildi.");
             }
-            logMesaji("Ağ değiştirme işlemi cüzdandan reddedildi abi.");
             return false;
         }
     }
@@ -217,11 +220,11 @@
                 const targetChainId = document.getElementById('networkSelect').value;
                 const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
 
-                // HATA ÖNLEYİCİ: Eğer cüzdandaki ağ ile sitede seçilen ağ uyuşmuyorsa otomatik değiştiriyoruz
+                // Ağlar farklıysa otomatik switch atıyoruz
                 if (currentChainId !== targetChainId) {
-                    logMesaji("Cüzdan ağı ile seçilen ağ farklı! Otomatik geçiş tetikleniyor...", true);
+                    logMesaji("Cüzdan ağı ile seçilen değer uyuşmuyor! Ağ değiştiriliyor...", true);
                     const success = await switchNetwork(targetChainId);
-                    if (!success) return; // Ağ değişmediyse montajı durdur
+                    if (!success) return; 
                 }
 
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -230,7 +233,7 @@
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
                 
-                // Seçilen ağa ait doğru kontratı devreye alıyoruz
+                // Seçilen ağın değer birimine göre doğru kontratı devreye alıyoruz
                 const activeContractAddress = contractAddresses[targetChainId];
                 const temizKontratAdresi = ethers.utils.getAddress(activeContractAddress.toLowerCase());
                 contract = new ethers.Contract(temizKontratAdresi, contractABI, signer);
@@ -239,27 +242,26 @@
                 connectBtn.innerText = `HAT BAĞLANDI: ${walletAddress.substring(0, 6).toUpperCase()}...`;
                 connectBtn.style.backgroundColor = '#28a745';
                 
-                logMesaji(`Cüzdan hattı başarıyla bağlandı. Aktif Kontrat: ${temizKontratAdresi.substring(0,10)}...`, true);
+                logMesaji(`Hattınız bağlandı. Aktif Birim: ${networkSymbols[targetChainId]} abi.`, true);
             } catch (error) {
-                logMesaji("Cüzdan bağlantısı reddedildi veya hata oluştu abi.");
+                logMesaji("Cüzdan bağlantısı koptu veya reddedildi abi.");
                 console.error(error);
             }
         } else {
-            logMesaji("MetaMask bulunamadı, lütfen eklentiyi kontrol et abi.");
+            logMesaji("MetaMask bulunamadı, eklentiyi kontrol et abi.");
         }
     }
 
-    // Cüzdanda ağ elle değiştirilirse sitenin çökmesini önleyen emniyet kilidi
+    // MetaMask'tan ağ elle değiştirilirse sistemi koruyan emniyet müşürü
     if (typeof window.ethereum !== 'undefined') {
         window.ethereum.on('chainChanged', (chainId) => {
-            logMesaji("Cüzdan ağı değiştirildi! Sistem yenileniyor...", true);
-            // Sitedeki seçim kutusunu cüzdana göre otomatik eşitle
+            logMesaji("Cüzdandan ağ değişti, sistem vites tazeledi...", true);
             const select = document.getElementById('networkSelect');
             if([...select.options].some(option => option.value === chainId)) {
                 select.value = chainId;
                 handleNetworkChange();
             }
-            connectWallet(); // Hattı taze ağa göre yeniden bağla
+            connectWallet();
         });
     }
 
@@ -292,6 +294,8 @@
             }
 
             const passwordHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(sifre));
+            
+            // HANGİ DEĞER OLURSA OLSUN OTOMATİK WEI FORMATINA PAKETLEYEN MOTOR
             const miktarWei = ethers.utils.parseEther(miktarRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor, sağ paneli kontrol et abi...", true);
