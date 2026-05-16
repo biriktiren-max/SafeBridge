@@ -1,80 +1,225 @@
-// 1. CÜZDAN HATTINI BAĞLAMA FONKSİYONU
-async function connectWallet() {
-    if (typeof window.ethereum !== 'undefined') {
-        try {
-            // MetaMask'ı doğrudan hesapları getirmeye zorluyoruz, askıda kalmayı önler
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const walletAddress = accounts[0];
-            
-            // Ekrandaki yeşil butonu güncelle
-            const connectBtn = document.getElementById('connectButton'); // Buton ID'nize göre ayarlayın
-            if (connectBtn) {
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeBridge V5.0 PRO</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #333;
+        }
+        h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbb;
+            font-size: 14px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #2a2a2a;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background 0.3s;
+        }
+        .btn-connect {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-connect:hover { background-color: #218838; }
+        .btn-action {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-action:hover { background-color: #0069d9; }
+        .log-box {
+            background-color: #000;
+            border: 1px solid #333;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #ff3333;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        .log-box .info { color: #00ff00; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>SafeBridge V5.0 PRO</h2>
+    
+    <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
+    
+    <div class="form-group">
+        <label for="aliciAdresi">Alıcı Adresi (Örn: Account 2)</label>
+        <input type="text" id="aliciAdresi" placeholder="0x..." autocomplete="off">
+    </div>
+    
+    <div class="form-group">
+        <label for="miktarInput">Miktar (POL)</label>
+        <input type="text" id="miktarInput" value="0.001" placeholder="0.001">
+    </div>
+    
+    <div class="form-group">
+        <label for="guvenlikSifresi">Güvenlik Şifresi (Alıcı Çözme Şifresi)</label>
+        <input type="password" id="guvenlikSifresi" placeholder="••••••••">
+    </div>
+    
+    <button class="btn-action" onclick="createTransaction()">2. BLOCKCHAIN KİLİDİNİ VUR</button>
+    
+    <div id="logKutusu" class="log-box">[12:00:00] > Sistem montaja hazır abi.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
+
+<script>
+    // Akıllı Sözleşme Bilgileri
+    const contractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; // Sizin Amoy kontrat adresiniz
+    const contractABI = [
+        "function createTransaction(address _receiver, bytes32 _passwordHash) public payable",
+        "function completeTransaction(uint256 _id, string memory _password) public"
+    ];
+
+    let provider;
+    let signer;
+    let contract;
+
+    // 1. CÜZDAN HATTINI BAĞLAMA FONKSİYONU
+    async function connectWallet() {
+        if (typeof window.ethereum !== 'undefined') {
+            try {
+                // MetaMask'ı doğrudan hesap listesini açmaya ve izin vermeye zorluyoruz
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const walletAddress = accounts[0];
+                
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                contract = new ethers.Contract(contractAddress, contractABI, signer);
+                
+                const connectBtn = document.getElementById('connectButton');
                 connectBtn.innerText = `HAT BAĞLANDI: ${walletAddress.substring(0, 6).toUpperCase()}...`;
                 connectBtn.style.backgroundColor = '#28a745';
+                
+                logMesaji("Cüzdan hattı başarıyla bağlandı abi.", true);
+            } catch (error) {
+                logMesaji("Cüzdan bağlantısı reddedildi veya hata oluştu abi.");
+                console.error(error);
             }
-            logMesaji("Cüzdan hattı başarıyla bağlandı abi.");
+        } else {
+            logMesaji("MetaMask bulunamadı, lütfen eklentiyi kontrol et abi.");
+        }
+    }
+
+    // 2. BLOCKCHAIN KİLİDİNİ VURMA FONKSİYONU
+    async function createTransaction() {
+        logMesaji("İşlem başlatılıyor, veriler kontrol ediliyor...", true);
+        
+        try {
+            // Form elemanlarını çekiyoruz
+            const alici = document.getElementById('aliciAdresi').value.trim();
+            let miktarRaw = document.getElementById('miktarInput').value.trim();
+            const sifre = document.getElementById('guvenlikSifresi').value;
+
+            // BÜYÜK TAMİRAT: Kullanıcı virgül girse bile anında noktaya çeviriyoruz
+            miktarRaw = miktarRaw.replace(',', '.');
+            
+            if (!alici || !miktarRaw || isNaN(parseFloat(miktarRaw)) || parseFloat(miktarRaw) <= 0 || !sifre) {
+                logMesaji("İŞLEM İPTAL: Lütfen tüm alanları eksiksiz ve doğru doldur abi.");
+                return;
+            }
+
+            // MetaMask bağlantısının durumundan emin oluyoruz
+            if (!signer) {
+                logMesaji("İŞLEM İPTAL: Önce 1. adımdan cüzdan hattını bağla abi.");
+                return;
+            }
+
+            const gonderen = await signer.getAddress();
+            
+            // DÖNGÜ KONTROLÜ: Alıcı adresi kendi adresi olamaz
+            if (gonderen.toLowerCase() === alici.toLowerCase()) {
+                logMesaji("İŞLEM İPTAL: Alıcı adresi olarak kendi adresini yazamazsın abi.");
+                return;
+            }
+
+            // Şifreyi blockchain'in anlayacağı hash formatına sokuyoruz
+            const passwordHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(sifre));
+            
+            // Miktarı Wei formatına çeviriyoruz
+            const miktarWei = ethers.utils.parseEther(miktarRaw);
+
+            logMesaji("MetaMask onay penceresi tetikleniyor, sağ paneli kontrol et abi...", true);
+
+            // Akıllı sözleşmeyi tetikliyoruz
+            const tx = await contract.createTransaction(alici, passwordHash, { value: miktarWei });
+            
+            logMesaji("İşlem blockchain ağına gönderildi! Onay bekleniyor...", true);
+            await tx.wait();
+            
+            logMesaji("BAŞARILI: 2. Blockchain kilidi vuruldu, para kasaya kilitlendi abi!", true);
+
         } catch (error) {
-            logMesaji("Cüzdan bağlantısı reddedildi veya hata oluştu.");
             console.error(error);
+            logMesaji("İŞLEM İPTAL: Bakiye yetersiz, ağ meşgul veya cüzdan onayı reddedildi abi.");
         }
-    } else {
-        logMesaji("MetaMask bulunamadı, lütfen tarayıcı eklentisini kontrol et abi.");
     }
-}
 
-// 2. BLOCKCHAIN KİLİDİNİ VURMA (İŞLEMİ TETİKLEME) FONKSİYONU
-async function createTransaction() {
-    logMesaji("İşlem başlatılıyor, veriler kontrol ediliyor...");
-    
-    try {
-        // Girdileri alıyoruz
-        const aliciInput = document.getElementById('aliciAdresi').value.trim();
-        let miktarInput = document.getElementById('miktarInput').value.trim();
-        const sifreInput = document.getElementById('guvenlikSifresi').value;
-
-        // BÜYÜK ARIZA ÇÖZÜMÜ: Virgülü otomatik olarak noktaya çeviren emniyet kilidi
-        miktarInput = miktarInput.replace(',', '.');
-        const miktarFloat = parseFloat(miktarInput);
-
-        // Girdi Kontrolleri
-        if (!aliciInput || isNaN(miktarFloat) || miktarFloat <= 0 || !sifreInput) {
-            logMesaji("İŞLEM İPTAL: Lütfen tüm alanları eksiksiz ve doğru doldur abi.");
-            return;
-        }
-
-        // MetaMask'ın bağlı olduğu güncel hesabı tekrar çekip emin oluyoruz
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length === 0) {
-            logMesaji("İŞLEM İPTAL: Cüzdan hattı kopuk, önce cüzdanı bağla abi.");
-            return;
-        }
-        
-        const gonderenAdresi = accounts[0];
-
-        // DÖNGÜ HATASI KONTROLÜ: Gönderen ve alıcı aynı olamaz
-        if (gonderenAdresi.toLowerCase() === aliciInput.toLowerCase()) {
-            logMesaji("İŞLEM İPTAL: Alıcı adresi olarak kendi adresini yazamazsın abi.");
-            return;
-        }
-
-        // Blockchain Akıllı Sözleşme Çağrısı (Web3 veya Ethers.js yapınıza göre)
-        // miktarFloat değerini web3.utils.toWei(miktarInput, 'ether') şeklinde kullanabilirsin abi.
-        
-        logMesaji("MetaMask onay penceresi tetikleniyor, lütfen sağ paneli kontrol et abi...");
-        
-        // Bu aşamada akıllı sözleşme fonksiyonunuz (Örn: contract.methods.createTransaction(...).send({...})) çağrılacak.
-
-    } catch (error) {
-        console.error(error);
-        logMesaji("İŞLEM İPTAL: Bakiye yetersiz veya ağda sorun var abi.");
-    }
-}
-
-// Sitedeki log kutusuna yazdırma yardımcısı
-function logMesaji(mesaj) {
-    const logKutusu = document.getElementById('logKutusu'); // Log panelinizin ID'si
-    if (logKutusu) {
+    // LOG SİSTEMİ YARDIMCISI
+    function logMesaji(mesaj, isInfo = false) {
+        const logKutusu = document.getElementById('logKutusu');
         const zaman = new Date().toLocaleTimeString('tr-TR');
-        logKutusu.innerHTML += `<br>[${zaman}] > ${mesaj}`;
+        const classStyle = isInfo ? 'class="info"' : '';
+        logKutusu.innerHTML += `<br><span ${classStyle}>[${zaman}] > ${mesaj}</span>`;
+        logKutusu.scrollTop = logKutusu.scrollHeight; // Log kutusunu otomatik aşağı kaydırır
     }
-}
+</script>
+
+</body>
+</html>
