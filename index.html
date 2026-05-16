@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V6.7 USDT-OTONOM</title>
+    <title>SafeBridge V6.8 KUSURSUZ OTONOM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V6.7 PRO</h2>
+    <h2>SafeBridge V6.8 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,7 +167,7 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[12:00:00] > Sistem 6 desimal USDT kalibrasyonuna hazır abi.</div>
+    <div id="logKutusu" class="log-box">[12:00:00] > Sistem doğrudan haritalama okumaya hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
@@ -175,12 +175,10 @@
 <script>
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
-    // ABI listesini tam uyumlu ham çıktı okuyacak şekilde jilet gibi ayarladık abi
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
         "function otonomIadeTetikle(uint256 _id) external",
-        "function toplamIslemSayisi() public view returns (uint256)",
         "function islemler(uint256) public view returns (address, address, uint256, uint256, bool, bool)"
     ];
 
@@ -271,8 +269,7 @@
             const alici = ethers.utils.getAddress(aliciRaw.toLowerCase());
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            // KALİBRASYON: USDT için blockchain diline 6 desimal hassasiyetle çeviriyoruz
-            const miktarWei = ethers.utils.parseUnits(miktarRaw, 6); 
+            const miktarWei = ethers.utils.parseUnits(miktarRaw, 6); // Sizin kontrattaki USDT 6 desimale tam kalibre edildi abi
             const sureSaniye = parseInt(sureRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor...", true);
@@ -307,7 +304,7 @@
         }
     }
 
-    // %100 TAM KALİBRE EDİLMİŞ SORGULAMA MOTORU (6 Desimal USDT Toleranslı)
+    // TAKILAN EMNİYET MÜŞÜRÜ BYPASS EDİLMİŞ SAF SORGULAMA MOTORU
     async function checkTransactionStatus() {
         logMesaji("Ağdan otonom veri çözülüyor...", true);
         try {
@@ -318,14 +315,7 @@
             }
             if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
 
-            // İlk Kontrol: Toplam işlem sayısını kontrol edip sınır dışı okumayı engelliyoruz
-            const totalTx = await contract.toplamIslemSayisi();
-            if (parseInt(id) >= parseInt(totalTx.toString())) {
-                logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
-                return;
-            }
-
-            // Ham mapping dizisini çekiyoruz
+            // Doğrudan kontrattaki mapping yapısına asılıyoruz abi
             const txn = await contract.islemler(parseInt(id));
             
             const gonderen = txn[0];
@@ -335,7 +325,13 @@
             const tamamlandi = txn[4];
             const iadeEdildi = txn[5];
 
-            // KALİBRASYON: Gelen Wei verisini 6 desimal (USDT) formatına göre çözüyoruz
+            // Eğer gönderen adresi boş (0x000...) dönüyorsa bu ID blockchain'de henüz açılmamıştır abi
+            if (gonderen === "0x0000000000000000000000000000000000000000") {
+                logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
+                return;
+            }
+
+            // Gelen bakiye verisini USDT standardına (6 desimal) göre çözüyoruz
             const miktarNormal = ethers.utils.formatUnits(miktarWei, 6);
             
             const bitisZamani = parseInt(bitisZamaniRaw.toString());
