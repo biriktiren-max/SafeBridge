@@ -98,7 +98,7 @@
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
     <div class="form-group">
-        <label for="aliciAdresi">Alıcı Adresi (Örn: Account 2)</label>
+        <label for="aliciAdresi">Alıcı Adresi</label>
         <input type="text" id="aliciAdresi" placeholder="0x..." autocomplete="off">
     </div>
     
@@ -135,7 +135,7 @@
     async function connectWallet() {
         if (typeof window.ethereum !== 'undefined') {
             try {
-                // MetaMask'ı doğrudan hesap listesini açmaya ve izin vermeye zorluyoruz
+                // MetaMask'ı doğrudan hesap listesini açmaya zorluyoruz
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 const walletAddress = accounts[0];
                 
@@ -167,7 +167,7 @@
             let miktarRaw = document.getElementById('miktarInput').value.trim();
             const sifre = document.getElementById('guvenlikSifresi').value;
 
-            // BÜYÜK TAMİRAT: Kullanıcı virgül girse bile anında noktaya çeviriyoruz
+            // USTA DOKUNUŞU: Virgülü anında blockchain noktasına çeviriyoruz
             miktarRaw = miktarRaw.replace(',', '.');
             
             if (!alici || !miktarRaw || isNaN(parseFloat(miktarRaw)) || parseFloat(miktarRaw) <= 0 || !sifre) {
@@ -175,7 +175,7 @@
                 return;
             }
 
-            // MetaMask bağlantısının durumundan emin oluyoruz
+            // Bağlantı kontrolü
             if (!signer) {
                 logMesaji("İŞLEM İPTAL: Önce 1. adımdan cüzdan hattını bağla abi.");
                 return;
@@ -189,7 +189,7 @@
                 return;
             }
 
-            // Şifreyi blockchain'in anlayacağı hash formatına sokuyoruz
+            // Şifreyi hash formatına sokuyoruz
             const passwordHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(sifre));
             
             // Miktarı Wei formatına çeviriyoruz
@@ -197,7 +197,7 @@
 
             logMesaji("MetaMask onay penceresi tetikleniyor, sağ paneli kontrol et abi...", true);
 
-            // Akıllı sözleşmeyi tetikliyoruz
+            // Akıllı sözleşmeyi çağırıyoruz
             const tx = await contract.createTransaction(alici, passwordHash, { value: miktarWei });
             
             logMesaji("İşlem blockchain ağına gönderildi! Onay bekleniyor...", true);
@@ -207,7 +207,12 @@
 
         } catch (error) {
             console.error(error);
-            logMesaji("İŞLEM İPTAL: Bakiye yetersiz, ağ meşgul veya cüzdan onayı reddedildi abi.");
+            // ARTIK EZBERE MESAJ YOK! MetaMask'ın fırlattığı gerçek hatayı ekrana basıyoruz:
+            let teknikHata = error.message ? error.message : "Bilinmeyen blockchain hatası";
+            if (teknikHata.length > 90) {
+                teknikHata = teknikHata.substring(0, 90) + "...";
+            }
+            logMesaji("TEKNİK ARIZA: " + teknikHata);
         }
     }
 
@@ -217,7 +222,7 @@
         const zaman = new Date().toLocaleTimeString('tr-TR');
         const classStyle = isInfo ? 'class="info"' : '';
         logKutusu.innerHTML += `<br><span ${classStyle}>[${zaman}] > ${mesaj}</span>`;
-        logKutusu.scrollTop = logKutusu.scrollHeight; // Log kutusunu otomatik aşağı kaydırır
+        logKutusu.scrollTop = logKutusu.scrollHeight; // Logları otomatik aşağı kaydırır
     }
 </script>
 
