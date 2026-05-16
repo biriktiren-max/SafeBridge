@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V7.7 KESİN VE KİLİT SÜRÜM</title>
+    <title>SafeBridge V8.0 KESİN SÜRÜM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V7.7 FINAL</h2>
+    <h2>SafeBridge V8.0 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,16 +167,16 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[13:55:00] > Sistem v4 kontratına nihai stabilizasyonla bağlandı abi.</div>
+    <div id="logKutusu" class="log-box">[14:01:00] > Ethers v6 jilet kalibrasyon motoru montaja hazır abi.</div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
-    // Senin çalışan asıl kontrat adresin, milimetrik sabit abi.
+    // Sizin aslanlar gibi çalışan orijinal v4 sözleşme adresiniz abi
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
-    // Ethers.js kütüphanesinin en kusursuz ve kararlı çözdüğü açık ABI şeması
+    // Ethers v6 standartlarına göre optimize edilmiş net ABI şeması abi
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
@@ -220,22 +220,21 @@
                     if (!success) return; 
                 }
 
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const walletAddress = accounts[0];
-                
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
+                // Ethers v6 modern cüzdan bağlantı protokolü abi
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
                 
                 const activeContractAddress = contractAddresses[targetChainId];
-                const temizKontratAdresi = ethers.utils.getAddress(activeContractAddress.toLowerCase());
+                const temizKontratAdresi = ethers.getAddress(activeContractAddress.toLowerCase());
                 contract = new ethers.Contract(temizKontratAdresi, contractABI, signer);
                 
                 const connectBtn = document.getElementById('connectButton');
-                connectBtn.innerText = `HAT BAĞLANDI: ${walletAddress.substring(0, 6).toUpperCase()}...`;
+                connectBtn.innerText = `HAT BAĞLANDI: ${signer.address.substring(0, 6).toUpperCase()}...`;
                 connectBtn.style.backgroundColor = '#28a745';
                 
                 logMesaji(`Cüzdan hattı başarıyla bağlandı abi.`, true);
             } catch (error) {
+                console.error(error);
                 logMesaji("Cüzdan bağlantısı reddedildi abi.");
             }
         } else {
@@ -268,11 +267,12 @@
                 return;
             }
 
-            const alici = ethers.utils.getAddress(aliciRaw.toLowerCase());
+            const alici = ethers.getAddress(aliciRaw.toLowerCase());
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
-            const miktarWei = ethers.utils.parseUnits(miktarRaw, 6); 
-            const sureSaniye = parseInt(sureRaw);
+            // Ethers v6 hassas 6 desimal USDT kalibrasyonu
+            const miktarWei = ethers.parseUnits(miktarRaw, 6); 
+            const sureSaniye = BigInt(sureRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor...", true);
             const tx = await contract.emanetOlustur(alici, miktarWei, sureSaniye);
@@ -296,7 +296,7 @@
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
             logMesaji(`MetaMask tetikleniyor, ID: ${islemId} onaylanıyor...`, true);
-            const tx = await contract.aliciOnayVer(parseInt(islemId));
+            const tx = await contract.aliciOnayVer(BigInt(islemId));
             logMesaji("Onay talebi blockchain ağına gönderildi...", true);
             await tx.wait();
             logMesaji("BAŞARILI: Alıcı onayı verildi, para hesaba aktarıldı abi!", true);
@@ -306,7 +306,7 @@
         }
     }
 
-    // %100 KİLİT SORGULAMA MOTORU: Düşük seviyeli RPC veri çözücüsü kullanan hatasız yapı
+    // %100 KUSURSUZ OKUMA MOTORU: Modern v6 proxy çözücüsüyle kilitlenmeleri bitiren asıl sistem abi
     async function checkTransactionStatus() {
         logMesaji("Blockchain ağından veri paketi çözülüyor...", true);
         try {
@@ -317,33 +317,25 @@
             }
             if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
 
-            // Hatanın kökünü kurutan ham arama mekanizması:
-            // Fonksiyon verisini düşük seviyeli eth_call ile doğrudan cüzdandan bağımsız çağırıyoruz
-            const contractInterface = new ethers.utils.Interface(contractABI);
-            const calldata = contractInterface.encodeFunctionData("islemler", [parseInt(id)]);
-            
-            const rawResult = await provider.call({
-                to: rawContractAddress,
-                data: calldata
-            });
+            // Modern Ethers v6 otomatik çözücü motor doğrudan mapping çıktısını eşliyor abi
+            const txn = await contract.islemler(BigInt(id));
 
-            // Gelen ham 16'lık (hex) veriyi orijinal şemaya göre hatasız parçalıyoruz abi
-            const decoded = contractInterface.decodeFunctionResult("islemler", rawResult);
-
-            const gonderen = decoded[0].toString();
-            const alici = decoded[1].toString();
-            const miktarWeiMetin = decoded[2].toString();
-            const bitisZamaniMetin = decoded[3].toString();
-            const tamamlandi = decoded[4];
-            const iadeEdildi = decoded[5];
+            // Gelen verileri jilet gibi ham metne (string) kırıyoruz
+            const gonderen = txn[0].toString();
+            const alici = txn[1].toString();
+            const miktarWeiMetin = txn[2].toString();
+            const bitisZamaniMetin = txn[3].toString();
+            const tamamlandi = txn[4];
+            const iadeEdildi = txn[5];
 
             if (gonderen === "0x0000000000000000000000000000000000000000") {
                 logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
                 return;
             }
 
-            const miktarNormal = ethers.utils.formatUnits(miktarWeiMetin, 6);
-            const bitisZamani = parseInt(bitisZamaniMetin);
+            // v6 formatUnits kalibrasyonu
+            const miktarNormal = ethers.formatUnits(miktarWeiMetin, 6);
+            const bitisZamani = Number(bitisZamaniMetin);
             const kalanSureSaniye = bitisZamani - Math.floor(Date.now() / 1000);
             
             let sureDurumu = "";
