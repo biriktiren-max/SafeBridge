@@ -120,8 +120,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
-    // Akıllı Sözleşme Bilgileri
-    const contractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; // Sizin Amoy kontrat adresiniz
+    // Akıllı Sözleşme Adresi (İlk olarak küçük harfe zorlayıp hata riskini sıfırlıyoruz)
+    const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
+    
     const contractABI = [
         "function createTransaction(address _receiver, bytes32 _passwordHash) public payable",
         "function completeTransaction(uint256 _id, string memory _password) public"
@@ -141,7 +142,10 @@
                 
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 signer = provider.getSigner();
-                contract = new ethers.Contract(contractAddress, contractABI, signer);
+                
+                // USTA TAMİRATI: Kontrat adresini checksum kontrolünden güvenle geçecek formata çeviriyoruz
+                const temizKontratAdresi = ethers.utils.getAddress(rawContractAddress.toLowerCase());
+                contract = new ethers.Contract(temizKontratAdresi, contractABI, signer);
                 
                 const connectBtn = document.getElementById('connectButton');
                 connectBtn.innerText = `HAT BAĞLANDI: ${walletAddress.substring(0, 6).toUpperCase()}...`;
@@ -162,21 +166,24 @@
         logMesaji("İşlem başlatılıyor, veriler kontrol ediliyor...", true);
         
         try {
-            // Form elemanlarını çekiyoruz
-            const alici = document.getElementById('aliciAdresi').value.trim();
+            // Form elemanlarını çekiyoruz ve sağındaki solundaki boşlukları temizliyoruz
+            const aliciRaw = document.getElementById('aliciAdresi').value.trim();
             let miktarRaw = document.getElementById('miktarInput').value.trim();
             const sifre = document.getElementById('guvenlikSifresi').value;
 
-            // USTA DOKUNUŞU: Virgülü anında blockchain noktasına çeviriyoruz
+            // Virgülü anında blockchain noktasına çeviriyoruz
             miktarRaw = miktarRaw.replace(',', '.');
             
-            if (!alici || !miktarRaw || isNaN(parseFloat(miktarRaw)) || parseFloat(miktarRaw) <= 0 || !sifre) {
+            if (!aliciRaw || !miktarRaw || isNaN(parseFloat(miktarRaw)) || parseFloat(miktarRaw) <= 0 || !sifre) {
                 logMesaji("İŞLEM İPTAL: Lütfen tüm alanları eksiksiz ve doğru doldur abi.");
                 return;
             }
 
+            // Alıcı adresini de kütüphanenin istediği nizami formata sokuyoruz
+            const alici = ethers.utils.getAddress(aliciRaw.toLowerCase());
+
             // Bağlantı kontrolü
-            if (!signer) {
+            if (!signer || !contract) {
                 logMesaji("İŞLEM İPTAL: Önce 1. adımdan cüzdan hattını bağla abi.");
                 return;
             }
@@ -207,7 +214,7 @@
 
         } catch (error) {
             console.error(error);
-            // ARTIK EZBERE MESAJ YOK! MetaMask'ın fırlattığı gerçek hatayı ekrana basıyoruz:
+            // MetaMask'tan gelen gerçek teknik arızayı ekrana basıyoruz
             let teknikHata = error.message ? error.message : "Bilinmeyen blockchain hatası";
             if (teknikHata.length > 90) {
                 teknikHata = teknikHata.substring(0, 90) + "...";
