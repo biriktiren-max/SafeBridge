@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V9.3 - DIAGNOSTIC S SÜRÜMÜ</title>
+    <title>SafeBridge V9.4 - FULL DIAGNOSTIC S</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -85,6 +85,11 @@
             color: #121212;
         }
         .btn-withdraw:hover { background-color: #e0a800; }
+        .btn-refund {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-refund:hover { background-color: #c82333; }
         .btn-query {
             background-color: #17a2b8;
             color: white;
@@ -161,7 +166,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V9.3 DIAGNOSTIC</h2>
+    <h2>SafeBridge V9.4 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -192,13 +197,14 @@
     
     <button class="btn-action" onclick="createTransaction()">2. BLOCKCHAIN KİLİDİNİ VUR</button>
     
-    <h3>[ KASADAN PARAYI CÜZDANA ÇEK ]</h3>
+    <h3>[ KASA TRANSFER / İADE EMİRLERİ ]</h3>
     <div class="form-group">
-        <label for="islemIdInput">Onaylanacak İşlem ID (Takip Numarası)</label>
+        <label for="islemIdInput">İşlem ID (Takip Numarası)</label>
         <input type="text" id="islemIdInput" placeholder="Örn: 0">
     </div>
     
-    <button class="btn-withdraw" onclick="completeTransaction()">3. ALICI OLARAK ONAYLA VE MÜHRÜ VUR</button>
+    <button class="btn-withdraw" onclick="completeTransaction()">3. ALICI OLARAK ONAYLA VE PARAYI ÇEK</button>
+    <button class="btn-refund" onclick="refundTransaction()">4. GÖNDEREN OLARAK SÜRESİ DOLANI İADE AL</button>
     
     <h3>[ BLOCKCHAIN KASA DURUMU SORGULA ]</h3>
     <div class="form-group">
@@ -212,7 +218,7 @@
     
     <div id="raporPaneli" class="report-panel"></div>
     
-    <div id="logKutusu" class="log-box">[SİSTEM] > Otomatik kalibreli teşhis motoru banda sürüldü abi.</div>
+    <div id="logKutusu" class="log-box">[SİSTEM] > Çift yönlü transfer/iade kontrol paneli montaj hattında hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
@@ -261,8 +267,8 @@
         let detaylar = {
             "İşlem İstasyonu": islemTipi,
             "Teşhis Kodu": "ERR_UNKNOWN_BLOCKCHAIN",
-            "Kök Sebebi": "Blockchain düğümünden (RPC node) anlık ham yanıt alınamadı abi.",
-            "Çözüm Önerisi": "Sayfayı yenileyip cüzdan hattını tazeleyin, arıza devam ederse test ağını kontrol edin abi."
+            "Kök Sebebi": "Blockchain düğümünden yanıt gelmedi veya mantıksal kurallara takıldı abi.",
+            "Çözüm Önerisi": "Sorgulama panelinden ID durumunun aktif ve süresinin uygun olduğundan emin olun abi."
         };
 
         if (!error) return { baslik, detaylar };
@@ -275,45 +281,28 @@
             detaylar = {
                 "İşlem İstasyonu": islemTipi,
                 "Teşhis Kodu": "OBD_USER_REJECTED_4001",
-                "Kök Sebebi": "MetaMask cüzdan imza penceresi açıldı ancak kullanıcı manuel olarak İPTAL butonuna bastı.",
-                "Çözüm Önerisi": "Butona tekrar basıp bu sefer MetaMask ekranından gelen sözleşme talebine ONAY verin abi."
+                "Kök Sebebi": "MetaMask cüzdan imza penceresi kullanıcı tarafından kapatıldı veya iptal edildi.",
+                "Çözüm Önerisi": "Butona tekrar tıklayıp cüzdandan gelen onay talebini kabul edin abi."
             };
         } else if (errorString.includes("insufficient funds") || errorMessage.includes("insufficient funds")) {
-            baslik = "Yetersiz Ana Yakıt (Ateşleme) Arızası";
+            baslik = "Yetersiz Gas (POL/MATIC) Arızası";
             detaylar = {
                 "İşlem İstasyonu": islemTipi,
                 "Teşhis Kodu": "OBD_INSUFFICIENT_GAS_POL",
-                "Kök Sebebi": "Blockchain üzerinde bu vitesi geçirmek için harcanacak cüzdandaki yerel POL (MATIC) bakiyesi yetersiz.",
-                "Çözüm Önerisi": "Amoy musluğundan (faucet) cüzdan adresinize taze test POL tokeni talep edin abi."
-            };
-        } else if (errorString.includes("invalid_argument") || errorString.includes("invalid argument")) {
-            baslik = "Değişken Kodlama (Argument) Arızası";
-            detaylar = {
-                "İşlem İstasyonu": islemTipi,
-                "Teşhis Kodu": "OBD_INVALID_ARGUMENT_HEX",
-                "Kök Sebebi": "Sorgulanan rakam blockchain veri paketi (hex) standardına tam dönüştürülemedi abi.",
-                "Çözüm Önerisi": "Bu sürümde veri paketleme motoru sıfırdan revize edildi, artık bu arızayı almayacaksınız abi."
-            };
-        } else if (errorString.includes("gas price below minimum")) {
-            baslik = "Ağ Taban Fiyat Barajı Takılması";
-            detaylar = {
-                "İşlem İstasyonu": islemTipi,
-                "Teşhis Kodu": "OBD_NETWORK_GAS_BARRIER",
-                "Kök Sebebi": "Polygon Amoy test ağındaki anlık yoğunluk taban fiyat sınırını (25 Gwei) fırlattı.",
-                "Çözüm Önerisi": "Uygulamadaki yakıt kalibrasyonu otomatik korumaya geçti. 2 saniye bekleyip tekrar marşa basın abi."
+                "Kök Sebebi": "İşlemin blockchain ağına yazılması için cüzdandaki POL bakiyesi yetersiz abi.",
+                "Çözüm Önerisi": "Amoy musluğundan cüzdanınıza test POL takviyesi isteyin abi."
             };
         } else if (errorString.includes("call revert exception") || errorString.includes("reverted")) {
             baslik = "Sözleşme Mantık Kuralları Revert Filtresi";
             detaylar = {
                 "İşlem İstasyonu": islemTipi,
                 "Teşhis Kodu": "OBD_SOLIDITY_REVERT_RULE",
-                "Kök Sebebi": "Yazılan İşlem ID'si daha önce kapatılmış, süresi dolmamış ya da yetkisiz bir cüzdan tarafından tetikleniyor abi.",
-                "Çözüm Önerisi": "Sorgulama panelinden ID durumunu kontrol edin; alıcı adresi ile cüzdanın eşleştiğinden emin olun abi."
+                "Kök Sebebi": "Sözleşme kuralları ihlal edildi. Süresi dolmuş işleme Alıcı Onayı verilemez veya süresi dolmamış işlem iade edilemez abi.",
+                "Çözüm Önerisi": "Eğer süre dolduysa kırmızı renkli 'İADE AL' butonunu; süre dolmadıysa sarı renkli 'PARAYI ÇEK' butonunu kullanın abi."
             };
         }
 
         if (error.code) detaylar["Cüzdan Hata Kodu"] = error.code;
-        
         raporOlustur("ARIZA/HATA", baslik, detaylar);
     }
 
@@ -360,8 +349,7 @@
         } else {
             raporOlustur("ARIZA/HATA", "MetaMask Sürücü Eksikliği", {
                 "Teşhis Kodu": "OBD_NO_METAMASK",
-                "Kök Sebebi": "Tarayıcı üzerinde blockchain ağlarıyla konuşacak bir Web3 cüzdan altyapısı bulunamadı.",
-                "Çözüm Önerisi": "Lütfen bilgisayarınıza MetaMask eklentisini kurup bir profil oluşturun abi."
+                "Çözüm Önerisi": "Lütfen tarayıcınıza MetaMask kurun abi."
             });
         }
     }
@@ -383,47 +371,26 @@
 
             miktarRaw = miktarRaw.replace(',', '.');
             if (!aliciRaw || !miktarRaw || isNaN(parseFloat(miktarRaw)) || !sureRaw || isNaN(parseInt(sureRaw))) {
-                raporOlustur("ARIZA/HATA", "Form Montaj Giriş Hatası", {
-                    "Teşhis Kodu": "OBD_FORM_VALIDATION_FAILED",
-                    "Kök Sebebi": "Alıcı cüzdan adresi boş, miktar geçersiz veya süre girdisi tam sayı formatında değil abi.",
-                    "Çözüm Önerisi": "Lütfen alanlardaki boşlukları ve yazım kurallarını kontrol edip tekrar deneyin abi."
-                });
+                raporOlustur("ARIZA/HATA", "Form Giriş Hatası", { "Kök Sebebi": "Alanlar eksik veya hatalı girildi abi." });
                 return;
             }
 
             const alici = ethers.getAddress(aliciRaw.toLowerCase());
-            if (!signer || !contract) { 
-                raporOlustur("ARIZA/HATA", "Cüzdan Ana Hat Bağlantı Yok", {
-                    "Teşhis Kodu": "OBD_DISCONNECTED_BAR",
-                    "Kök Sebebi": "Blockchain kontratı ile arayüz arasında aktif bir cüzdan oturumu bulunmuyor abi.",
-                    "Çözüm Önerisi": "Lütfen en üstteki 1 numaralı yeşil butona basarak cüzdan hattını aktif edin abi."
-                });
-                return; 
-            }
+            if (!signer || !contract) { return; }
 
             const miktarWei = ethers.parseUnits(miktarRaw, 6); 
             const sureSaniye = BigInt(sureRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor...");
-            
             const tx = await contract.emanetOlustur(alici, miktarWei, sureSaniye, {
                 gasLimit: 300000,
                 maxPriorityFeePerGas: ethers.parseUnits("40", "gwei"), 
                 maxFeePerGas: ethers.parseUnits("50", "gwei")
             });
             
-            logMesaji("Emanet blockchain ağına gönderildi! Onay bekleniyor...");
-            const receipt = await tx.wait();
-            
+            await tx.wait();
             logMesaji("BAŞARILI: Emanet kaydı blockchain kasasına kilitlendi abi!");
-            
-            raporOlustur("BAŞARILI", "Emanet Kasası Kurulum Raporu", {
-                "Gerçekleşen İşlem": "Emanet Hesabı USDT Kilitleme",
-                "Blockchain Blok No": receipt.blockNumber,
-                "Harcanan Gaz Tutarı": receipt.gasUsed.toString() + " Gas",
-                "Resmi Fatura Linki": `<a class="report-link" href="https://amoy.polygonscan.com/tx/${tx.hash}" target="_blank">Polygonscan Gezgininde İncele</a>`
-            });
-
+            raporOlustur("BAŞARILI", "Emanet Kasası Kuruldu", { "İşlem": "USDT Emanet Kilitleme" });
         } catch (error) {
             arizaCozumle(error, "Emanet Kasası Kurma İstasyonu");
         }
@@ -434,104 +401,86 @@
         logMesaji("Alıcı onay işlemi başlatılıyor...");
         try {
             const islemId = document.getElementById('islemIdInput').value.trim();
-            if (!islemId || isNaN(parseInt(islemId))) {
-                raporOlustur("ARIZA/HATA", "Takip Numarası Eksikliği", {
-                    "Teşhis Kodu": "OBD_ID_MISSING",
-                    "Kök Sebebi": "Kasadan para çekmek için onaylanması zorunlu olan İşlem ID alanı boş bırakıldı abi.",
-                    "Çözüm Önerisi": "Lütfen onay vurmak istediğiniz kasanın ID numarasını (Örn: 0 veya 1) girin abi."
-                });
-                return;
-            }
-            if (!signer || !contract) { 
-                raporOlustur("ARIZA/HATA", "Cüzdan Ana Hat Bağlantı Yok", {
-                    "Teşhis Kodu": "OBD_DISCONNECTED_BAR",
-                    "Kök Sebebi": "Blockchain oturumu açılmadığı için mühürleme fonksiyonu çağrılamıyor abi.",
-                    "Çözüm Önerisi": "Lütfen en üstteki yeşil butondan cüzdan bağlantısını gerçekleştirin abi."
-                });
-                return; 
-            }
+            if (!islemId || isNaN(parseInt(islemId))) return;
+            if (!signer || !contract) return;
 
             logMesaji(`MetaMask tetikleniyor, ID: ${islemId} onaylanıyor...`);
-            
             const tx = await contract.aliciOnayVer(BigInt(islemId), {
                 gasLimit: 250000,
                 maxPriorityFeePerGas: ethers.parseUnits("40", "gwei"),
                 maxFeePerGas: ethers.parseUnits("50", "gwei")
             });
             
-            logMesaji("Onay talebi blockchain ağına gönderildi...");
             const receipt = await tx.wait();
-            
-            logMesaji("BAŞARILI: Alıcı onayı verildi, para hesaba aktarıldı abi!");
-            
-            raporOlustur("BAŞARILI", "Mühür Kilit Açma Başarı Raporu", {
-                "Gerçekleşen İşlem": "Alıcı Cüzdan Onayı ve USDT Çekimi",
-                "Serbest Kalan ID": islemId,
-                "Blockchain Blok No": receipt.blockNumber,
-                "Resmi Fatura Linki": `<a class="report-link" href="https://amoy.polygonscan.com/tx/${tx.hash}" target="_blank">Polygonscan Gezgininde İncele</a>`
-            });
-
+            logMesaji("BAŞARILI: Para hesaba aktarıldı abi!");
+            raporOlustur("BAŞARILI", "Mühür Kilit Açma Başarı Raporu", { "Sonuç": "USDT Alıcıya Aktarıldı" });
         } catch (error) {
-            arizaCozumle(error, "Alıcı Onay Verme Meta Mekanizması");
+            arizaCozumle(error, "Alıcı Onay Verme İstasyonu");
         }
     }
 
-    // ⭐ %100 KUSURSUZ ŞASİ SEVİYESİ S SÜRÜMÜ SORGULAMA MOTORU (AbiCoder Destekli Kesin Kalıp)
+    // ⭐ SÜRESİ DOLAN PARAYI GÖNDERENE İADE EDEN YENİ MOTOR FONKSİYONU
+    async function refundTransaction() {
+        document.getElementById("raporPaneli").style.display = "none";
+        logMesaji("Otonom iade işlemi başlatılıyor...");
+        try {
+            const islemId = document.getElementById('islemIdInput').value.trim();
+            if (!islemId || isNaN(parseInt(islemId))) {
+                raporOlustur("ARIZA/HATA", "İşlem ID Eksik", { "Açıklama": "Lütfen iade alacağınız kasanın ID numarasını girin abi." });
+                return;
+            }
+            if (!signer || !contract) {
+                raporOlustur("ARIZA/HATA", "Cüzdan Bağlı Değil", { "Açıklama": "Lütfen önce cüzdan hattını bağlayın abi." });
+                return;
+            }
+
+            logMesaji(`MetaMask tetikleniyor, ID: ${islemId} İade Süreci Başlatıldı...`);
+            
+            // Otonom iade fonksiyonunu ateşliyoruz abi
+            const tx = await contract.otonomIadeTetikle(BigInt(islemId), {
+                gasLimit: 250000,
+                maxPriorityFeePerGas: ethers.parseUnits("40", "gwei"),
+                maxFeePerGas: ethers.parseUnits("50", "gwei")
+            });
+            
+            logMesaji("İade talebi blockchain ağına yazılıyor...");
+            const receipt = await tx.wait();
+            
+            logMesaji("BAŞARILI: Süresi dolan emanet, gönderen cüzdanına başarıyla iade edildi abi!");
+            
+            raporOlustur("BAŞARILI", "Otonom İade Başarıyla Tamamlandı", {
+                "Gerçekleşen İşlem": "Süresi Dolan USDT Gönderene İade Edildi",
+                "Kapatılan ID": islemId,
+                "Blok Numarası": receipt.blockNumber,
+                "İşlem Faturası": `<a class="report-link" href="https://amoy.polygonscan.com/tx/${tx.hash}" target="_blank">Polygonscan Üzerinde Gör</a>`
+            });
+
+        } catch (error) {
+            arizaCozumle(error, "Otonom İade Tetikleme İstasyonu");
+        }
+    }
+
     async function checkTransactionStatus() {
         document.getElementById("raporPaneli").style.display = "none";
         logMesaji("Blockchain ağından veri paketi çözülüyor...");
         try {
             const idInput = document.getElementById('sorguIdInput').value.trim();
-            if (idInput === "" || isNaN(parseInt(idInput))) {
-                raporOlustur("ARIZA/HATA", "Sorgu Parametre Hatası", {
-                    "Teşhes Kodu": "OBD_QUERY_PARAM_INVALID",
-                    "Kök Sebebi": "Sorgulanmak istenen İşlem ID alanı boş bırakıldı veya rakam dışında bir karakter girildi abi.",
-                    "Çözüm Önerisi": "Lütfen arama motoruna sadece kontrol etmek istediğiniz kasanın numarasını yazın abi."
-                });
-                return;
-            }
-            
-            if (!provider) { 
-                raporOlustur("ARIZA/HATA", "Cüzdan Bağlantı Hatası", {
-                    "Teşhis Kodu": "OBD_QUERY_NO_PROVIDER",
-                    "Kök Sebebi": "Sorgu motorunun blockchain hattına bağlanıp veriyi çekebilmesi için cüzdan geçidi kurulmamış abi.",
-                    "Çözüm Önerisi": "Lütfen önce 1 numaralı yeşil butona basarak cüzdan hattını aktif edin abi."
-                });
-                return; 
-            }
+            if (idInput === "" || isNaN(parseInt(idInput))) return;
+            if (!provider) return;
 
             const activeChainId = document.getElementById('networkSelect').value;
             const targetContract = contractAddresses[activeChainId];
 
-            // 1. ADIM: "islemler(uint256)" fonksiyonunun imza kodunu çekiyoruz: 0x22f87a8b
             const fonksiyonImzasi = "0x22f87a8b"; 
-            
-            // ⭐ ARTIK AMOY AĞINA TAM UYUMLU PAKETLEME: 
-            // Ethers v6'nın kendi AbiCoder altyapısını kullanarak parametreyi şasi standardında 32 bayta paketliyoruz abi.
             const abiKodlayici = ethers.AbiCoder.defaultAbiCoder();
             const paketliParametreHex = abiKodlayici.encode(["uint256"], [BigInt(idInput)]);
-            
-            // İlk '0x' kısmını kesip fonksiyon imzasının arkasına ekliyoruz
             const dataPaketi = fonksiyonImzasi + paketliParametreHex.substring(2);
 
-            // 2. ADIM: Kütüphanesiz saf RPC çağrısı ile ağdan ham veriyi çekiyoruz
-            const hamSonucHex = await provider.call({
-                to: targetContract,
-                data: dataPaketi
-            });
+            const hamSonucHex = await provider.call({ to: targetContract, data: dataPaketi });
 
-            if (!hamSonucHex || hamSonucHex === "0x" || hamSonucHex.length < 300) {
-                raporOlustur("ARIZA/HATA", "Boş Yanıt Bozuk Veri Hatası", {
-                    "Teşhis Kodu": "OBD_EMPTY_RPC_RESPONSE",
-                    "Kök Sebebi": "Amoy test ağındaki RPC düğümü şifreli ham bayt paketine yanıt vermedi abi.",
-                    "Çözüm Önerisi": "Ağda anlık tıkanıklık olabilir, 2 saniye bekleyip sorgu butonuna tekrar basın abi."
-                });
-                return;
-            }
+            if (!hamSonucHex || hamSonucHex === "0x" || hamSonucHex.length < 300) return;
 
-            // 3. ADIM: Gelen ham hex yapısını manuel konumlarına göre jilet gibi parçalıyoruz
             const safHex = hamSonucHex.substring(2); 
-            
             const gonderenHex = "0x" + safHex.substring(24, 64); 
             const aliciHex = "0x" + safHex.substring(88, 128);   
             
@@ -544,14 +493,8 @@
             const gonderen = ethers.getAddress(gonderenHex);
             const alici = ethers.getAddress(aliciHex);
 
-            // Eğer gönderen sıfır adresi ise bu ID üzerinde kurulmuş bir emanet kasası yoktur abi
             if (gonderen === "0x0000000000000000000000000000000000000000") {
-                raporOlustur("ARIZA/HATA", "Sözleşme Üzerinde Kayıt Bulunamadı", {
-                    "Sorgulanan ID No": idInput,
-                    "Teşhis Kodu": "OBD_RECORD_NOT_FOUND",
-                    "Kök Sebebi": "Girdiğiniz ID numarasına ait akıllı sözleşme (kontrat) kasası henüz kurulmamış abi.",
-                    "Çözüm Önerisi": "Lütfen daha önce başarılı şekilde oluşturduğunuz bir ID numarasını sorgulayın abi."
-                });
+                raporOlustur("ARIZA/HATA", "Kayıt Bulunamadı", { "ID No": idInput });
                 return;
             }
 
@@ -587,9 +530,8 @@
                 • Kalan Süre: <strong>${sureDurumu}</strong><br>
                 • Güncel Durum: ${durumYazisi}
             `;
-            logMesaji(`ID: ${idInput} için otonom kasa verisi başarıyla çekildi abi.`);
+            logMesaji(`ID: ${idInput} verisi çekildi.`);
         } catch (error) {
-            console.error(error);
             arizaCozumle(error, "Canlı Veri Sorgulama İstasyonu");
         }
     }
