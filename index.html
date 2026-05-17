@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V8.13 KESİN NİHAİ SÜRÜM</title>
+    <title>SafeBridge V8.14 KESİN S SÜRÜM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V8.13 PRO</h2>
+    <h2>SafeBridge V8.14 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,7 +167,7 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[12:20:00] > Sıfır pürüzlü, nihai kalibrasyon motoru banda sürüldü abi.</div>
+    <div id="logKutusu" class="log-box">[12:24:00] > Nesne dönüştürmeli kararlı otonom motor hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
@@ -175,12 +175,12 @@
 <script>
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
-    // Standart array tipine kalibre edilmiş ABI şeması
+    // ABI haritasını v6'nın isimli returns yapısına göre düzenledik abi
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
         "function otonomIadeTetikle(uint256 _id) external",
-        "function islemler(uint256 id) external view returns (address, address, uint256, uint256, bool, bool)"
+        "function islemler(uint256 id) external view returns (address gonderen, address alici, uint256 miktar, uint256 bitisZamani, bool tamamlandi, bool iadeEdildi)"
     ];
 
     const contractAddresses = {
@@ -315,7 +315,7 @@
         }
     }
 
-    // %100 GARANTİLİ NİHAİ MOTOR (Proxy nesnesini indeksle çözen pürüzsüz vites)
+    // %100 KUSURSUZ OKUMA MOTORU (toObject kalibrasyonu ile pürüzsüz vites)
     async function checkTransactionStatus() {
         logMesaji("Blockchain ağından veri paketi çözülüyor...", true);
         try {
@@ -328,14 +328,15 @@
 
             const txn = await contract.islemler(BigInt(id));
 
-            // KESİN BYPASS ÇÖZÜMÜ: Ethers v6'nın proxy nesnesini doğrudan indeks sırasıyla
-            // yakalayıp stringe kırıyoruz. Harf hassasiyeti ve kütüphane çöpleri tamamen devre dışı abi!
-            const gonderen = String(txn[0]);
-            const alici = String(txn[1]);
-            const miktarWeiMetin = String(txn[2]);
-            const bitisZamaniMetin = String(txn[3]);
-            const tamamlandi = Boolean(txn[4]);
-            const iadeEdildi = Boolean(txn[5]);
+            // KESİN ÇÖZÜM: v6'nın kendi metoduyla çıktıyı doğrudan temiz nesneye dönüştürüyoruz abi
+            const dataObj = txn.toObject();
+
+            const gonderen = String(dataObj.gonderen);
+            const alici = String(dataObj.alici);
+            const miktarWeiMetin = String(dataObj.miktar);
+            const bitisZamaniMetin = String(dataObj.bitisZamani);
+            const tamamlandi = Boolean(dataObj.tamamlandi);
+            const iadeEdildi = Boolean(dataObj.iadeEdildi);
 
             if (gonderen === "0x0000000000000000000000000000000000000000" || gonderen === "undefined") {
                 logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
