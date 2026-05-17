@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V8.6 NİHAİ KESİN SÜRÜM</title>
+    <title>SafeBridge V8.7 GAS KORUMALI NİHAİ SÜRÜM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V8.6 PRO</h2>
+    <h2>SafeBridge V8.7 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,7 +167,7 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[14:20:00] > Kesin tip kalibrasyonlu otonom motor devrede. Sistem hazır abi.</div>
+    <div id="logKutusu" class="log-box">[14:20:00] > Gas limit korumalı, matris kalibrasyonlu otonom motor hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
@@ -176,7 +176,6 @@
     // Sizin başarıyla deploy ettiğiniz o orijinal v4 kontrat adresiniz abi, milimetrik sabit.
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
-    // Ethers v6 standardına göre düzenlenen pürüzsüz ABI şeması
     const contractABI = [
         "function emanetOlustur(address _alici, uint256 _miktar, uint256 _sureSaniye) external",
         "function aliciOnayVer(uint256 _id) external",
@@ -273,13 +272,18 @@
             const sureSaniye = BigInt(sureRaw);
 
             logMesaji("MetaMask onay penceresi tetikleniyor...", true);
-            const tx = await contract.emanetOlustur(alici, miktarWei, sureSaniye);
+            
+            // KALİBRASYON: Amoy ağının tıkanıklığını aşmak için manuel geniş emniyet gas limiti vuruyoruz abi
+            const tx = await contract.emanetOlustur(alici, miktarWei, sureSaniye, {
+                gasLimit: 300000 
+            });
+            
             logMesaji("Emanet blockchain ağına gönderildi! Onay bekleniyor...", true);
             await tx.wait();
             logMesaji("BAŞARILI: Emanet kaydı blockchain kasasına kilitlendi abi!", true);
         } catch (error) {
             console.error(error);
-            logMesaji("TEKNİK ARIZA: " + (error.message ? error.message.substring(0, 70) : "Hata") + "...");
+            logMesaji("TEKNİK ARIZA: Gas limit veya ağ yoğunluğu pürüzü çıktı abi.");
         }
     }
 
@@ -294,17 +298,21 @@
             if (!signer || !contract) { logMesaji("İŞLEM İPTAL: Önce cüzdanı bağla abi."); return; }
 
             logMesaji(`MetaMask tetikleniyor, ID: ${islemId} onaylanıyor...`, true);
-            const tx = await contract.aliciOnayVer(BigInt(islemId));
+            
+            // KALİBRASYON: Onay verme fonksiyonuna da aynı manuel emniyet payını ekledik abi
+            const tx = await contract.aliciOnayVer(BigInt(islemId), {
+                gasLimit: 200000
+            });
+            
             logMesaji("Onay talebi blockchain ağına gönderildi...", true);
             await tx.wait();
             logMesaji("BAŞARILI: Alıcı onayı verildi, para hesaba aktarıldı abi!", true);
         } catch (error) {
             console.error(error);
-            logMesaji("TEKNİK ARIZA: " + (error.message ? error.message.substring(0, 70) : "Hata") + "...");
+            logMesaji("TEKNİK ARIZA: Gas limit veya ağ yoğunluğu pürüzü çıktı abi.");
         }
     }
 
-    // %100 KUSURSUZ VE NOKTA ATIŞI OKUMA MOTORU (Proxy nesnelerini saf string matrisine kırar)
     async function checkTransactionStatus() {
         logMesaji("Blockchain ağından veri paketi çözülüyor...", true);
         try {
@@ -315,11 +323,8 @@
             }
             if (!contract) { logMesaji("İŞLEM İPTAL: Önce cüzdan hattını bağla abi."); return; }
 
-            // Ethers v6'nın en ham proxy dizisini çekiyoruz abi
             const txn = await contract.islemler(BigInt(id));
 
-            // KESİN DÜZELTME SATIRI: 
-            // Gelen adres nesnelerini hiçbir harf veya key kontrolüne sokmadan, doğrudan indeks matrisinden String'e zorluyoruz abi!
             const gonderen = String(txn[0]);
             const alici = String(txn[1]);
             const miktarWeiMetin = String(txn[2]);
@@ -332,7 +337,6 @@
                 return;
             }
 
-            // Çözülen metni 6 desimallik USDT standardına göre formatlıyoruz
             const miktarNormal = ethers.formatUnits(miktarWeiMetin, 6);
             const bitisZamani = Number(bitisZamaniMetin);
             const kalanSureSaniye = bitisZamani - Math.floor(Date.now() / 1000);
