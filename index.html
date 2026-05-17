@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V10.0 - FINTECH ECOSYSTEM</title>
+    <title>SafeBridge V10.1 - FINTECH ECOSYSTEM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
-        /* SIFIR SIZINTILI KURUMSAL RENK PALETİ */
         :root {
             --bg-main: #050814;
             --bg-card: #0c1125;
@@ -24,11 +23,7 @@
             --text-muted: #94a3b8;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Space Grotesk', sans-serif;
@@ -41,7 +36,6 @@
             padding: 40px 20px;
         }
 
-        /* KAPORTA VE ŞASİ TASARIMI */
         .container {
             background-color: var(--bg-card);
             padding: 40px;
@@ -56,216 +50,66 @@
         .container::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
+            top: 0; left: 0; right: 0; height: 4px;
             background: linear-gradient(90deg, var(--primary-blue), var(--primary-green));
             border-radius: 20px 20px 0 0;
         }
 
-        /* LOGO VE BAŞLIK BANTLARI */
-        .header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
+        .header { text-align: center; margin-bottom: 35px; }
         .header h2 {
             font-family: 'Poppins', sans-serif;
-            font-size: 32px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            font-size: 32px; font-weight: 700; letter-spacing: 1px;
             background: linear-gradient(135deg, #ffffff 0%, var(--text-muted) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
+        .header p { color: var(--primary-green); font-size: 14px; font-weight: bold; letter-spacing: 3px; text-transform: uppercase; margin-top: 5px; }
 
-        .header p {
-            color: var(--primary-green);
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            margin-top: 5px;
-        }
-
-        /* GRUP VİTES BAŞLIKLARI */
         h3 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px;
-            color: var(--primary-blue);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 35px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 8px;
+            font-family: 'Poppins', sans-serif; font-size: 16px; color: var(--primary-blue); text-transform: uppercase; letter-spacing: 1.5px;
+            margin-top: 35px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;
         }
 
-        .form-group {
-            margin-bottom: 18px;
-        }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 14px; font-weight: 500; }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-muted);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* GİRİŞ MANEVRALARI */
         input, select {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background-color: var(--bg-input);
-            color: var(--text-main);
-            font-family: inherit;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            width: 100%; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border-color);
+            background-color: var(--bg-input); color: var(--text-main); font-family: inherit; font-size: 16px; transition: all 0.3s ease;
         }
+        input:focus, select:focus { border-color: var(--primary-blue); outline: none; box-shadow: 0 0 12px rgba(59, 130, 246, 0.3); }
 
-        input:focus, select:focus {
-            border-color: var(--primary-blue);
-            outline: none;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
-        }
-
-        /* JİLET GİBİ BUTON GRUPLARI */
         button {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
+            width: 100%; padding: 16px; border: none; border-radius: 10px; font-family: 'Poppins', sans-serif; font-size: 16px; font-weight: 600;
+            cursor: pointer; margin-bottom: 12px; display: flex; justify-content: center; align-items: center; gap: 10px; transition: all 0.3s ease;
         }
 
-        .btn-connect {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
-        }
+        .btn-connect { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3); }
         .btn-connect:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4); }
-
-        .btn-action {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
-        }
+        .btn-action { background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
         .btn-action:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
-
-        .btn-withdraw {
-            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
-        }
+        .btn-withdraw { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: white; box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); }
         .btn-withdraw:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4); }
-
-        .btn-refund {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-        }
+        .btn-refund { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); }
         .btn-refund:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); }
-
-        .btn-query {
-            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
-        }
+        .btn-query { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); color: white; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3); }
         .btn-query:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4); }
 
-        /* TEKNİK ARIZA LOG KUTUSU */
         .log-box {
-            background-color: #03050b;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 14px;
-            font-family: monospace;
-            font-size: 13px;
-            color: var(--text-muted);
-            max-height: 140px;
-            overflow-y: auto;
-            margin-top: 25px;
-            white-space: pre-wrap;
-            line-height: 1.5;
+            background-color: #03050b; border: 1px solid var(--border-color); border-radius: 10px; padding: 14px;
+            font-family: monospace; font-size: 13px; color: var(--text-muted); max-height: 140px; overflow-y: auto; margin-top: 25px; white-space: pre-wrap; line-height: 1.5;
         }
 
-        /* OBD DIAGNOSTIC DETAY RAPORLAMA PANELİ */
-        .report-panel {
-            margin-top: 20px;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.6;
-            display: none;
-        }
-        
-        .report-success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--primary-green);
-            color: #a7f3d0;
-        }
-        
-        .report-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--primary-red);
-            color: #fca5a5;
-        }
+        .report-panel { margin-top: 20px; padding: 20px; border-radius: 12px; font-size: 14px; line-height: 1.6; display: none; }
+        .report-success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--primary-green); color: #a7f3d0; }
+        .report-error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--primary-red); color: #fca5a5; }
 
-        .report-table {
-            width: 100%;
-            margin-top: 12px;
-            border-collapse: collapse;
-            font-family: monospace;
-        }
-        
-        .report-table td {
-            padding: 5px 0;
-            vertical-align: top;
-        }
-        
-        .report-table td.label {
-            width: 140px;
-            font-weight: bold;
-            color: var(--primary-yellow);
-        }
-        
-        .report-error .report-table td.label {
-            color: #f87171;
-        }
+        .report-table { width: 100%; margin-top: 12px; border-collapse: collapse; font-family: monospace; }
+        .report-table td { padding: 5px 0; vertical-align: top; }
+        .report-table td.label { width: 140px; font-weight: bold; color: var(--primary-yellow); }
+        .report-error .report-table td.label { color: #f87171; }
+        .report-link { color: #38bdf8; text-decoration: underline; word-break: break-all; }
 
-        .report-link {
-            color: #38bdf8;
-            text-decoration: underline;
-            word-break: break-all;
-        }
-
-        /* GÖSTERGE GÖVDESİ PANELDEN OKUMA */
-        .status-panel {
-            background-color: var(--bg-input);
-            border-radius: 12px;
-            padding: 16px;
-            font-size: 15px;
-            margin-top: 15px;
-            border-left: 4px solid var(--primary-blue);
-            line-height: 1.6;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-        }
+        .status-panel { background-color: var(--bg-input); border-radius: 12px; padding: 16px; font-size: 15px; margin-top: 15px; border-left: 4px solid var(--primary-blue); line-height: 1.6; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
@@ -335,7 +179,7 @@
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     <div id="raporPaneli" class="report-panel"></div>
     
-    <div id="logKutusu" class="log-box">[SİSTEM] > SafeBridge V10.0 kurumsal şasi yayına hazır abi.</div>
+    <div id="logKutusu" class="log-box">[SİSTEM] > SafeBridge V10.1 kalibrasyon şasisi hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
@@ -372,10 +216,10 @@
 
         if (errorString.includes("user rejected") || errorMessage.includes("user rejected")) {
             baslik = "Kullanıcı Onay İptal Arızası";
-            detaylar = { "İşlem İstasyonu": islemTipi, "Teşhis Kodu": "OBD_USER_REJECTED_4001", "Kök Sebebi": "MetaMask cüzdan onay ekranı kullanıcı tarafından reddedildi.", "Çözüm Önerisi": "Butona tekrar tıklayıp cüzdandan gelen işleme bu sefer ONAY verin abi." };
+            detaylar = { "İşlem İstasyonu": islemTipi, "Teşhis Kodu": "OBD_USER_REJECTED_4001", "Kök Sebebi": "MetaMask cüzdan onay ekranı kullanıcı tarafından reddedildi.", "Çözüm Önerisi": "Butona tekrar tıklayıp cüzdandan gelen işleme onay verin abi." };
         } else if (errorString.includes("insufficient funds") || errorMessage.includes("insufficient funds")) {
             baslik = "Yetersiz Gas (Ateşleme) Arızası";
-            detaylar = { "İşlem İstasyonu": islemTipi, "Teşhis Kodu": "OBD_INSUFFICIENT_GAS_POL", "Kök Sebebi": "İşlemi blockchain ağına kazımak için cüzdandaki POL bakiyesi yetersiz.", "Çözüm Önerisi": "Amoy musluğundan cüzdan adresinize taze POL token takviyesi isteyin abi." };
+            detaylar = { "İşlem İstasyonu": islemTipi, "Teşhis Kodu": "OBD_INSUFFICIENT_GAS_POL", "Kök Sebebi": "İşlemi blockchain ağına kazımak için cüzdandaki POL bakiyesi yetersiz.", "Çözüm Önerisi": "Amoy hattından gelen test POL bakiyenizi kontrol edin abi." };
         } else if (errorString.includes("call revert exception") || errorString.includes("reverted")) {
             baslik = "Sözleşme Mantık Kuralları Revert Filtresi";
             detaylar = { "İşlem İstasyonu": islemTipi, "Teşhis Kodu": "OBD_SOLIDITY_REVERT_RULE", "Kök Sebebi": "Sözleşme kuralları ihlal edildi. Süresi dolmuş işleme Alıcı Onayı verilemez veya süresi dolmamış işlem iade edilemez abi.", "Çözüm Önerisi": "Eğer kasa arayüzünde süre doldu yazıyorsa kırmızı renkli 'İADE AL' butonunu kullanın abi." };
@@ -436,11 +280,14 @@
             const islemId = document.getElementById('islemIdInput').value.trim(); if (!islemId || isNaN(parseInt(islemId))) return; if (!signer || !contract) return;
             logMesaji(`MetaMask tetikleniyor, ID: ${islemId} onaylanıyor...`);
             const tx = await contract.aliciOnayVer(BigInt(islemId), { gasLimit: 250000, maxPriorityFeePerGas: ethers.parseUnits("40", "gwei"), maxFeePerGas: ethers.parseUnits("50", "gwei") });
-            await tx.wait();
+            
+            logMesaji("Mühür açma emri ağa yazılıyor...");
+            await tx.wait(); // Blok mühürlendi, işlem kesin bitti abi!
+            
             logMesaji("BAŞARILI: Para hesaba aktarıldı abi!");
             raporOlustur("BAŞARILI", "Mühür Kilit Açma Başarı Raporu", { "Sonuç": "USDT Alıcı Cüzdanına Aktarıldı" });
             
-            // ⭐ ASENKRON ZAMAN SENKRONİZASYONU FİLTRESİ (5 Saniye Akıllı Gecikme Rölesi)
+            // ⭐ KALİBRASYON: Blok kesin onaylandıktan sonra 5 saniyelik sayacı şimdi başlatıyoruz!
             logMesaji("Ağ senkronizasyonu için 5 saniye bekleniyor...");
             setTimeout(() => { checkTransactionStatusDirect(islemId); }, 5000);
         } catch (error) { arizaCozumle(error, "Alıcı Onay Verme İstasyonu"); }
@@ -452,11 +299,14 @@
             const islemId = document.getElementById('islemIdInput').value.trim(); if (!islemId || isNaN(parseInt(islemId))) return; if (!signer || !contract) return;
             logMesaji(`MetaMask tetikleniyor, ID: ${islemId} İade Süreci Başlatıldı...`);
             const tx = await contract.otonomIadeTetikle(BigInt(islemId), { gasLimit: 250000, maxPriorityFeePerGas: ethers.parseUnits("40", "gwei"), maxFeePerGas: ethers.parseUnits("50", "gwei") });
-            await tx.wait();
+            
+            logMesaji("İade faturası ağa kazınıyor...");
+            await tx.wait(); // Blok mühürlendi, işlem kesin bitti abi!
+            
             logMesaji("BAŞARILI: Emanet gönderene iade edildi abi!");
             raporOlustur("BAŞARILI", "Otonom İade Başarıyla Tamamlandı", { "Gerçekleşen İşlem": "Süresi Dolan USDT Gönderen Cüzdana İade Edildi" });
             
-            // ⭐ ASENKRON ZAMAN SENKRONİZASYONU FİLTRESİ
+            // ⭐ KALİBRASYON: Blok kesin onaylandıktan sonra 5 saniyelik sayacı şimdi başlatıyoruz!
             logMesaji("Ağ senkronizasyonu için 5 saniye bekleniyor...");
             setTimeout(() => { checkTransactionStatusDirect(islemId); }, 5000);
         } catch (error) { arizaCozumle(error, "Otonom İade Tetikleme İstasyonu"); }
@@ -468,7 +318,6 @@
         checkTransactionStatusDirect(idInput);
     }
 
-    // Saf RPC Call motoru (Kütüphanesiz Doğrudan Okuma)
     async function checkTransactionStatusDirect(idInput) {
         try {
             if (!provider) return;
