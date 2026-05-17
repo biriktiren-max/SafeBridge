@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V8.11 KESİN NİHAİ SÜRÜM</title>
+    <title>SafeBridge V8.12 KESİN NİHAİ SÜRÜM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V8.11 PRO</h2>
+    <h2>SafeBridge V8.12 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,7 +167,7 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[12:10:00] > Saf matris çözücülü nihai otonom motor montaja hazır abi.</div>
+    <div id="logKutusu" class="log-box">[12:16:54] > Filtreli matris motoru montaja hazır abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
@@ -314,7 +314,7 @@
         }
     }
 
-    // %100 KUSURSUZ SAF MATRİS MOTORU (Tüm nesne/indeks uyuşmazlıklarını devre dışı bırakır)
+    // %100 KUSURSUZ FİLTRELİ MOTOR (Meta verileri kesip atan jilet sistem)
     async function checkTransactionStatus() {
         logMesaji("Blockchain ağından veri paketi çözülüyor...", true);
         try {
@@ -327,16 +327,16 @@
 
             const txn = await contract.islemler(BigInt(id));
 
-            // KESKİN SÖKÜCÜ HAMLE: Gelen yapıyı düz JavaScript matris dizisine zorla çeviriyoruz abi.
-            // Bu sayede ethers v6'nın proxy nesnesi veya isimlendirme kuralları tamamen baypas edilir.
-            const safDizi = Object.values(txn);
-
-            const gonderen = String(safDizi[0]);
-            const alici = String(safDizi[1]);
-            const miktarWeiMetin = String(safDizi[2]);
-            const bitisZamaniMetin = String(safDizi[3]);
-            const tamamlandi = Boolean(safDizi[4]);
-            const iadeEdildi = Boolean(safDizi[5]);
+            // KESİN REVİZYON: Gelen nesneyi ham listeye çeviriyoruz ama SADECE ilk 6 saf veriyi alıyoruz abi!
+            // Böylece ethers'ın arkaya eklediği fonksiyon çöpleri sisteme sızamaz ve kilitlenme tamamen sıfırlanır.
+            const hamDizi = Object.values(txn);
+            
+            const gonderen = String(hamDizi[0]);
+            const alici = String(hamDizi[1]);
+            const miktarWeiMetin = String(hamDizi[2]);
+            const bitisZamaniMetin = String(hamDizi[3]);
+            const tamamlandi = Boolean(hamDizi[4]);
+            const iadeEdildi = Boolean(hamDizi[5]);
 
             if (gonderen === "0x0000000000000000000000000000000000000000" || gonderen === "undefined") {
                 logMesaji(`SORGULAMA İPTAL: ID: ${id} henüz blockchain üzerinde oluşturulmamış abi.`);
