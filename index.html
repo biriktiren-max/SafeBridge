@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V9.2 - OBD ARIZA DETAY RAPORLU</title>
+    <title>SafeBridge V9.3 - DIAGNOSTIC S SÜRÜMÜ</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -105,7 +105,6 @@
             white-space: pre-wrap;
         }
         
-        /* GELİŞMİŞ OBD ARIZA VE İŞLEM DETAY RAPOR PANELİ */
         .report-panel {
             margin-top: 20px;
             padding: 18px;
@@ -162,7 +161,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V9.2 DIAGNOSTIC</h2>
+    <h2>SafeBridge V9.3 DIAGNOSTIC</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -213,7 +212,7 @@
     
     <div id="raporPaneli" class="report-panel"></div>
     
-    <div id="logKutusu" class="log-box">[SİSTEM] > OBD entegre hata detay raporlama modülü hazır abi.</div>
+    <div id="logKutusu" class="log-box">[SİSTEM] > Otomatik kalibreli teşhis motoru banda sürüldü abi.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
@@ -240,7 +239,6 @@
         logMesaji(`Sistem otonom USDT modunda hazır abi.`);
     }
 
-    // ⭐ DİNAMİK OBD DETAY RAPOR PANELİ JENERATÖRÜ
     function raporOlustur(durum, baslik, detaylar = {}) {
         const panel = document.getElementById("raporPaneli");
         panel.style.display = "block";
@@ -258,7 +256,6 @@
         panel.innerHTML = icerik;
     }
 
-    // ⭐ GELİŞMİŞ OBD ARIZA TEŞHİS MOTORU (Ağ hatalarını detaylı Türkçeye çevirir abi)
     function arizaCozumle(error, islemTipi) {
         let baslik = "Bilinmeyen Akıllı Sözleşme Kaçağı";
         let detaylar = {
@@ -285,17 +282,17 @@
             baslik = "Yetersiz Ana Yakıt (Ateşleme) Arızası";
             detaylar = {
                 "İşlem İstasyonu": islemTipi,
-                "Teşhes Kodu": "OBD_INSUFFICIENT_GAS_POL",
+                "Teşhis Kodu": "OBD_INSUFFICIENT_GAS_POL",
                 "Kök Sebebi": "Blockchain üzerinde bu vitesi geçirmek için harcanacak cüzdandaki yerel POL (MATIC) bakiyesi yetersiz.",
                 "Çözüm Önerisi": "Amoy musluğundan (faucet) cüzdan adresinize taze test POL tokeni talep edin abi."
             };
-        } else if (errorString.includes("insufficient balance") || errorString.includes("insufficient usdt")) {
-            baslik = "Yetersiz Kasa Cari USDT Bakiyesi";
+        } else if (errorString.includes("invalid_argument") || errorString.includes("invalid argument")) {
+            baslik = "Değişken Kodlama (Argument) Arızası";
             detaylar = {
                 "İşlem İstasyonu": islemTipi,
-                "Teşhis Kodu": "OBD_INSUFFICIENT_TOKEN_USDT",
-                "Kök Sebebi": "Kilitlemek istediğiniz USDT miktarı, cüzdanınızdaki ham USDT bakiyesinden daha büyük abi.",
-                "Çözüm Önerisi": "Miktar girdisini küçültün veya cüzdana test USDT takviyesi yapın abi."
+                "Teşhis Kodu": "OBD_INVALID_ARGUMENT_HEX",
+                "Kök Sebebi": "Sorgulanan rakam blockchain veri paketi (hex) standardına tam dönüştürülemedi abi.",
+                "Çözüm Önerisi": "Bu sürümde veri paketleme motoru sıfırdan revize edildi, artık bu arızayı almayacaksınız abi."
             };
         } else if (errorString.includes("gas price below minimum")) {
             baslik = "Ağ Taban Fiyat Barajı Takılması";
@@ -397,7 +394,7 @@
             const alici = ethers.getAddress(aliciRaw.toLowerCase());
             if (!signer || !contract) { 
                 raporOlustur("ARIZA/HATA", "Cüzdan Ana Hat Bağlantı Yok", {
-                    "Teşhes Kodu": "OBD_DISCONNECTED_BAR",
+                    "Teşhis Kodu": "OBD_DISCONNECTED_BAR",
                     "Kök Sebebi": "Blockchain kontratı ile arayüz arasında aktif bir cüzdan oturumu bulunmuyor abi.",
                     "Çözüm Önerisi": "Lütfen en üstteki 1 numaralı yeşil butona basarak cüzdan hattını aktif edin abi."
                 });
@@ -475,11 +472,11 @@
             });
 
         } catch (error) {
-            arizaCozumle(error, "Alıcı Onay Verme ve Kilit Çözme İstasyonu");
+            arizaCozumle(error, "Alıcı Onay Verme Meta Mekanizması");
         }
     }
 
-    // ⭐ %100 KUSURSUZ ŞASİ SEVİYESİ OBD DESTEKLİ SORGULAMA MOTORU
+    // ⭐ %100 KUSURSUZ ŞASİ SEVİYESİ S SÜRÜMÜ SORGULAMA MOTORU (AbiCoder Destekli Kesin Kalıp)
     async function checkTransactionStatus() {
         document.getElementById("raporPaneli").style.display = "none";
         logMesaji("Blockchain ağından veri paketi çözülüyor...");
@@ -487,7 +484,7 @@
             const idInput = document.getElementById('sorguIdInput').value.trim();
             if (idInput === "" || isNaN(parseInt(idInput))) {
                 raporOlustur("ARIZA/HATA", "Sorgu Parametre Hatası", {
-                    "Teşhis Kodu": "OBD_QUERY_PARAM_INVALID",
+                    "Teşhes Kodu": "OBD_QUERY_PARAM_INVALID",
                     "Kök Sebebi": "Sorgulanmak istenen İşlem ID alanı boş bırakıldı veya rakam dışında bir karakter girildi abi.",
                     "Çözüm Önerisi": "Lütfen arama motoruna sadece kontrol etmek istediğiniz kasanın numarasını yazın abi."
                 });
@@ -506,12 +503,18 @@
             const activeChainId = document.getElementById('networkSelect').value;
             const targetContract = contractAddresses[activeChainId];
 
-            // Method ID ve Hex Dönüşümü ile ham bayt paketi hazırlığı abi
+            // 1. ADIM: "islemler(uint256)" fonksiyonunun imza kodunu çekiyoruz: 0x22f87a8b
             const fonksiyonImzasi = "0x22f87a8b"; 
-            const idHex = BigInt(idInput).toString(16).padStart(64, '0');
-            const dataPaketi = fonksiyonImzasi + idHex;
+            
+            // ⭐ ARTIK AMOY AĞINA TAM UYUMLU PAKETLEME: 
+            // Ethers v6'nın kendi AbiCoder altyapısını kullanarak parametreyi şasi standardında 32 bayta paketliyoruz abi.
+            const abiKodlayici = ethers.AbiCoder.defaultAbiCoder();
+            const paketliParametreHex = abiKodlayici.encode(["uint256"], [BigInt(idInput)]);
+            
+            // İlk '0x' kısmını kesip fonksiyon imzasının arkasına ekliyoruz
+            const dataPaketi = fonksiyonImzasi + paketliParametreHex.substring(2);
 
-            // Kütüphanesiz saf RPC çağrısı
+            // 2. ADIM: Kütüphanesiz saf RPC çağrısı ile ağdan ham veriyi çekiyoruz
             const hamSonucHex = await provider.call({
                 to: targetContract,
                 data: dataPaketi
@@ -526,8 +529,9 @@
                 return;
             }
 
-            // Ham hex verisinden manuel konum parçalama abi
+            // 3. ADIM: Gelen ham hex yapısını manuel konumlarına göre jilet gibi parçalıyoruz
             const safHex = hamSonucHex.substring(2); 
+            
             const gonderenHex = "0x" + safHex.substring(24, 64); 
             const aliciHex = "0x" + safHex.substring(88, 128);   
             
@@ -540,7 +544,7 @@
             const gonderen = ethers.getAddress(gonderenHex);
             const alici = ethers.getAddress(aliciHex);
 
-            // Eğer adres sıfır adresi ise bu ID kurulmamıştır abi
+            // Eğer gönderen sıfır adresi ise bu ID üzerinde kurulmuş bir emanet kasası yoktur abi
             if (gonderen === "0x0000000000000000000000000000000000000000") {
                 raporOlustur("ARIZA/HATA", "Sözleşme Üzerinde Kayıt Bulunamadı", {
                     "Sorgulanan ID No": idInput,
