@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge V8.7 GAS KORUMALI NİHAİ SÜRÜM</title>
+    <title>SafeBridge V8.8 ULTRA S SÜRÜM</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -118,7 +118,7 @@
 <body>
 
 <div class="container">
-    <h2>SafeBridge V8.7 PRO</h2>
+    <h2>SafeBridge V8.8 PRO</h2>
     
     <button id="connectButton" class="btn-connect" onclick="connectWallet()">1. CÜZDAN HATTINI BAĞLA</button>
     
@@ -167,13 +167,12 @@
     
     <div id="sorguSonuc" class="status-panel" style="display: none;"></div>
     
-    <div id="logKutusu" class="log-box">[14:20:00] > Gas limit korumalı, matris kalibrasyonlu otonom motor hazır abi.</div>
+    <div id="logKutusu" class="log-box">[14:30:00] > Ultra Gas kalibrasyonlu otonom motor hazır abi. Marşa basabiliriz.</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" type="text/javascript"></script>
 
 <script>
-    // Sizin başarıyla deploy ettiğiniz o orijinal v4 kontrat adresiniz abi, milimetrik sabit.
     const rawContractAddress = "0x40A42a59a72F571BEE77CE1e3aEAA54d2466986A"; 
     
     const contractABI = [
@@ -273,9 +272,11 @@
 
             logMesaji("MetaMask onay penceresi tetikleniyor...", true);
             
-            // KALİBRASYON: Amoy ağının tıkanıklığını aşmak için manuel geniş emniyet gas limiti vuruyoruz abi
+            // KESİN REVİZYON: Amoy ağının inatçı 25 Gwei alt limit barajını ezip geçecek yüksek gas kalibrasyonu abi
             const tx = await contract.emanetOlustur(alici, miktarWei, sureSaniye, {
-                gasLimit: 300000 
+                gasLimit: 300000,
+                maxPriorityFeePerGas: ethers.parseUnits("35", "gwei"), // Ağın istediği 25'i şahlandırıyoruz
+                maxFeePerGas: ethers.parseUnits("40", "gwei")
             });
             
             logMesaji("Emanet blockchain ağına gönderildi! Onay bekleniyor...", true);
@@ -283,7 +284,7 @@
             logMesaji("BAŞARILI: Emanet kaydı blockchain kasasına kilitlendi abi!", true);
         } catch (error) {
             console.error(error);
-            logMesaji("TEKNİK ARIZA: Gas limit veya ağ yoğunluğu pürüzü çıktı abi.");
+            logMesaji("TEKNİK ARIZA: Ağın gas limit veya fiyat politikasında pürüz çıktı.");
         }
     }
 
@@ -299,9 +300,11 @@
 
             logMesaji(`MetaMask tetikleniyor, ID: ${islemId} onaylanıyor...`, true);
             
-            // KALİBRASYON: Onay verme fonksiyonuna da aynı manuel emniyet payını ekledik abi
+            // KESİN REVİZYON: Aynı yüksek gas ve öncelik ücreti kalibrasyonunu onay mekanizmasına da çaktık abi
             const tx = await contract.aliciOnayVer(BigInt(islemId), {
-                gasLimit: 200000
+                gasLimit: 250000,
+                maxPriorityFeePerGas: ethers.parseUnits("35", "gwei"),
+                maxFeePerGas: ethers.parseUnits("40", "gwei")
             });
             
             logMesaji("Onay talebi blockchain ağına gönderildi...", true);
@@ -309,7 +312,7 @@
             logMesaji("BAŞARILI: Alıcı onayı verildi, para hesaba aktarıldı abi!", true);
         } catch (error) {
             console.error(error);
-            logMesaji("TEKNİK ARIZA: Gas limit veya ağ yoğunluğu pürüzü çıktı abi.");
+            logMesaji("TEKNİK ARIZA: Ağın gas limit veya fiyat politikasında pürüz çıktı.");
         }
     }
 
