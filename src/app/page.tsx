@@ -93,9 +93,7 @@ export default function HomePage() {
   const [activeEscrows, setActiveEscrows] = useState([]);
 
   const t = LANGUAGES[lang as keyof typeof LANGUAGES];
-
-  const getProvider = () => new ethers.BrowserProvider(window.ethereum);
-
+const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
   const checkNetwork = useCallback(async (provider) => {
     try {
       const network = await provider.getNetwork();
