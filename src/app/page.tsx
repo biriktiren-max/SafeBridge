@@ -2,12 +2,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 
+// window.ethereum tip tanımı (30 hatanın ana kaynağı buydu)
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 // 🛡️ SafeBridge Amoy Test Ağı (Polygon Amoy - Chain ID: 80002 / 0x13882)
 const TARGET_CHAIN_ID = "0x13882";
 const TARGET_NETWORK_NAME = "Polygon Amoy Testnet";
 
 // 💰 AKILLI SÖZLEŞME ADRESİ (Amoy'da Deploy Edilen Adres)
-// ⚠️ Kontratı yeniden deploy ettikten sonra (claimFunds düzeltmesiyle) bu adresi güncelle!
+// ⚠️ Kontratı yeniden deploy ettikten sonra bu adresi güncelle!
 const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
 
 const CONTRACT_ABI = [
@@ -20,6 +27,14 @@ const CONTRACT_ABI = [
   "event FundsClaimed(uint256 id, address indexed receiver, uint256 amount)",
   "event BridgeCancelled(uint256 id, address indexed sender, uint256 amount)"
 ];
+
+// Escrow listesi için tip
+interface EscrowItem {
+  id: string;
+  seller: string;
+  amount: string;
+  desc: string;
+}
 
 const LANGUAGES = {
   tr: {
@@ -79,7 +94,7 @@ const LANGUAGES = {
 };
 
 export default function HomePage() {
-  const [lang, setLang] = useState("tr");
+  const [lang, setLang] = useState<"tr" | "en">("tr");
   const [account, setAccount] = useState("");
   const [vaultBalance, setVaultBalance] = useState("0.0000");
   const [status, setStatus] = useState("");
@@ -90,11 +105,13 @@ export default function HomePage() {
   const [escrowDesc, setEscrowDesc] = useState("");
   const [escrowPassword, setEscrowPassword] = useState("");
   const [lockHours, setLockHours] = useState("24");
-  const [activeEscrows, setActiveEscrows] = useState([]);
+  const [activeEscrows, setActiveEscrows] = useState<EscrowItem[]>([]);
 
-  const t = LANGUAGES[lang as keyof typeof LANGUAGES];
-const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
-  const checkNetwork = useCallback(async (provider) => {
+  const t = LANGUAGES[lang];
+
+  const getProvider = () => new ethers.BrowserProvider(window.ethereum);
+
+  const checkNetwork = useCallback(async (provider: ethers.BrowserProvider) => {
     try {
       const network = await provider.getNetwork();
       const currentChainId = "0x" + network.chainId.toString(16);
@@ -111,7 +128,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
     }
   }, [t.statusWrongNet]);
 
-  const refreshVaultBalance = useCallback(async (provider) => {
+  const refreshVaultBalance = useCallback(async (provider: ethers.BrowserProvider) => {
     try {
       const contractBal = await provider.getBalance(CONTRACT_ADDRESS);
       setVaultBalance(ethers.formatEther(contractBal));
@@ -129,7 +146,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
       });
       setIsWrongNetwork(false);
       setStatus(t.statusCorrectNet);
-    } catch (err) {
+    } catch (err: any) {
       if (err.code === 4902) {
         try {
           await window.ethereum.request({
@@ -163,7 +180,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
     try {
       setStatus(t.statusConnecting);
       const provider = getProvider();
-      const accounts = await provider.send("eth_requestAccounts", []);
+      const accounts: string[] = await provider.send("eth_requestAccounts", []);
       setAccount(accounts[0]);
 
       const isOk = await checkNetwork(provider);
@@ -181,7 +198,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
   useEffect(() => {
     if (!window.ethereum) return;
 
-    const handleAccountsChanged = (accounts) => {
+    const handleAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         setAccount("");
         setStatus("🔌 Cüzdan bağlantısı kesildi.");
@@ -200,7 +217,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
     (async () => {
       try {
         const provider = getProvider();
-        const accounts = await provider.send("eth_accounts", []);
+        const accounts: string[] = await provider.send("eth_accounts", []);
         if (accounts.length > 0) {
           setAccount(accounts[0]);
           const isOk = await checkNetwork(provider);
@@ -245,7 +262,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
       const receipt = await tx.wait();
 
       // Gerçek escrow ID'sini rastgele UYDURMAK yerine BridgeCreated event'inden oku.
-      let realId = null;
+      let realId: string | null = null;
       for (const log of receipt.logs) {
         try {
           const parsed = contract.interface.parseLog(log);
@@ -253,12 +270,19 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
             realId = parsed.args.id.toString();
             break;
           }
-        } catch (_) { /* bu log kontrata ait değil, atla */ }
+        } catch {
+          /* bu log kontrata ait değil, atla */
+        }
+      }
+
+      if (!realId) {
+        setStatus("⚠️ İşlem geçti ama BridgeCreated event'i okunamadı. Polygonscan'den ID'yi kontrol et.");
+        return;
       }
 
       setStatus(`✅ BAŞARILI! ${escrowAmount} POL kasaya kilitlendi. (ID: ${realId})`);
       setActiveEscrows((prev) => [...prev, {
-        id: realId,
+        id: realId as string,
         seller: escrowSeller.slice(0, 6) + "..." + escrowSeller.slice(-4),
         amount: `${escrowAmount} POL`,
         desc: escrowDesc
@@ -266,13 +290,13 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
       setEscrowAmount(""); setEscrowSeller(""); setEscrowDesc(""); setEscrowPassword("");
 
       await refreshVaultBalance(provider);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       setStatus(`❌ Hata: ${err.reason || err.message || "İşlem başarısız veya reddedildi"}`);
     }
   };
 
-  const handleRelease = async (id) => {
+  const handleRelease = async (id: string) => {
     const inputPass = prompt("Kasa Şifresini girin:");
     if (!inputPass) return;
 
@@ -291,14 +315,14 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
       setActiveEscrows((prev) => prev.filter((item) => item.id !== id));
       setStatus("✅ Kasa çözüldü.");
       await refreshVaultBalance(provider);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       alert("❌ Yanlış şifre veya yetkisiz işlem!");
       setStatus(`❌ Kilit açılamadı: ${err.reason || err.message || ""}`);
     }
   };
 
-  const handleCancel = async (id) => {
+  const handleCancel = async (id: string) => {
     try {
       const provider = getProvider();
       const signer = await provider.getSigner();
@@ -312,7 +336,7 @@ const getProvider = () => new ethers.BrowserProvider((window as any).ethereum);
       setActiveEscrows((prev) => prev.filter((item) => item.id !== id));
       setStatus("✅ İptal tamamlandı.");
       await refreshVaultBalance(provider);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
       alert("❌ İptal edilemedi (süre henüz dolmamış olabilir).");
       setStatus(`❌ İptal başarısız: ${err.reason || err.message || ""}`);
