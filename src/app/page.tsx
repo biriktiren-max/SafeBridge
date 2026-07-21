@@ -92,7 +92,7 @@ export default function HomePage() {
   const [lockHours, setLockHours] = useState("24");
   const [activeEscrows, setActiveEscrows] = useState([]);
 
-  const t = LANGUAGES[lang];
+  const t = LANGUAGES[lang as keyof typeof LANGUAGES];
 
   const getProvider = () => new ethers.BrowserProvider(window.ethereum);
 
