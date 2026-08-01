@@ -17,7 +17,7 @@
                 Cloudflare Secured
             </span>
             <span class="text-[10px] text-emerald-400 font-mono border-l border-slate-700 pl-2">
-                📡 QR Code Engine Active
+                📡 Web3Modal Live Engine
             </span>
         </div>
 
@@ -31,7 +31,7 @@
             SafeBridge Global 🦅
         </h1>
         <p class="text-gray-400 text-sm sm:text-base mt-2 font-medium">
-            %100 Merkeziyetsiz, Karekod & Mobil Uyumlu Zırhlı Ticaret Köprüsü
+            Tüm Mobil & Soğuk Cüzdanlarla Uyumlu Zırhlı Ticaret Köprüsü
         </p>
     </div>
 
@@ -44,8 +44,8 @@
             <h2 id="vaultBalance" class="text-3xl sm:text-4xl font-mono font-black text-white mt-1">0.0000 POL</h2>
             <span class="text-[11px] text-gray-400 block mt-0.5">Sözleşmede kilitli varlık miktarı</span>
         </div>
-        <button id="connectBtn" onclick="openWalletModal()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-bold py-3.5 px-8 rounded-2xl text-sm transition-all shadow-lg active:scale-95 cursor-pointer flex items-center justify-center gap-2">
-            <span>🔗</span> Cüzdan Bağla
+        <button id="connectBtn" onclick="openWeb3Modal()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-bold py-3.5 px-8 rounded-2xl text-sm transition-all shadow-lg active:scale-95 cursor-pointer flex items-center justify-center gap-2">
+            <span>🔗</span> Cüzdan Bağla (QR / Mobil / Soğuk)
         </button>
     </div>
 
@@ -124,50 +124,240 @@
 
     </div>
 
-    <div id="walletModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-md w-full rounded-3xl p-6 space-y-4 shadow-2xl relative">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <span>👛</span> Güvenli Cüzdan Bağlantısı
+    <div id="guideModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 max-w-2xl w-full rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
+                    <span>📖</span> SafeBridge Kullanım Talimatı
                 </h3>
-                <button onclick="closeWalletModal()" class="text-gray-400 hover:text-white font-bold text-xl p-1 cursor-pointer">✕</button>
+                <button onclick="toggleGuide(false)" class="text-gray-400 hover:text-white font-bold text-xl p-1 active:scale-90 transition-all cursor-pointer">✕</button>
             </div>
 
-            <div class="space-y-3">
-                <button onclick="connectWalletConnect()" class="w-full p-4 bg-gradient-to-r from-blue-950/90 to-indigo-950/90 hover:from-blue-900 hover:to-indigo-900 border border-blue-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group shadow-lg">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">📱</span>
-                        <div class="text-left">
-                            <span class="font-bold text-sm text-white block group-hover:text-blue-300">WalletConnect (Karekod Okut)</span>
-                            <span class="text-[11px] text-gray-300 block">Trust Wallet, Ledger, Rainbow, MetaMask QR</span>
-                        </div>
-                    </div>
-                    <span class="text-xs text-blue-400 font-bold bg-blue-900/60 px-2.5 py-1 rounded-lg">Karekod Aç →</span>
-                </button>
-
-                <button onclick="connectBrowserWallet()" class="w-full p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl">💻</span>
-                        <div class="text-left">
-                            <span class="font-bold text-sm text-white block group-hover:text-emerald-400">Tarayıcı Cüzdanı (Masaüstü)</span>
-                            <span class="text-[11px] text-gray-500 block">MetaMask, Rabby, Trust Eklentisi</span>
-                        </div>
-                    </div>
-                    <span class="text-xs text-emerald-400 font-semibold">Bağlan →</span>
-                </button>
-
-                <button onclick="openMetaMaskMobile()" class="w-full p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
-                    <div class="flex items-center gap-3">
-                        <span class="text-xl">🦊</span>
-                        <div class="text-left">
-                            <span class="font-bold text-sm text-white block group-hover:text-amber-400">MetaMask Mobil Uygulaması</span>
-                            <span class="text-[11px] text-gray-500 block">Doğrudan uygulamaya geçiş yap</span>
-                        </div>
-                    </div>
-                    <span class="text-xs text-amber-400 font-semibold">Aç →</span>
-                </button>
+            <div class="space-y-4 text-xs sm:text-sm text-gray-300">
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+                    <span class="font-bold text-emerald-400 block mb-1">1. Karekod (QR Code) İle Bağlanma</span>
+                    <strong>"Cüzdan Bağla"</strong> butonuna tıkladığınızda açılan pencerede mobil cihazınızdaki Trust Wallet, MetaMask, Ledger veya Rainbow uygulamasıyla Karekodu taratın.
+                </div>
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
+                    <span class="font-bold text-emerald-400 block mb-1">2. Cep Telefonundan Bağlanma</span>
+                    Telefondan girildiğinde listeden kullandığınız cüzdanı seçin; uygulama otomatik olarak açılarak bağlantıyı onaylayacaktır.
+                </div>
             </div>
+
+            <button onclick="toggleGuide(false)" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all cursor-pointer text-xs">
+                Anladım, Kokpite Dön 🚀
+            </button>
         </div>
     </div>
 
-    <div id="guideModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-
+    <div class="mt-12 text-center space-y-2">
+        <div class="flex items-center justify-center gap-2 text-[11px] text-gray-500 font-mono">
+            <span>🛡️ Cloudflare Protected</span> • <span>SSL 256-Bit Encrypted</span> • <span>Keccak256 Mempool Shield</span>
+        </div>
+        <div class="text-gray-600 text-xs font-mono">
+            SafeBridge v7.0 • Polygon Mainnet Live • Official Web3Modal ESM Active 🛡️
+        </div>
+    </div>
+
+    <script type="module">
+        import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers@5.1.11?bundle';
+        import { BrowserProvider, Contract, parseEther, parseUnits, formatEther, keccak256, toUtf8Bytes } from 'https://esm.sh/ethers@6.13.2?bundle';
+
+        const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
+        const projectId = '84094a9a4b868e61405e6080353c7c25';
+
+        const TOKEN_ADDRESSES = {
+            POL: "0x0000000000000000000000000000000000000000",
+            USDT: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+            XAUT: "0x68749665FF8D2d112Fa859AA293F07A622782F38"
+        };
+
+        const CONTRACT_ABI = [
+            "function createBridge(address _seller, bytes32 _passwordHash, uint256 _hours, address _tokenAddress, uint256 _amount) public payable",
+            "function claimFunds(uint256 _id, bytes32 _password) public",
+            "function cancelAndRefund(uint256 _id) public"
+        ];
+
+        const ERC20_ABI = [
+            "function approve(address spender, uint256 amount) public returns (bool)"
+        ];
+
+        const polygon = {
+            chainId: 137,
+            name: 'Polygon Mainnet',
+            currency: 'POL',
+            explorerUrl: 'https://polygonscan.com',
+            rpcUrl: 'https://polygon-rpc.com'
+        };
+
+        const metadata = {
+            name: 'SafeBridge Global',
+            description: 'Decentralized Escrow Protocol',
+            url: 'https://safebridgeglobal.com',
+            icons: ['https://safebridgeglobal.com/favicon.ico']
+        };
+
+        const ethersConfig = defaultConfig({
+            metadata,
+            enableEIP6963: true,
+            enableInjected: true,
+            enableCoinbase: true,
+            rpcUrl: 'https://polygon-rpc.com'
+        });
+
+        // Orijinal Web3Modal Modalı Başlatılıyor
+        const modal = createWeb3Modal({
+            ethersConfig,
+            chains: [polygon],
+            projectId,
+            themeMode: 'dark',
+            themeVariables: {
+                '--w3m-accent': '#059669',
+                '--w3m-border-radius-master': '2px'
+            }
+        });
+
+        // Küresel Yardımcı Fonksiyonlar
+        window.openWeb3Modal = () => modal.open();
+
+        window.toggleGuide = (show) => {
+            const m = document.getElementById("guideModal");
+            if (show) m.classList.remove("hidden");
+            else m.classList.add("hidden");
+        };
+
+        window.generatePassword = () => {
+            const randomPass = "SAFE-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+            document.getElementById("secretPassword").value = randomPass;
+            showStatus("🎲 Şifre üretildi: " + randomPass, "blue");
+        };
+
+        function showStatus(text, color) {
+            const box = document.getElementById("statusBox");
+            box.innerText = text;
+            if (color === "green") box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-emerald-950/60 border border-emerald-800 text-emerald-300";
+            else if (color === "red") box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-red-950/60 border border-red-800 text-red-300";
+            else box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-blue-950/60 border border-blue-800 text-blue-300";
+        }
+
+        async function updateVaultBalance() {
+            try {
+                if (window.activeProvider) {
+                    const balance = await window.activeProvider.getBalance(CONTRACT_ADDRESS);
+                    document.getElementById("vaultBalance").innerText = parseFloat(formatEther(balance)).toFixed(4) + " POL";
+                }
+            } catch (err) {
+                document.getElementById("vaultBalance").innerText = "0.0000 POL";
+            }
+        }
+
+        // Cüzdan Bağlantı Dinleyicisi
+        modal.subscribeProvider(async (state) => {
+            if (state.isConnected) {
+                const walletProvider = modal.getWalletProvider();
+                window.activeProvider = new BrowserProvider(walletProvider);
+                const signer = await window.activeProvider.getSigner();
+                window.userAccount = await signer.getAddress();
+
+                document.getElementById("connectBtn").innerText = "🟢 " + window.userAccount.slice(0,6) + "..." + window.userAccount.slice(-4);
+                
+                const userBal = await window.activeProvider.getBalance(window.userAccount);
+                showStatus("🟢 Polygon Mainnet Bağlandı | Bakiye: " + parseFloat(formatEther(userBal)).toFixed(4) + " POL", "green");
+                updateVaultBalance();
+            } else {
+                window.activeProvider = null;
+                window.userAccount = null;
+                document.getElementById("connectBtn").innerText = "🔗 Cüzdan Bağla (QR / Mobil / Soğuk)";
+                showStatus("Cüzdan bağlantısı kesildi.", "red");
+            }
+        });
+
+        window.createEscrow = async () => {
+            if (!window.userAccount || !window.activeProvider) {
+                window.openWeb3Modal();
+                return;
+            }
+            const seller = document.getElementById("sellerAddress").value;
+            const selectedToken = document.getElementById("tokenSelect").value;
+            const amount = document.getElementById("amount").value;
+            const hours = document.getElementById("hours").value;
+            const pass = document.getElementById("secretPassword").value;
+
+            if (!seller || !amount || !pass) return alert("Lütfen tüm alanları doldurun!");
+
+            try {
+                const signer = await window.activeProvider.getSigner();
+                const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                const passHash = keccak256(toUtf8Bytes(pass));
+                const hoursBigInt = BigInt(hours);
+                const tokenAddr = TOKEN_ADDRESSES[selectedToken];
+
+                if (selectedToken === "POL") {
+                    const parsedAmount = parseEther(amount);
+                    showStatus("⏳ İşlem Cüzdana Gönderildi... Lütfen Onaylayın", "blue");
+                    const tx = await contract.createBridge(seller, passHash, hoursBigInt, tokenAddr, parsedAmount, {
+                        value: parsedAmount
+                    });
+
+                    showStatus("⏳ Blokzincir onayı bekleniyor (POL)...", "blue");
+                    await tx.wait();
+
+                    showStatus("✅ BAŞARILI! POL varlığı kasaya kilitlendi.", "green");
+                    alert("🎉 GERÇEK TİCARET KİLİTLENDİ!\n\nVarlık: POL\nKilit Şifreniz: " + pass);
+                } else {
+                    const decimals = selectedToken === "USDT" ? 6 : 18;
+                    const parsedAmount = parseUnits(amount, decimals);
+                    const tokenContract = new Contract(tokenAddr, ERC20_ABI, signer);
+
+                    showStatus(`⏳ 1/2: ${selectedToken} Harcama İzni İsteniyor...`, "blue");
+                    const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, parsedAmount);
+                    await approveTx.wait();
+
+                    showStatus(`⏳ 2/2: ${selectedToken} Kasaya Kilitleniyor...`, "blue");
+                    const tx = await contract.createBridge(seller, passHash, hoursBigInt, tokenAddr, parsedAmount, {
+                        value: 0
+                    });
+
+                    showStatus(`⏳ Blokzincir onayı bekleniyor (${selectedToken})...`, "blue");
+                    await tx.wait();
+
+                    showStatus(`✅ BAŞARILI! ${amount} ${selectedToken} kasaya kilitlendi.`, "green");
+                    alert(`🎉 GERÇEK TİCARET KİLİTLENDİ!\n\nVarlık: ${selectedToken}\nKilit Şifreniz: ` + pass);
+                }
+                updateVaultBalance();
+            } catch (err) {
+                console.error("HATA:", err);
+                let errMsg = err.reason || err.shortMessage || err.message || "";
+                showStatus("❌ HATA: " + errMsg.slice(0, 80), "red");
+            }
+        };
+
+        window.claimEscrow = async () => {
+            if (!window.userAccount || !window.activeProvider) {
+                window.openWeb3Modal();
+                return;
+            }
+            const id = document.getElementById("claimId").value;
+            const pass = document.getElementById("claimPassword").value;
+
+            if (!id || !pass) return alert("Lütfen İşlem ID ve Şifreyi girin!");
+
+            try {
+                const signer = await window.activeProvider.getSigner();
+                const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                const passHash = keccak256(toUtf8Bytes(pass));
+
+                showStatus("⏳ Kilit açma kanıtı Polygon ağına gönderiliyor...", "blue");
+                const tx = await contract.claimFunds(BigInt(id), passHash);
+                await tx.wait();
+
+                showStatus("🎉 KİLİT AÇILDI! Fonlar satıcıya aktarıldı.", "green");
+                updateVaultBalance();
+            } catch (err) {
+                console.error(err);
+                showStatus("❌ Kilit açılamadı! Şifreyi veya İşlem ID'yi kontrol edin.", "red");
+            }
+        };
+    </script>
+</body>
+</html>
