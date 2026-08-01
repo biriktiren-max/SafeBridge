@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge - Güvenli İskelet</title>
-  <meta name="description" content="Escrow işlem akışları için güvenli frontend iskeleti" />
+  <title>SafeBridge - Read Only Production UI</title>
+  <meta name="description" content="SafeBridge canlı ağ için salt-okunur arayüz" />
   <script src="[cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
 <body class="min-h-screen bg-slate-950 text-white font-sans">
@@ -16,7 +16,7 @@
             SafeBridge
           </h1>
           <p class="mt-2 text-slate-400 text-sm md:text-base">
-            Escrow işlem akışları için güvenli frontend iskeleti
+            Canlı ağ için salt-okunur izleme arayüzü
           </p>
         </div>
 
@@ -26,13 +26,13 @@
           class="rounded-2xl bg-slate-800 border border-slate-700 px-5 py-3 text-sm font-bold text-slate-200 cursor-not-allowed opacity-70"
           disabled
         >
-          Cüzdan entegrasyonu henüz aktif değil
+          İşlem gönderimi kapalı
         </button>
       </div>
     </header>
 
-    <section class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
-      Bu sayfa yalnızca <strong>güvenli iskelet</strong> sürümdür. Gerçek zincir işlemi, token onayı, fon transferi veya cüzdan imzası göndermez.
+    <section class="mb-6 rounded-2xl border border-blue-500/30 bg-blue-500/10 p-4 text-sm text-blue-200">
+      Bu sürüm yalnızca bilgi gösterimi içindir. Cüzdan bağlama, approve, transfer, claim ve refund işlemleri kapalıdır.
     </section>
 
     <section
@@ -40,412 +40,146 @@
       class="mb-6 rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-300"
       aria-live="polite"
     >
-      Sistem hazır. Form girişleri doğrulanabilir.
+      Sistem hazır. Bu ekran yalnızca izleme ve doğrulama amaçlıdır.
     </section>
 
     <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h2 class="mb-5 text-xl font-bold text-emerald-400">1. Escrow Oluşturma</h2>
+        <h2 class="mb-5 text-xl font-bold text-emerald-400">Ağ ve Kontrat Bilgileri</h2>
 
-        <form id="createForm" class="space-y-4" novalidate>
-          <div>
-            <label for="sellerAddress" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Satıcı Cüzdan Adresi
-            </label>
-            <input
-              id="sellerAddress"
-              name="sellerAddress"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              inputmode="text"
-              placeholder="0x ile başlayan 42 karakter adres"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-            />
-            <p class="mt-1 text-xs text-slate-500">Yalnızca adres formatı kontrol edilir.</p>
+        <div class="space-y-4 text-sm">
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">Ağ</div>
+            <div id="networkName" class="font-semibold text-white">Polygon Mainnet</div>
           </div>
 
-          <div>
-            <label for="tokenSelect" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Varlık Türü
-            </label>
-            <select
-              id="tokenSelect"
-              name="tokenSelect"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">Chain ID</div>
+            <div id="chainId" class="font-mono text-cyan-300">137</div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">Escrow Kontrat Adresi</div>
+            <div id="contractAddress" class="break-all font-mono text-emerald-300">
+              0x71C95911E9a5D330f4D621842EC243EE1343292e
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">Explorer</div>
+            <a
+              id="explorerLink"
+              href="[polygonscan.com](https://polygonscan.com/address/0x71C95911E9a5D330f4D621842EC243EE1343292e)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-cyan-400 underline break-all"
             >
-              <option value="POL">POL</option>
-              <option value="USDT">USDT</option>
-              <option value="XAUT">XAUT</option>
-            </select>
+              polygonscan.com/address/0x71C95911E9a5D330f4D621842EC243EE1343292e
+            </a>
           </div>
-
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label for="amount" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-                Miktar
-              </label>
-              <input
-                id="amount"
-                name="amount"
-                type="number"
-                min="0.000001"
-                step="0.000001"
-                inputmode="decimal"
-                placeholder="0.00"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-              />
-            </div>
-
-            <div>
-              <label for="hours" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-                Süre (Saat)
-              </label>
-              <input
-                id="hours"
-                name="hours"
-                type="number"
-                min="1"
-                max="720"
-                step="1"
-                value="24"
-                inputmode="numeric"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label for="secretPassword" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Gizli Şifre
-            </label>
-            <div class="flex gap-2">
-              <input
-                id="secretPassword"
-                name="secretPassword"
-                type="text"
-                autocomplete="off"
-                spellcheck="false"
-                placeholder="En az 12 karakter"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-              />
-              <button
-                id="generatePasswordBtn"
-                type="button"
-                class="rounded-xl border border-emerald-700 bg-emerald-900/40 px-4 py-3 text-xs font-bold text-emerald-300 hover:bg-emerald-900/70 transition"
-              >
-                Şifre Üret
-              </button>
-            </div>
-            <p class="mt-1 text-xs text-slate-500">Şifre yalnızca örnek amaçlı üretilir; bu sürüm blockchain işlemi yapmaz.</p>
-          </div>
-
-          <button
-            type="submit"
-            class="w-full rounded-xl bg-emerald-600 px-4 py-4 font-bold text-white transition hover:bg-emerald-700"
-          >
-            Formu Doğrula
-          </button>
-        </form>
+        </div>
       </article>
 
       <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h2 class="mb-5 text-xl font-bold text-cyan-400">2. Kilit Açma Verisi</h2>
+        <h2 class="mb-5 text-xl font-bold text-cyan-400">Desteklenen Varlıklar</h2>
 
-        <form id="claimForm" class="space-y-4" novalidate>
-          <div>
-            <label for="claimId" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              İşlem ID
-            </label>
-            <input
-              id="claimId"
-              name="claimId"
-              type="number"
-              min="0"
-              step="1"
-              inputmode="numeric"
-              placeholder="0"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
-            />
+        <div class="space-y-4">
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="font-bold text-white">POL</div>
+            <div class="mt-1 text-xs text-slate-400">Native coin</div>
+            <div class="mt-2 text-xs font-mono text-slate-300">Adres: Native asset</div>
           </div>
 
-          <div>
-            <label for="claimPassword" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Şifre
-            </label>
-            <input
-              id="claimPassword"
-              name="claimPassword"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="Gizli şifre"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
-            />
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="font-bold text-white">USDT</div>
+            <div class="mt-1 text-xs text-slate-400">ERC-20 token</div>
+            <div class="mt-2 text-xs font-mono text-slate-300 break-all">
+              Adres: 0xc2132D05D31c914a87C6611C10748AEb04B58e8F
+            </div>
           </div>
 
-          <button
-            type="submit"
-            class="w-full rounded-xl bg-cyan-600 px-4 py-4 font-bold text-white transition hover:bg-cyan-700"
-          >
-            Kilit Açma Verisini Doğrula
-          </button>
-        </form>
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="font-bold text-white">XAUT</div>
+            <div class="mt-1 text-xs text-slate-400">ERC-20 token</div>
+            <div class="mt-2 text-xs font-mono text-slate-300 break-all">
+              Adres: 0x68749665FF8D2d112Fa859AA293F07A622782F38
+            </div>
+          </div>
+        </div>
       </article>
     </section>
 
     <section class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
       <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h3 class="mb-4 text-lg font-bold text-white">Doğrulama Sonucu</h3>
-        <pre
-          id="resultBox"
-          class="min-h-[220px] overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-300 whitespace-pre-wrap"
-        ></pre>
+        <h3 class="mb-4 text-lg font-bold text-white">Bağlantı Durumu</h3>
+        <div class="space-y-4 text-sm">
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">Cüzdan</div>
+            <div id="walletStatus" class="text-slate-300">Devre dışı</div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">İşlem Gönderimi</div>
+            <div id="txStatus" class="text-amber-300">Kapalı</div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
+            <div class="text-xs uppercase text-slate-500 mb-1">İzin Durumu</div>
+            <div id="approvalStatus" class="text-amber-300">Approve akışı kapalı</div>
+          </div>
+        </div>
       </article>
 
       <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h3 class="mb-4 text-lg font-bold text-white">Entegrasyon Noktaları</h3>
+        <h3 class="mb-4 text-lg font-bold text-white">Operasyonel Notlar</h3>
         <div class="space-y-3 text-sm text-slate-300">
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            <strong class="text-emerald-400">connectWallet()</strong><br />
-            Gerçek cüzdan bağlantısı buraya eklenir.
+            Kontrat adresi, ağ ve token bilgileri yalnızca görüntülenir.
           </div>
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            <strong class="text-emerald-400">createEscrowRequest()</strong><br />
-            Backend veya kontrat çağrısı burada uygulanır.
+            Bu sürüm kullanıcıdan imza veya on-chain işlem istemez.
           </div>
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            <strong class="text-emerald-400">claimEscrowRequest()</strong><br />
-            Kilit açma veya çekim akışı burada uygulanır.
-          </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            <strong class="text-emerald-400">auditLog()</strong><br />
-            İstek geçmişi ve hata kayıtları burada tutulur.
+            Üretim öncesi güvenlik incelemesi yapılmadan işlem modülü açılmamalıdır.
           </div>
         </div>
       </article>
     </section>
+
+    <section class="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+      <h3 class="mb-4 text-lg font-bold text-white">Sistem Çıktısı</h3>
+      <pre
+        id="resultBox"
+        class="min-h-[180px] overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-300 whitespace-pre-wrap"
+      ></pre>
+    </section>
   </main>
 
   <script>
-    const statusBox = document.getElementById('statusBox');
+    const CONFIG = {
+      networkName: 'Polygon Mainnet',
+      chainId: 137,
+      contractAddress: '0x71C95911E9a5D330f4D621842EC243EE1343292e',
+      explorerBaseUrl: '[polygonscan.com](https://polygonscan.com/address/)'
+    };
+
     const resultBox = document.getElementById('resultBox');
-    const createForm = document.getElementById('createForm');
-    const claimForm = document.getElementById('claimForm');
-    const generatePasswordBtn = document.getElementById('generatePasswordBtn');
 
-    function setStatus(message, tone = 'info') {
-      const themes = {
-        info: 'border-slate-800 bg-slate-900 text-slate-300',
-        success: 'border-emerald-800 bg-emerald-950/50 text-emerald-200',
-        error: 'border-red-800 bg-red-950/50 text-red-200'
+    function renderSystemInfo() {
+      const payload = {
+        mode: 'read-only',
+        network: CONFIG.networkName,
+        chainId: CONFIG.chainId,
+        contractAddress: CONFIG.contractAddress,
+        transactionSendingEnabled: false,
+        walletConnectionEnabled: false,
+        approvalEnabled: false
       };
 
-      statusBox.className = `mb-6 rounded-2xl px-4 py-3 text-sm ${themes[tone] || themes.info}`;
-      statusBox.textContent = message;
+      resultBox.textContent = JSON.stringify(payload, null, 2);
     }
 
-    function renderResult(data) {
-      resultBox.textContent = JSON.stringify(data, null, 2);
-    }
-
-    function isValidEvmAddress(value) {
-      return /^0x[a-fA-F0-9]{40}$/.test(value);
-    }
-
-    function isPositiveNumber(value) {
-      const num = Number(value);
-      return Number.isFinite(num) && num > 0;
-    }
-
-    function isIntegerInRange(value, min, max) {
-      const num = Number(value);
-      return Number.isInteger(num) && num >= min && num <= max;
-    }
-
-    function hasMinLength(value, minLength) {
-      return typeof value === 'string' && value.trim().length >= minLength;
-    }
-
-    function generateSecurePassword(length = 18) {
-      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
-      const bytes = new Uint8Array(length);
-      crypto.getRandomValues(bytes);
-
-      return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
-    }
-
-    function normalizeCreatePayload(formData) {
-      return {
-        sellerAddress: formData.get('sellerAddress')?.trim() || '',
-        token: formData.get('tokenSelect')?.trim() || '',
-        amount: formData.get('amount')?.trim() || '',
-        hours: formData.get('hours')?.trim() || '',
-        secretPassword: formData.get('secretPassword') || ''
-      };
-    }
-
-    function normalizeClaimPayload(formData) {
-      return {
-        claimId: formData.get('claimId')?.trim() || '',
-        claimPassword: formData.get('claimPassword') || ''
-      };
-    }
-
-    function validateCreatePayload(payload) {
-      const errors = [];
-
-      if (!isValidEvmAddress(payload.sellerAddress)) {
-        errors.push('Satıcı adresi geçerli bir EVM adresi değil.');
-      }
-
-      if (!['POL', 'USDT', 'XAUT'].includes(payload.token)) {
-        errors.push('Varlık türü geçersiz.');
-      }
-
-      if (!isPositiveNumber(payload.amount)) {
-        errors.push('Miktar sıfırdan büyük bir sayı olmalı.');
-      }
-
-      if (!isIntegerInRange(payload.hours, 1, 720)) {
-        errors.push('Süre 1 ile 720 arasında tam sayı olmalı.');
-      }
-
-      if (!hasMinLength(payload.secretPassword, 12)) {
-        errors.push('Gizli şifre en az 12 karakter olmalı.');
-      }
-
-      return {
-        ok: errors.length === 0,
-        errors
-      };
-    }
-
-    function validateClaimPayload(payload) {
-      const errors = [];
-
-      if (!isIntegerInRange(payload.claimId, 0, 1000000000)) {
-        errors.push('İşlem ID 0 veya daha büyük tam sayı olmalı.');
-      }
-
-      if (!hasMinLength(payload.claimPassword, 12)) {
-        errors.push('Şifre en az 12 karakter olmalı.');
-      }
-
-      return {
-        ok: errors.length === 0,
-        errors
-      };
-    }
-
-    async function connectWallet() {
-      throw new Error('Bu iskelette gerçek cüzdan bağlantısı kapalıdır.');
-    }
-
-    async function createEscrowRequest(payload) {
-      return {
-        ok: true,
-        mode: 'skeleton',
-        type: 'createEscrowRequest',
-        payload
-      };
-    }
-
-    async function claimEscrowRequest(payload) {
-      return {
-        ok: true,
-        mode: 'skeleton',
-        type: 'claimEscrowRequest',
-        payload
-      };
-    }
-
-    function auditLog(eventName, payload) {
-      console.log(`[audit] ${eventName}`, payload);
-    }
-
-    generatePasswordBtn.addEventListener('click', () => {
-      const password = generateSecurePassword();
-      document.getElementById('secretPassword').value = password;
-
-      auditLog('password.generated', { length: password.length });
-      setStatus('Güçlü örnek şifre üretildi.', 'success');
-    });
-
-    createForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const payload = normalizeCreatePayload(new FormData(createForm));
-      const validation = validateCreatePayload(payload);
-
-      if (!validation.ok) {
-        auditLog('create.validation_failed', validation.errors);
-        setStatus('Escrow formunda düzeltilmesi gereken alanlar var.', 'error');
-        renderResult({
-          ok: false,
-          action: 'createEscrowValidation',
-          errors: validation.errors
-        });
-        return;
-      }
-
-      try {
-        const response = await createEscrowRequest({
-          sellerAddress: payload.sellerAddress,
-          token: payload.token,
-          amount: Number(payload.amount),
-          hours: Number(payload.hours),
-          secretPasswordLength: payload.secretPassword.trim().length
-        });
-
-        auditLog('create.validated', response);
-        setStatus('Form doğrulandı. Bu sürüm gerçek zincir işlemi göndermez.', 'success');
-        renderResult(response);
-      } catch (error) {
-        auditLog('create.request_failed', { message: error.message });
-        setStatus('İşlem hazırlanırken hata oluştu.', 'error');
-        renderResult({
-          ok: false,
-          message: error.message
-        });
-      }
-    });
-
-    claimForm.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const payload = normalizeClaimPayload(new FormData(claimForm));
-      const validation = validateClaimPayload(payload);
-
-      if (!validation.ok) {
-        auditLog('claim.validation_failed', validation.errors);
-        setStatus('Kilit açma formunda düzeltilmesi gereken alanlar var.', 'error');
-        renderResult({
-          ok: false,
-          action: 'claimEscrowValidation',
-          errors: validation.errors
-        });
-        return;
-      }
-
-      try {
-        const response = await claimEscrowRequest({
-          claimId: Number(payload.claimId),
-          claimPasswordLength: payload.claimPassword.trim().length
-        });
-
-        auditLog('claim.validated', response);
-        setStatus('Kilit açma verisi doğrulandı. Bu sürüm gerçek zincir işlemi göndermez.', 'success');
-        renderResult(response);
-      } catch (error) {
-        auditLog('claim.request_failed', { message: error.message });
-        setStatus('Kilit açma verisi hazırlanırken hata oluştu.', 'error');
-        renderResult({
-          ok: false,
-          message: error.message
-        });
-      }
-    });
+    renderSystemInfo();
   </script>
 </body>
 </html>
