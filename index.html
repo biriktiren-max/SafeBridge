@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeBridge Global 🦅</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
 </head>
 <body class="bg-[#0f172a] text-white font-sans min-h-screen flex flex-col items-center p-4 sm:p-8">
 
@@ -18,7 +17,7 @@
                 Cloudflare Secured
             </span>
             <span class="text-[10px] text-emerald-400 font-mono border-l border-slate-700 pl-2">
-                🔒 Active Protection
+                📡 QR Code Engine Active
             </span>
         </div>
 
@@ -32,7 +31,7 @@
             SafeBridge Global 🦅
         </h1>
         <p class="text-gray-400 text-sm sm:text-base mt-2 font-medium">
-            %100 Merkeziyetsiz, Kriptografik Zırhlı Ticaret Köprüsü
+            %100 Merkeziyetsiz, Karekod & Mobil Uyumlu Zırhlı Ticaret Köprüsü
         </p>
     </div>
 
@@ -129,267 +128,46 @@
         <div class="bg-slate-900 border border-slate-800 max-w-md w-full rounded-3xl p-6 space-y-4 shadow-2xl relative">
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <span>👛</span> Bağlantı Yöntemini Seçin
+                    <span>👛</span> Güvenli Cüzdan Bağlantısı
                 </h3>
                 <button onclick="closeWalletModal()" class="text-gray-400 hover:text-white font-bold text-xl p-1 cursor-pointer">✕</button>
             </div>
 
             <div class="space-y-3">
-                <button onclick="connectBrowserWallet()" class="w-full p-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
+                <button onclick="connectWalletConnect()" class="w-full p-4 bg-gradient-to-r from-blue-950/90 to-indigo-950/90 hover:from-blue-900 hover:to-indigo-900 border border-blue-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group shadow-lg">
                     <div class="flex items-center gap-3">
-                        <span class="text-2xl">💻</span>
+                        <span class="text-2xl">📱</span>
+                        <div class="text-left">
+                            <span class="font-bold text-sm text-white block group-hover:text-blue-300">WalletConnect (Karekod Okut)</span>
+                            <span class="text-[11px] text-gray-300 block">Trust Wallet, Ledger, Rainbow, MetaMask QR</span>
+                        </div>
+                    </div>
+                    <span class="text-xs text-blue-400 font-bold bg-blue-900/60 px-2.5 py-1 rounded-lg">Karekod Aç →</span>
+                </button>
+
+                <button onclick="connectBrowserWallet()" class="w-full p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-emerald-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">💻</span>
                         <div class="text-left">
                             <span class="font-bold text-sm text-white block group-hover:text-emerald-400">Tarayıcı Cüzdanı (Masaüstü)</span>
-                            <span class="text-[11px] text-gray-400 block">MetaMask, Rabby, Trust, Coinbase Eklentisi</span>
+                            <span class="text-[11px] text-gray-500 block">MetaMask, Rabby, Trust Eklentisi</span>
                         </div>
                     </div>
-                    <span class="text-xs text-emerald-400 font-bold">Bağlan →</span>
+                    <span class="text-xs text-emerald-400 font-semibold">Bağlan →</span>
                 </button>
 
-                <button onclick="openMetaMaskMobile()" class="w-full p-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
+                <button onclick="openMetaMaskMobile()" class="w-full p-3.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
                     <div class="flex items-center gap-3">
-                        <span class="text-2xl">🦊</span>
+                        <span class="text-xl">🦊</span>
                         <div class="text-left">
                             <span class="font-bold text-sm text-white block group-hover:text-amber-400">MetaMask Mobil Uygulaması</span>
-                            <span class="text-[11px] text-gray-400 block">Telefondaki MetaMask uygulamasını doğrudan aç</span>
+                            <span class="text-[11px] text-gray-500 block">Doğrudan uygulamaya geçiş yap</span>
                         </div>
                     </div>
-                    <span class="text-xs text-amber-400 font-bold">Aç →</span>
-                </button>
-
-                <button onclick="openTrustWalletMobile()" class="w-full p-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-blue-500/50 rounded-2xl flex items-center justify-between transition-all cursor-pointer group">
-                    <div class="flex items-center gap-3">
-                        <span class="text-2xl">🛡️</span>
-                        <div class="text-left">
-                            <span class="font-bold text-sm text-white block group-hover:text-blue-400">Trust Wallet Mobil Uygulaması</span>
-                            <span class="text-[11px] text-gray-400 block">Telefondaki Trust Wallet uygulamasını doğrudan aç</span>
-                        </div>
-                    </div>
-                    <span class="text-xs text-blue-400 font-bold">Aç →</span>
+                    <span class="text-xs text-amber-400 font-semibold">Aç →</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="guideModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-2xl w-full rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
-                    <span>📖</span> SafeBridge Kullanım Talimatı
-                </h3>
-                <button onclick="toggleGuide(false)" class="text-gray-400 hover:text-white font-bold text-xl p-1 active:scale-90 transition-all cursor-pointer">✕</button>
-            </div>
-
-            <div class="space-y-4 text-xs sm:text-sm text-gray-300">
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="font-bold text-emerald-400 block mb-1">1. Bilgisayardan Kullanım</span>
-                    Masaüstü tarayıcınızda (Chrome/Brave) MetaMask eklentisi açıkken <strong>"Tarayıcı Cüzdanı (Masaüstü)"</strong> butonuna tıklayın.
-                </div>
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="font-bold text-emerald-400 block mb-1">2. Cep Telefonundan Kullanım</span>
-                    Mobil cihazınızda hangi cüzdan uygulaması yüklüyse (MetaMask veya Trust Wallet), ilgili butona tıklayarak dApp tarayıcısını doğrudan başlatın.
-                </div>
-            </div>
-
-            <button onclick="toggleGuide(false)" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all cursor-pointer text-xs">
-                Anladım, Kokpite Dön 🚀
-            </button>
-        </div>
-    </div>
-
-    <div class="mt-12 text-center space-y-2">
-        <div class="flex items-center justify-center gap-2 text-[11px] text-gray-500 font-mono">
-            <span>🛡️ Cloudflare Protected</span> • <span>SSL 256-Bit Encrypted</span> • <span>Keccak256 Mempool Shield</span>
-        </div>
-        <div class="text-gray-600 text-xs font-mono">
-            SafeBridge v6.2 • Polygon Mainnet Live 🛡️
-        </div>
-    </div>
-
-    <script>
-        const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
-
-        const TOKEN_ADDRESSES = {
-            POL: "0x0000000000000000000000000000000000000000",
-            USDT: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-            XAUT: "0x68749665FF8D2d112Fa859AA293F07A622782F38"
-        };
-
-        const CONTRACT_ABI = [
-            "function createBridge(address _seller, bytes32 _passwordHash, uint256 _hours, address _tokenAddress, uint256 _amount) public payable",
-            "function claimFunds(uint256 _id, bytes32 _password) public",
-            "function cancelAndRefund(uint256 _id) public"
-        ];
-
-        const ERC20_ABI = [
-            "function approve(address spender, uint256 amount) public returns (bool)"
-        ];
-
-        let account = null;
-        let activeProvider = null;
-
-        function openWalletModal() {
-            document.getElementById("walletModal").classList.remove("hidden");
-        }
-
-        function closeWalletModal() {
-            document.getElementById("walletModal").classList.add("hidden");
-        }
-
-        function toggleGuide(show) {
-            const modal = document.getElementById("guideModal");
-            if (show) modal.classList.remove("hidden");
-            else modal.classList.add("hidden");
-        }
-
-        function generatePassword() {
-            const randomPass = "SAFE-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-            document.getElementById("secretPassword").value = randomPass;
-            showStatus("🎲 Şifre üretildi: " + randomPass, "blue");
-        }
-
-        function openMetaMaskMobile() {
-            closeWalletModal();
-            window.location.href = "https://metamask.app.link/dapp/safebridgeglobal.com";
-        }
-
-        function openTrustWalletMobile() {
-            closeWalletModal();
-            window.location.href = "https://link.trustwallet.com/open_url?url=https://safebridgeglobal.com";
-        }
-
-        async function connectBrowserWallet() {
-            closeWalletModal();
-            if (!window.ethereum) {
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                if (isMobile) {
-                    openMetaMaskMobile();
-                    return;
-                }
-                showStatus("⚠️ Tarayıcınızda cüzdan eklentisi bulunamadı!", "red");
-                return alert("Tarayıcınızda MetaMask/Trust Wallet eklentisi bulunamadı!");
-            }
-            try {
-                showStatus("⏳ Cüzdan onayı bekleniyor...", "blue");
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                account = accounts[0];
-                activeProvider = new ethers.BrowserProvider(window.ethereum);
-                document.getElementById("connectBtn").innerText = "🟢 " + account.slice(0,6) + "..." + account.slice(-4);
-                
-                const userBal = await activeProvider.getBalance(account);
-                showStatus("🟢 Polygon Mainnet Bağlandı | Bakiye: " + parseFloat(ethers.formatEther(userBal)).toFixed(4) + " POL", "green");
-                updateVaultBalance(activeProvider);
-            } catch (err) {
-                console.error(err);
-                showStatus("❌ Cüzdan bağlantısı reddedildi.", "red");
-            }
-        }
-
-        async function updateVaultBalance(provider) {
-            try {
-                const balance = await provider.getBalance(CONTRACT_ADDRESS);
-                if (balance && typeof ethers !== 'undefined' && ethers.formatEther) {
-                    document.getElementById("vaultBalance").innerText = parseFloat(ethers.formatEther(balance)).toFixed(4) + " POL";
-                }
-            } catch (err) {
-                document.getElementById("vaultBalance").innerText = "0.0000 POL";
-            }
-        }
-
-        async function createEscrow() {
-            if (!account || !activeProvider) {
-                openWalletModal();
-                return;
-            }
-            const seller = document.getElementById("sellerAddress").value;
-            const selectedToken = document.getElementById("tokenSelect").value;
-            const amount = document.getElementById("amount").value;
-            const hours = document.getElementById("hours").value;
-            const pass = document.getElementById("secretPassword").value;
-
-            if (!seller || !amount || !pass) return alert("Lütfen tüm alanları doldurun!");
-
-            try {
-                const signer = await activeProvider.getSigner();
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                const passHash = ethers.keccak256(ethers.toUtf8Bytes(pass));
-                const hoursBigInt = BigInt(hours);
-                const tokenAddr = TOKEN_ADDRESSES[selectedToken];
-
-                if (selectedToken === "POL") {
-                    const parsedAmount = ethers.parseEther(amount);
-                    showStatus("⏳ İşlem Cüzdana Gönderildi... Lütfen Onaylayın", "blue");
-                    const tx = await contract.createBridge(seller, passHash, hoursBigInt, tokenAddr, parsedAmount, {
-                        value: parsedAmount
-                    });
-
-                    showStatus("⏳ Blokzincir onayı bekleniyor (POL)...", "blue");
-                    await tx.wait();
-
-                    showStatus("✅ BAŞARILI! POL varlığı kasaya kilitlendi.", "green");
-                    alert("🎉 GERÇEK TİCARET KİLİTLENDİ!\n\nVarlık: POL\nKilit Şifreniz: " + pass);
-                } else {
-                    const decimals = selectedToken === "USDT" ? 6 : 18;
-                    const parsedAmount = ethers.parseUnits(amount, decimals);
-                    const tokenContract = new ethers.Contract(tokenAddr, ERC20_ABI, signer);
-
-                    showStatus(`⏳ 1/2: ${selectedToken} Harcama İzni İsteniyor...`, "blue");
-                    const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, parsedAmount);
-                    await approveTx.wait();
-
-                    showStatus(`⏳ 2/2: ${selectedToken} Kasaya Kilitleniyor...`, "blue");
-                    const tx = await contract.createBridge(seller, passHash, hoursBigInt, tokenAddr, parsedAmount, {
-                        value: 0
-                    });
-
-                    showStatus(`⏳ Blokzincir onayı bekleniyor (${selectedToken})...`, "blue");
-                    await tx.wait();
-
-                    showStatus(`✅ BAŞARILI! ${amount} ${selectedToken} kasaya kilitlendi.`, "green");
-                    alert(`🎉 GERÇEK TİCARET KİLİTLENDİ!\n\nVarlık: ${selectedToken}\nKilit Şifreniz: ` + pass);
-                }
-                updateVaultBalance(activeProvider);
-            } catch (err) {
-                console.error("HATA:", err);
-                let errMsg = err.reason || err.shortMessage || err.message || "";
-                showStatus("❌ HATA: " + errMsg.slice(0, 80), "red");
-            }
-        }
-
-        async function claimEscrow() {
-            if (!account || !activeProvider) {
-                openWalletModal();
-                return;
-            }
-            const id = document.getElementById("claimId").value;
-            const pass = document.getElementById("claimPassword").value;
-
-            if (!id || !pass) return alert("Lütfen İşlem ID ve Şifreyi girin!");
-
-            try {
-                const signer = await activeProvider.getSigner();
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                const passHash = ethers.keccak256(ethers.toUtf8Bytes(pass));
-
-                showStatus("⏳ Kilit açma kanıtı Polygon ağına gönderiliyor...", "blue");
-                const tx = await contract.claimFunds(BigInt(id), passHash);
-                await tx.wait();
-
-                showStatus("🎉 KİLİT AÇILDI! Fonlar satıcıya aktarıldı.", "green");
-                updateVaultBalance(activeProvider);
-            } catch (err) {
-                console.error(err);
-                showStatus("❌ Kilit açılamadı! Şifreyi veya İşlem ID'yi kontrol edin.", "red");
-            }
-        }
-
-        function showStatus(text, color) {
-            const box = document.getElementById("statusBox");
-            box.innerText = text;
-            if (color === "green") box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-emerald-950/60 border border-emerald-800 text-emerald-300";
-            else if (color === "red") box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-red-950/60 border border-red-800 text-red-300";
-            else box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-blue-950/60 border border-blue-800 text-blue-300";
-        }
-    </script>
-</body>
-</html>
+    <div id="guideModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-
