@@ -1,363 +1,451 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge Global 🦅</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeBridge - Güvenli İskelet</title>
+  <meta name="description" content="Escrow işlem akışları için güvenli frontend iskeleti" />
+  <script src="[cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 </head>
-<body class="bg-[#0f172a] text-white font-sans min-h-screen flex flex-col items-center p-4 sm:p-8">
-
-    <div class="w-full max-w-4xl flex items-center justify-between mb-6 pb-4 border-b border-slate-800/80">
-        <div class="flex items-center gap-2 bg-slate-900 border border-amber-500/30 px-3.5 py-1.5 rounded-full shadow-md">
-            <span class="text-amber-400 font-bold text-xs flex items-center gap-1.5">
-                <svg class="w-4 h-4 fill-amber-400 inline" viewBox="0 0 24 24">
-                    <path d="M12 2L3 6v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-5.45 9-12V6l-9-4zm-2 16l-4-4 1.41-1.41L10 15.17l6.59-6.59L18 10l-8 8z"/>
-                </svg>
-                Cloudflare Secured
-            </span>
-            <span class="text-[10px] text-emerald-400 font-mono border-l border-slate-700 pl-2">
-                📡 Web3Modal Live Engine
-            </span>
-        </div>
-
-        <button onclick="toggleGuide(true)" class="bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/40 font-bold px-4 py-1.5 rounded-full text-xs transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer">
-            <span>📖</span> Kullanıcı Rehberi
-        </button>
-    </div>
-
-    <div class="text-center mb-8">
-        <h1 class="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-indigo-500">
-            SafeBridge Global 🦅
-        </h1>
-        <p class="text-gray-400 text-sm sm:text-base mt-2 font-medium">
-            Tüm Mobil & Soğuk Cüzdanlarla Uyumlu Zırhlı Ticaret Köprüsü
-        </p>
-    </div>
-
-    <div class="w-full max-w-4xl bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-2xl mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+<body class="min-h-screen bg-slate-950 text-white font-sans">
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <header class="mb-8">
+      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-            <span class="text-xs text-blue-400 font-bold tracking-widest uppercase flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Mainnet Kasa Havuzu
-            </span>
-            <h2 id="vaultBalance" class="text-3xl sm:text-4xl font-mono font-black text-white mt-1">0.0000 POL</h2>
-            <span class="text-[11px] text-gray-400 block mt-0.5">Sözleşmede kilitli varlık miktarı</span>
+          <h1 class="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+            SafeBridge
+          </h1>
+          <p class="mt-2 text-slate-400 text-sm md:text-base">
+            Escrow işlem akışları için güvenli frontend iskeleti
+          </p>
         </div>
-        <button id="connectBtn" onclick="openWeb3Modal()" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-bold py-3.5 px-8 rounded-2xl text-sm transition-all shadow-lg active:scale-95 cursor-pointer flex items-center justify-center gap-2">
-            <span>🔗</span> Cüzdan Bağla (QR / Mobil / Soğuk)
+
+        <button
+          id="walletBtn"
+          type="button"
+          class="rounded-2xl bg-slate-800 border border-slate-700 px-5 py-3 text-sm font-bold text-slate-200 cursor-not-allowed opacity-70"
+          disabled
+        >
+          Cüzdan entegrasyonu henüz aktif değil
         </button>
-    </div>
+      </div>
+    </header>
 
-    <div id="statusBox" class="w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-slate-950 border border-slate-800 text-gray-400 transition-all">
-        Cüzdan bağlantısı bekleniyor...
-    </div>
+    <section class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+      Bu sayfa yalnızca <strong>güvenli iskelet</strong> sürümdür. Gerçek zincir işlemi, token onayı, fon transferi veya cüzdan imzası göndermez.
+    </section>
 
-    <div class="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <section
+      id="statusBox"
+      class="mb-6 rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-300"
+      aria-live="polite"
+    >
+      Sistem hazır. Form girişleri doğrulanabilir.
+    </section>
 
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-            <h3 class="text-lg font-bold text-emerald-400 border-b border-slate-800 pb-3 flex items-center gap-2">
-                <span>🤝</span> 1. Zırhlı Escrow İşlemi Başlat
-            </h3>
-            
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+        <h2 class="mb-5 text-xl font-bold text-emerald-400">1. Escrow Oluşturma</h2>
+
+        <form id="createForm" class="space-y-4" novalidate>
+          <div>
+            <label for="sellerAddress" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+              Satıcı Cüzdan Adresi
+            </label>
+            <input
+              id="sellerAddress"
+              name="sellerAddress"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              inputmode="text"
+              placeholder="0x ile başlayan 42 karakter adres"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
+            />
+            <p class="mt-1 text-xs text-slate-500">Yalnızca adres formatı kontrol edilir.</p>
+          </div>
+
+          <div>
+            <label for="tokenSelect" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+              Varlık Türü
+            </label>
+            <select
+              id="tokenSelect"
+              name="tokenSelect"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
+            >
+              <option value="POL">POL</option>
+              <option value="USDT">USDT</option>
+              <option value="XAUT">XAUT</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Satıcı Cüzdan Adresi (42 Karakter)</label>
-                <input id="sellerAddress" type="text" placeholder="0x..." class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-emerald-400 font-mono text-sm outline-none focus:border-emerald-500">
+              <label for="amount" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+                Miktar
+              </label>
+              <input
+                id="amount"
+                name="amount"
+                type="number"
+                min="0.000001"
+                step="0.000001"
+                inputmode="decimal"
+                placeholder="0.00"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
+              />
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Kasada Kilitlenecek Varlık</label>
-                <select id="tokenSelect" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-semibold text-sm outline-none focus:border-emerald-500 cursor-pointer">
-                    <option value="POL">🟣 POL (Polygon Mainnet Coin)</option>
-                    <option value="USDT">💵 USDT (Tether Dolar)</option>
-                    <option value="XAUT">🥇 XAUT / PAXG (Dijital Altın)</option>
-                </select>
+              <label for="hours" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+                Süre (Saat)
+              </label>
+              <input
+                id="hours"
+                name="hours"
+                type="number"
+                min="1"
+                max="720"
+                step="1"
+                value="24"
+                inputmode="numeric"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
+              />
             </div>
+          </div>
 
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Miktar</label>
-                    <input id="amount" type="number" step="0.0001" placeholder="0.00" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Süre (Saat)</label>
-                    <input id="hours" type="number" value="1" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm outline-none focus:border-emerald-500">
-                </div>
+          <div>
+            <label for="secretPassword" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+              Gizli Şifre
+            </label>
+            <div class="flex gap-2">
+              <input
+                id="secretPassword"
+                name="secretPassword"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="En az 12 karakter"
+                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
+              />
+              <button
+                id="generatePasswordBtn"
+                type="button"
+                class="rounded-xl border border-emerald-700 bg-emerald-900/40 px-4 py-3 text-xs font-bold text-emerald-300 hover:bg-emerald-900/70 transition"
+              >
+                Şifre Üret
+              </button>
             </div>
+            <p class="mt-1 text-xs text-slate-500">Şifre yalnızca örnek amaçlı üretilir; bu sürüm blockchain işlemi yapmaz.</p>
+          </div>
 
-            <div>
-                <label class="block text-xs font-bold text-emerald-400 uppercase mb-1">🔒 Gizli Kilit Şifresi</label>
-                <div class="flex gap-2 items-center">
-                    <input id="secretPassword" type="text" placeholder="Şifre girin veya üretin" class="w-full p-3 bg-slate-950 border border-emerald-900 rounded-xl text-emerald-400 font-mono font-bold text-sm outline-none focus:border-emerald-500">
-                    <button type="button" onclick="generatePassword()" class="bg-emerald-950 hover:bg-emerald-900 text-emerald-400 border border-emerald-800 font-bold px-4 py-3 rounded-xl text-xs whitespace-nowrap active:scale-95 transition-all cursor-pointer">
-                        🎲 Şifre Üret
-                    </button>
-                </div>
-            </div>
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-emerald-600 px-4 py-4 font-bold text-white transition hover:bg-emerald-700"
+          >
+            Formu Doğrula
+          </button>
+        </form>
+      </article>
 
-            <button onclick="createEscrow()" class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer mt-2">
-                🤝 Şifrele & Kasaya Kilitle
-            </button>
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+        <h2 class="mb-5 text-xl font-bold text-cyan-400">2. Kilit Açma Verisi</h2>
+
+        <form id="claimForm" class="space-y-4" novalidate>
+          <div>
+            <label for="claimId" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+              İşlem ID
+            </label>
+            <input
+              id="claimId"
+              name="claimId"
+              type="number"
+              min="0"
+              step="1"
+              inputmode="numeric"
+              placeholder="0"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
+            />
+          </div>
+
+          <div>
+            <label for="claimPassword" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
+              Şifre
+            </label>
+            <input
+              id="claimPassword"
+              name="claimPassword"
+              type="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="Gizli şifre"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-cyan-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full rounded-xl bg-cyan-600 px-4 py-4 font-bold text-white transition hover:bg-cyan-700"
+          >
+            Kilit Açma Verisini Doğrula
+          </button>
+        </form>
+      </article>
+    </section>
+
+    <section class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+        <h3 class="mb-4 text-lg font-bold text-white">Doğrulama Sonucu</h3>
+        <pre
+          id="resultBox"
+          class="min-h-[220px] overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-300 whitespace-pre-wrap"
+        ></pre>
+      </article>
+
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+        <h3 class="mb-4 text-lg font-bold text-white">Entegrasyon Noktaları</h3>
+        <div class="space-y-3 text-sm text-slate-300">
+          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <strong class="text-emerald-400">connectWallet()</strong><br />
+            Gerçek cüzdan bağlantısı buraya eklenir.
+          </div>
+          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <strong class="text-emerald-400">createEscrowRequest()</strong><br />
+            Backend veya kontrat çağrısı burada uygulanır.
+          </div>
+          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <strong class="text-emerald-400">claimEscrowRequest()</strong><br />
+            Kilit açma veya çekim akışı burada uygulanır.
+          </div>
+          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <strong class="text-emerald-400">auditLog()</strong><br />
+            İstek geçmişi ve hata kayıtları burada tutulur.
+          </div>
         </div>
+      </article>
+    </section>
+  </main>
 
-        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4 flex flex-col justify-between">
-            <div class="space-y-4">
-                <h3 class="text-lg font-bold text-blue-400 border-b border-slate-800 pb-3 flex items-center gap-2">
-                    <span>🔑</span> 2. Kilit Aç & Fonu Çek (Satıcı)
-                </h3>
+  <script>
+    const statusBox = document.getElementById('statusBox');
+    const resultBox = document.getElementById('resultBox');
+    const createForm = document.getElementById('createForm');
+    const claimForm = document.getElementById('claimForm');
+    const generatePasswordBtn = document.getElementById('generatePasswordBtn');
 
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">İşlem ID (Kasa No)</label>
-                    <input id="claimId" type="number" placeholder="Örn: 0, 1, 2..." class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-blue-400 font-mono text-sm outline-none focus:border-blue-500">
-                </div>
+    function setStatus(message, tone = 'info') {
+      const themes = {
+        info: 'border-slate-800 bg-slate-900 text-slate-300',
+        success: 'border-emerald-800 bg-emerald-950/50 text-emerald-200',
+        error: 'border-red-800 bg-red-950/50 text-red-200'
+      };
 
-                <div>
-                    <label class="block text-xs font-bold text-blue-400 uppercase mb-1">🔑 Belirlenen Gizli Şifre</label>
-                    <input id="claimPassword" type="text" placeholder="Kilit şifresini girin" class="w-full p-3 bg-slate-950 border border-blue-900 rounded-xl text-white font-mono text-sm outline-none focus:border-blue-500">
-                </div>
-            </div>
+      statusBox.className = `mb-6 rounded-2xl px-4 py-3 text-sm ${themes[tone] || themes.info}`;
+      statusBox.textContent = message;
+    }
 
-            <button onclick="claimEscrow()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 cursor-pointer">
-                🔑 Kilidi Aç & Fonu Satıcıya Aktar
-            </button>
-        </div>
+    function renderResult(data) {
+      resultBox.textContent = JSON.stringify(data, null, 2);
+    }
 
-    </div>
+    function isValidEvmAddress(value) {
+      return /^0x[a-fA-F0-9]{40}$/.test(value);
+    }
 
-    <div id="guideModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 max-w-2xl w-full rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 flex items-center gap-2">
-                    <span>📖</span> SafeBridge Kullanım Talimatı
-                </h3>
-                <button onclick="toggleGuide(false)" class="text-gray-400 hover:text-white font-bold text-xl p-1 active:scale-90 transition-all cursor-pointer">✕</button>
-            </div>
+    function isPositiveNumber(value) {
+      const num = Number(value);
+      return Number.isFinite(num) && num > 0;
+    }
 
-            <div class="space-y-4 text-xs sm:text-sm text-gray-300">
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="font-bold text-emerald-400 block mb-1">1. Karekod (QR Code) İle Bağlanma</span>
-                    <strong>"Cüzdan Bağla"</strong> butonuna tıkladığınızda açılan pencerede mobil cihazınızdaki Trust Wallet, MetaMask, Ledger veya Rainbow uygulamasıyla Karekodu taratın.
-                </div>
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="font-bold text-emerald-400 block mb-1">2. Cep Telefonundan Bağlanma</span>
-                    Telefondan girildiğinde listeden kullandığınız cüzdanı seçin; uygulama otomatik olarak açılarak bağlantıyı onaylayacaktır.
-                </div>
-            </div>
+    function isIntegerInRange(value, min, max) {
+      const num = Number(value);
+      return Number.isInteger(num) && num >= min && num <= max;
+    }
 
-            <button onclick="toggleGuide(false)" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all cursor-pointer text-xs">
-                Anladım, Kokpite Dön 🚀
-            </button>
-        </div>
-    </div>
+    function hasMinLength(value, minLength) {
+      return typeof value === 'string' && value.trim().length >= minLength;
+    }
 
-    <div class="mt-12 text-center space-y-2">
-        <div class="flex items-center justify-center gap-2 text-[11px] text-gray-500 font-mono">
-            <span>🛡️ Cloudflare Protected</span> • <span>SSL 256-Bit Encrypted</span> • <span>Keccak256 Mempool Shield</span>
-        </div>
-        <div class="text-gray-600 text-xs font-mono">
-            SafeBridge v7.0 • Polygon Mainnet Live • Official Web3Modal ESM Active 🛡️
-        </div>
-    </div>
+    function generateSecurePassword(length = 18) {
+      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
+      const bytes = new Uint8Array(length);
+      crypto.getRandomValues(bytes);
 
-    <script type="module">
-        import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers@5.1.11?bundle';
-        import { BrowserProvider, Contract, parseEther, parseUnits, formatEther, keccak256, toUtf8Bytes } from 'https://esm.sh/ethers@6.13.2?bundle';
+      return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join('');
+    }
 
-        const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
-        const projectId = '84094a9a4b868e61405e6080353c7c25';
+    function normalizeCreatePayload(formData) {
+      return {
+        sellerAddress: formData.get('sellerAddress')?.trim() || '',
+        token: formData.get('tokenSelect')?.trim() || '',
+        amount: formData.get('amount')?.trim() || '',
+        hours: formData.get('hours')?.trim() || '',
+        secretPassword: formData.get('secretPassword') || ''
+      };
+    }
 
-        const TOKEN_ADDRESSES = {
-            POL: "0x0000000000000000000000000000000000000000",
-            USDT: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-            XAUT: "0x68749665FF8D2d112Fa859AA293F07A622782F38"
-        };
+    function normalizeClaimPayload(formData) {
+      return {
+        claimId: formData.get('claimId')?.trim() || '',
+        claimPassword: formData.get('claimPassword') || ''
+      };
+    }
 
-        const CONTRACT_ABI = [
-            "function createBridge(address _seller, bytes32 _passwordHash, uint256 _hours, address _tokenAddress, uint256 _amount) public payable",
-            "function claimFunds(uint256 _id, bytes32 _password) public",
-            "function cancelAndRefund(uint256 _id) public"
-        ];
+    function validateCreatePayload(payload) {
+      const errors = [];
 
-        const ERC20_ABI = [
-            "function approve(address spender, uint256 amount) public returns (bool)"
-        ];
+      if (!isValidEvmAddress(payload.sellerAddress)) {
+        errors.push('Satıcı adresi geçerli bir EVM adresi değil.');
+      }
 
-        const polygon = {
-            chainId: 137,
-            name: 'Polygon Mainnet',
-            currency: 'POL',
-            explorerUrl: 'https://polygonscan.com',
-            rpcUrl: 'https://polygon-rpc.com'
-        };
+      if (!['POL', 'USDT', 'XAUT'].includes(payload.token)) {
+        errors.push('Varlık türü geçersiz.');
+      }
 
-        const metadata = {
-            name: 'SafeBridge Global',
-            description: 'Decentralized Escrow Protocol',
-            url: 'https://safebridgeglobal.com',
-            icons: ['https://safebridgeglobal.com/favicon.ico']
-        };
+      if (!isPositiveNumber(payload.amount)) {
+        errors.push('Miktar sıfırdan büyük bir sayı olmalı.');
+      }
 
-        const ethersConfig = defaultConfig({
-            metadata,
-            enableEIP6963: true,
-            enableInjected: true,
-            enableCoinbase: true,
-            rpcUrl: 'https://polygon-rpc.com'
+      if (!isIntegerInRange(payload.hours, 1, 720)) {
+        errors.push('Süre 1 ile 720 arasında tam sayı olmalı.');
+      }
+
+      if (!hasMinLength(payload.secretPassword, 12)) {
+        errors.push('Gizli şifre en az 12 karakter olmalı.');
+      }
+
+      return {
+        ok: errors.length === 0,
+        errors
+      };
+    }
+
+    function validateClaimPayload(payload) {
+      const errors = [];
+
+      if (!isIntegerInRange(payload.claimId, 0, 1000000000)) {
+        errors.push('İşlem ID 0 veya daha büyük tam sayı olmalı.');
+      }
+
+      if (!hasMinLength(payload.claimPassword, 12)) {
+        errors.push('Şifre en az 12 karakter olmalı.');
+      }
+
+      return {
+        ok: errors.length === 0,
+        errors
+      };
+    }
+
+    async function connectWallet() {
+      throw new Error('Bu iskelette gerçek cüzdan bağlantısı kapalıdır.');
+    }
+
+    async function createEscrowRequest(payload) {
+      return {
+        ok: true,
+        mode: 'skeleton',
+        type: 'createEscrowRequest',
+        payload
+      };
+    }
+
+    async function claimEscrowRequest(payload) {
+      return {
+        ok: true,
+        mode: 'skeleton',
+        type: 'claimEscrowRequest',
+        payload
+      };
+    }
+
+    function auditLog(eventName, payload) {
+      console.log(`[audit] ${eventName}`, payload);
+    }
+
+    generatePasswordBtn.addEventListener('click', () => {
+      const password = generateSecurePassword();
+      document.getElementById('secretPassword').value = password;
+
+      auditLog('password.generated', { length: password.length });
+      setStatus('Güçlü örnek şifre üretildi.', 'success');
+    });
+
+    createForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const payload = normalizeCreatePayload(new FormData(createForm));
+      const validation = validateCreatePayload(payload);
+
+      if (!validation.ok) {
+        auditLog('create.validation_failed', validation.errors);
+        setStatus('Escrow formunda düzeltilmesi gereken alanlar var.', 'error');
+        renderResult({
+          ok: false,
+          action: 'createEscrowValidation',
+          errors: validation.errors
+        });
+        return;
+      }
+
+      try {
+        const response = await createEscrowRequest({
+          sellerAddress: payload.sellerAddress,
+          token: payload.token,
+          amount: Number(payload.amount),
+          hours: Number(payload.hours),
+          secretPasswordLength: payload.secretPassword.trim().length
         });
 
-        // Orijinal Web3Modal Modalı Başlatılıyor
-        const modal = createWeb3Modal({
-            ethersConfig,
-            chains: [polygon],
-            projectId,
-            themeMode: 'dark',
-            themeVariables: {
-                '--w3m-accent': '#059669',
-                '--w3m-border-radius-master': '2px'
-            }
+        auditLog('create.validated', response);
+        setStatus('Form doğrulandı. Bu sürüm gerçek zincir işlemi göndermez.', 'success');
+        renderResult(response);
+      } catch (error) {
+        auditLog('create.request_failed', { message: error.message });
+        setStatus('İşlem hazırlanırken hata oluştu.', 'error');
+        renderResult({
+          ok: false,
+          message: error.message
+        });
+      }
+    });
+
+    claimForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const payload = normalizeClaimPayload(new FormData(claimForm));
+      const validation = validateClaimPayload(payload);
+
+      if (!validation.ok) {
+        auditLog('claim.validation_failed', validation.errors);
+        setStatus('Kilit açma formunda düzeltilmesi gereken alanlar var.', 'error');
+        renderResult({
+          ok: false,
+          action: 'claimEscrowValidation',
+          errors: validation.errors
+        });
+        return;
+      }
+
+      try {
+        const response = await claimEscrowRequest({
+          claimId: Number(payload.claimId),
+          claimPasswordLength: payload.claimPassword.trim().length
         });
 
-        // Küresel Yardımcı Fonksiyonlar
-        window.openWeb3Modal = () => modal.open();
-
-        window.toggleGuide = (show) => {
-            const m = document.getElementById("guideModal");
-            if (show) m.classList.remove("hidden");
-            else m.classList.add("hidden");
-        };
-
-        window.generatePassword = () => {
-            const randomPass = "SAFE-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-            document.getElementById("secretPassword").value = randomPass;
-            showStatus("🎲 Şifre üretildi: " + randomPass, "blue");
-        };
-
-        function showStatus(text, color) {
-            const box = document.getElementById("statusBox");
-            box.innerText = text;
-            if (color === "green") box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-emerald-950/60 border border-emerald-800 text-emerald-300";
-            else if (color === "red") box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-red-950/60 border border-red-800 text-red-300";
-            else box.className = "w-full max-w-4xl mb-6 p-3 rounded-xl text-center text-xs font-semibold bg-blue-950/60 border border-blue-800 text-blue-300";
-        }
-
-        async function updateVaultBalance() {
-            try {
-                if (window.activeProvider) {
-                    const balance = await window.activeProvider.getBalance(CONTRACT_ADDRESS);
-                    document.getElementById("vaultBalance").innerText = parseFloat(formatEther(balance)).toFixed(4) + " POL";
-                }
-            } catch (err) {
-                document.getElementById("vaultBalance").innerText = "0.0000 POL";
-            }
-        }
-
-        // Cüzdan Bağlantı Dinleyicisi
-        modal.subscribeProvider(async (state) => {
-            if (state.isConnected) {
-                const walletProvider = modal.getWalletProvider();
-                window.activeProvider = new BrowserProvider(walletProvider);
-                const signer = await window.activeProvider.getSigner();
-                window.userAccount = await signer.getAddress();
-
-                document.getElementById("connectBtn").innerText = "🟢 " + window.userAccount.slice(0,6) + "..." + window.userAccount.slice(-4);
-                
-                const userBal = await window.activeProvider.getBalance(window.userAccount);
-                showStatus("🟢 Polygon Mainnet Bağlandı | Bakiye: " + parseFloat(formatEther(userBal)).toFixed(4) + " POL", "green");
-                updateVaultBalance();
-            } else {
-                window.activeProvider = null;
-                window.userAccount = null;
-                document.getElementById("connectBtn").innerText = "🔗 Cüzdan Bağla (QR / Mobil / Soğuk)";
-                showStatus("Cüzdan bağlantısı kesildi.", "red");
-            }
+        auditLog('claim.validated', response);
+        setStatus('Kilit açma verisi doğrulandı. Bu sürüm gerçek zincir işlemi göndermez.', 'success');
+        renderResult(response);
+      } catch (error) {
+        auditLog('claim.request_failed', { message: error.message });
+        setStatus('Kilit açma verisi hazırlanırken hata oluştu.', 'error');
+        renderResult({
+          ok: false,
+          message: error.message
         });
-
-        window.createEscrow = async () => {
-            if (!window.userAccount || !window.activeProvider) {
-                window.openWeb3Modal();
-                return;
-            }
-            const seller = document.getElementById("sellerAddress").value;
-            const selectedToken = document.getElementById("tokenSelect").value;
-            const amount = document.getElementById("amount").value;
-            const hours = document.getElementById("hours").value;
-            const pass = document.getElementById("secretPassword").value;
-
-            if (!seller || !amount || !pass) return alert("Lütfen tüm alanları doldurun!");
-
-            try {
-                const signer = await window.activeProvider.getSigner();
-                const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                const passHash = keccak256(toUtf8Bytes(pass));
-                const hoursBigInt = BigInt(hours);
-                const tokenAddr = TOKEN_ADDRESSES[selectedToken];
-
-                if (selectedToken === "POL") {
-                    const parsedAmount = parseEther(amount);
-                    showStatus("⏳ İşlem Cüzdana Gönderildi... Lütfen Onaylayın", "blue");
-                    const tx = await contract.createBridge(seller, passHash, hoursBigInt, tokenAddr, parsedAmount, {
-                        value: parsedAmount
-                    });
-
-                    showStatus("⏳ Blokzincir onayı bekleniyor (POL)...", "blue");
-                    await tx.wait();
-
-                    showStatus("✅ BAŞARILI! POL varlığı kasaya kilitlendi.", "green");
-                    alert("🎉 GERÇEK TİCARET KİLİTLENDİ!\n\nVarlık: POL\nKilit Şifreniz: " + pass);
-                } else {
-                    const decimals = selectedToken === "USDT" ? 6 : 18;
-                    const parsedAmount = parseUnits(amount, decimals);
-                    const tokenContract = new Contract(tokenAddr, ERC20_ABI, signer);
-
-                    showStatus(`⏳ 1/2: ${selectedToken} Harcama İzni İsteniyor...`, "blue");
-                    const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, parsedAmount);
-                    await approveTx.wait();
-
-                    showStatus(`⏳ 2/2: ${selectedToken} Kasaya Kilitleniyor...`, "blue");
-                    const tx = await contract.createBridge(seller, passHash, hoursBigInt, tokenAddr, parsedAmount, {
-                        value: 0
-                    });
-
-                    showStatus(`⏳ Blokzincir onayı bekleniyor (${selectedToken})...`, "blue");
-                    await tx.wait();
-
-                    showStatus(`✅ BAŞARILI! ${amount} ${selectedToken} kasaya kilitlendi.`, "green");
-                    alert(`🎉 GERÇEK TİCARET KİLİTLENDİ!\n\nVarlık: ${selectedToken}\nKilit Şifreniz: ` + pass);
-                }
-                updateVaultBalance();
-            } catch (err) {
-                console.error("HATA:", err);
-                let errMsg = err.reason || err.shortMessage || err.message || "";
-                showStatus("❌ HATA: " + errMsg.slice(0, 80), "red");
-            }
-        };
-
-        window.claimEscrow = async () => {
-            if (!window.userAccount || !window.activeProvider) {
-                window.openWeb3Modal();
-                return;
-            }
-            const id = document.getElementById("claimId").value;
-            const pass = document.getElementById("claimPassword").value;
-
-            if (!id || !pass) return alert("Lütfen İşlem ID ve Şifreyi girin!");
-
-            try {
-                const signer = await window.activeProvider.getSigner();
-                const contract = new Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                const passHash = keccak256(toUtf8Bytes(pass));
-
-                showStatus("⏳ Kilit açma kanıtı Polygon ağına gönderiliyor...", "blue");
-                const tx = await contract.claimFunds(BigInt(id), passHash);
-                await tx.wait();
-
-                showStatus("🎉 KİLİT AÇILDI! Fonlar satıcıya aktarıldı.", "green");
-                updateVaultBalance();
-            } catch (err) {
-                console.error(err);
-                showStatus("❌ Kilit açılamadı! Şifreyi veya İşlem ID'yi kontrol edin.", "red");
-            }
-        };
-    </script>
+      }
+    });
+  </script>
 </body>
 </html>
