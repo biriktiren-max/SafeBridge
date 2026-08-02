@@ -7,6 +7,7 @@
   <meta name="description" content="Escrow işlem akışları için %100 merkeziyetsiz zincir üstü frontend" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+  <script src="https://unpkg.com/@web3modal/ethers@3.5.7/dist/index.umd.js"></script>
 </head>
 <body class="min-h-screen bg-slate-950 text-white font-sans">
   <main class="max-w-6xl mx-auto px-4 py-8">
@@ -258,6 +259,34 @@
     let userAccount = null;
     let provider = null;
     let signer = null;
+    let modal = null;
+
+    // Polygon Ağı Tanımlaması
+    const polygonMainnet = {
+      chainId: 137,
+      name: 'Polygon Mainnet',
+      currency: 'POL',
+      explorerUrl: 'https://polygonscan.com',
+      rpcUrl: 'https://polygon-rpc.com'
+    };
+
+    // Metadata
+    const metadata = {
+      name: 'SafeBridge Global',
+      description: 'Polygon Mainnet Escrow Engine',
+      url: 'https://safebridgeglobal.com',
+      icons: ['https://avatars.githubusercontent.com/u/37784886']
+    };
+
+    // Web3Modal Başlatma (WalletConnect v3)
+    if (window.Web3ModalEthers) {
+      modal = window.Web3ModalEthers.createWeb3Modal({
+        ethersConfig: window.Web3ModalEthers.defaultConfig({ metadata }),
+        chains: [polygonMainnet],
+        projectId: 'c4f79cc8733333333333333333333333',
+        enableAnalytics: false
+      });
+    }
 
     const statusBox = document.getElementById('statusBox');
     const resultBox = document.getElementById('resultBox');
@@ -284,31 +313,40 @@
       return /^0x[a-fA-F0-9]{40}$/.test(value);
     }
 
-    // CÜZDAN BAĞLANTI MOTORU (NET UYARI İKAZLI)
+    // CÜZDAN BAĞLANTI MOTORU (GENEL UYARI DİLİ İLE)
     async function connectWallet() {
-      if (!window.ethereum) {
-        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-        const isAndroid = /android/i.test(userAgent);
-        const isMobile = isIOS || isAndroid;
+      try {
+        if (modal) {
+          const wcProvider = modal.getWalletProvider();
+          if (!wcProvider) {
+            await modal.open();
+            return;
+          }
+          
+          provider = new ethers.BrowserProvider(wcProvider);
+          signer = await provider.getSigner();
+          userAccount = await signer.getAddress();
+        } else if (window.ethereum) {
+          provider = new ethers.BrowserProvider(window.ethereum);
+          const accounts = await provider.send("eth_requestAccounts", []);
+          userAccount = accounts[0];
+          signer = await provider.getSigner();
+        } else {
+          // Mobil tarayıcılar için genel kurumsal uyarı
+          const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+          const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+          const isAndroid = /android/i.test(userAgent);
+          const isMobile = isIOS || isAndroid;
 
-        if (isMobile) {
-          setStatus("📱 Mobil Tarayıcındasın: Lütfen MetaMask uygulamasını açıp içindeki tarayıcıdan 'safebridgeglobal.com' adresine gir!", "error");
-          alert("Mobil Tarayıcı Uyarısı:\n\nCüzdana bağlanmak için lütfen MetaMask uygulamasını açın, alt menüden 'Tarayıcı' (Browser) sekmesine girip sitemizi oradan açın.");
+          if (isMobile) {
+            setStatus("💡 Sayın Kullanıcı: Cüzdan bağlantınızı sorunsuz kurabilmek için lütfen cüzdan uygulamanızın dahili tarayıcısını kullanınız.", "info");
+            alert("Sayın Kullanıcı Bilgilendirmesi:\n\nMobil tarayıcılarda güvenli bağlantı için lütfen kullanmak istediğiniz cüzdan uygulamasını (MetaMask, Trust Wallet vb.) açın ve içerisindeki tarayıcı sekmesinden sitemize giriş yapın.");
+            return;
+          }
+
+          alert("Sayın Kullanıcı: Tarayıcınızda Web3 uyumlu bir cüzdan algılanamadı. Lütfen cüzdan eklentisi yükleyin veya WalletConnect seçeneğini kullanın.");
           return;
         }
-
-        setStatus("❌ Tarayıcınızda Web3 cüzdanı (MetaMask) bulunamadı! Lütfen eklentiyi yükleyin.", "error");
-        return;
-      }
-
-      try {
-        setStatus("⏳ Cüzdan bağlantısı onaylanıyor...", "pending");
-        provider = new ethers.BrowserProvider(window.ethereum);
-        
-        const accounts = await provider.send("eth_requestAccounts", []);
-        userAccount = accounts[0];
-        signer = await provider.getSigner();
 
         const network = await provider.getNetwork();
         const chainId = network.chainId.toString();
@@ -317,15 +355,6 @@
           networkBadge.textContent = "⚠️ Yanlış Ağ (" + chainId + ")";
           networkBadge.className = "text-xs font-mono bg-red-950 border border-red-800 px-3 py-1 rounded-full text-red-300";
           setStatus("⚠️ Lütfen cüzdanınızdan Polygon Mainnet (Chain ID: 137) ağına geçin!", "error");
-          
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: '0x89' }],
-            });
-          } catch (switchError) {
-            console.error("Ağ değiştirme reddedildi:", switchError);
-          }
           return;
         }
 
@@ -347,7 +376,7 @@
 
       } catch (err) {
         console.error("Cüzdan Bağlantı Hatası:", err);
-        setStatus("❌ Cüzdan bağlantısı kullanıcı tarafından reddedildi.", "error");
+        setStatus("❌ Cüzdan bağlantısı iptal edildi veya hata oluştu.", "error");
       }
     }
 
