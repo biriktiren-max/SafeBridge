@@ -236,6 +236,7 @@
   </main>
 
   <script>
+    // GLOBAL SABİTLER VE DEĞİŞKENLER
     const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
 
     const TOKEN_ADDRESSES = {
@@ -284,14 +285,24 @@
       return /^0x[a-fA-F0-9]{40}$/.test(value);
     }
 
-    // CÜZDAN BAĞLANTI MOTORU
+    // CÜZDAN BAĞLANTI MOTORU (AKILLI MOBİL DEEP LINK KÖPRÜSÜ İLE)
     async function connectWallet() {
       if (!window.ethereum) {
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        const isAndroid = /android/i.test(userAgent);
+        const isMobile = isIOS || isAndroid;
+
         if (isMobile) {
-          window.location.href = "https://metamask.app.link/dapp/safebridgeglobal.com";
+          const cleanDomain = "safebridgeglobal.com";
+          const metaMaskAppUrl = `https://metamask.app.link/dapp/${cleanDomain}`;
+          
+          if (confirm("MetaMask uygulaması üzerinden güvenli bağlantı kurulsun mu?")) {
+            window.location.href = metaMaskAppUrl;
+          }
           return;
         }
+
         setStatus("❌ Tarayıcınızda Web3 cüzdanı (MetaMask/Trust Wallet) bulunamadı!", "error");
         return;
       }
@@ -416,7 +427,6 @@
           });
 
         } else {
-          // ERC20 Token (USDT / XAUT) İşlem Akışı
           const decimals = token === "USDT" ? 6 : 18;
           const parsedAmount = ethers.parseUnits(amountStr, decimals);
           const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
