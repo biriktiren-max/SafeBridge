@@ -236,7 +236,6 @@
   </main>
 
   <script>
-    // GLOBAL SABİTLER VE DEĞİŞKENLER
     const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
 
     const TOKEN_ADDRESSES = {
@@ -285,7 +284,7 @@
       return /^0x[a-fA-F0-9]{40}$/.test(value);
     }
 
-    // CÜZDAN BAĞLANTI MOTORU (https PROTOKOLÜ EKLENMİŞ AKILLI MOBİL DEEP LINK)
+    // CÜZDAN BAĞLANTI MOTORU (NET UYARI İKAZLI)
     async function connectWallet() {
       if (!window.ethereum) {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -294,16 +293,12 @@
         const isMobile = isIOS || isAndroid;
 
         if (isMobile) {
-          const cleanDomain = "https://safebridgeglobal.com"; // Protokol eklendi
-          const metaMaskAppUrl = `https://metamask.app.link/dapp/${cleanDomain}`;
-          
-          if (confirm("MetaMask uygulaması üzerinden güvenli bağlantı kurulsun mu?")) {
-            window.location.href = metaMaskAppUrl;
-          }
+          setStatus("📱 Mobil Tarayıcındasın: Lütfen MetaMask uygulamasını açıp içindeki tarayıcıdan 'safebridgeglobal.com' adresine gir!", "error");
+          alert("Mobil Tarayıcı Uyarısı:\n\nCüzdana bağlanmak için lütfen MetaMask uygulamasını açın, alt menüden 'Tarayıcı' (Browser) sekmesine girip sitemizi oradan açın.");
           return;
         }
 
-        setStatus("❌ Tarayıcınızda Web3 cüzdanı (MetaMask/Trust Wallet) bulunamadı!", "error");
+        setStatus("❌ Tarayıcınızda Web3 cüzdanı (MetaMask) bulunamadı! Lütfen eklentiyi yükleyin.", "error");
         return;
       }
 
@@ -363,7 +358,7 @@
       setStatus('🎲 Kriptografik kilit şifresi üretildi: ' + randomPass, 'info');
     });
 
-    // 🤝 MODÜL 1: ESCROW KASASINA KİLİTLEME (ZİNCİR ÜSTÜ İŞLEM)
+    // 🤝 MODÜL 1: ESCROW KASASINA KİLİTLEME
     document.getElementById('createForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -460,7 +455,7 @@
       }
     });
 
-    // 🔑 MODÜL 2: KİLİT AÇMA & FON ÇEKME (ZİNCİR ÜSTÜ İŞLEM)
+    // 🔑 MODÜL 2: KİLİT AÇMA & FON ÇEKME
     document.getElementById('claimForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
