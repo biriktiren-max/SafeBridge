@@ -285,7 +285,7 @@
       return /^0x[a-fA-F0-9]{40}$/.test(value);
     }
 
-    // CÜZDAN BAĞLANTI MOTORU (AKILLI MOBİL DEEP LINK KÖPRÜSÜ İLE)
+    // CÜZDAN BAĞLANTI MOTORU (https PROTOKOLÜ EKLENMİŞ AKILLI MOBİL DEEP LINK)
     async function connectWallet() {
       if (!window.ethereum) {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
@@ -294,7 +294,7 @@
         const isMobile = isIOS || isAndroid;
 
         if (isMobile) {
-          const cleanDomain = "safebridgeglobal.com";
+          const cleanDomain = "https://safebridgeglobal.com"; // Protokol eklendi
           const metaMaskAppUrl = `https://metamask.app.link/dapp/${cleanDomain}`;
           
           if (confirm("MetaMask uygulaması üzerinden güvenli bağlantı kurulsun mu?")) {
