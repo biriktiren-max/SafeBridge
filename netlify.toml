@@ -1,3 +1,6 @@
 [build]
+  command = "echo static"
   publish = "."
-  command = ""
+
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
