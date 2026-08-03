@@ -19,7 +19,7 @@
             SafeBridge Global 🦅
           </h1>
           <p class="mt-2 text-slate-400 text-sm md:text-base">
-            Polygon Mainnet Üzerinde %100 Merkeziyetsiz, Keccak256 Zırhlı Escrow
+            Polygon Mainnet Üzerinde %100 Merkeziyetsiz, Keccak256 Zırhlı Escrow (%1 Komisyonlu)
           </p>
         </div>
 
@@ -35,7 +35,7 @@
     </header>
 
     <section class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200 flex items-center justify-between">
-      <span>🛡️ <strong>Polygon Mainnet Aktif:</strong> Akıllı Sözleşme <code>0x71C9...292e</code> üzerinde çalışıyor.</span>
+      <span>🛡️ <strong>Polygon Mainnet Aktif:</strong> Akıllı Sözleşme <code>0x5C66...782e</code> üzerinde çalışıyor.</span>
       <span id="networkBadge" class="text-xs font-mono bg-slate-900 border border-slate-700 px-3 py-1 rounded-full text-slate-400">Ağ: Bekleniyor</span>
     </section>
 
@@ -51,7 +51,7 @@
       
       <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
         <h2 class="mb-5 text-xl font-bold text-emerald-400 flex items-center gap-2">
-          <span>🤝</span> 1. Escrow Kasasına Kilitle
+          <span>🤝</span> 1. Escrow Kasasına Kilitle (%1 Komisyon Dahil)
         </h2>
 
         <form id="createForm" class="space-y-4" novalidate>
@@ -250,11 +250,11 @@
         <div class="space-y-3 text-sm text-slate-300">
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
             <strong class="text-emerald-400">Akıllı Sözleşme:</strong><br />
-            <span class="font-mono text-xs text-slate-400">0x71C95911E9a5D330f4D621842EC243EE1343292e</span>
+            <span class="font-mono text-xs text-slate-400">0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e</span>
           </div>
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            <strong class="text-emerald-400">Kriptografik Algoritma:</strong><br />
-            <span class="text-xs text-slate-400">Keccak256 On-Chain Proof Matcher</span>
+            <strong class="text-emerald-400">Komisyon Yapısı:</strong><br />
+            <span class="text-xs text-slate-400">%1 Otomatik Kesinti (Hazineye Aktarım)</span>
           </div>
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
             <strong class="text-emerald-400">Ağ Uyumluluğu:</strong><br />
@@ -287,7 +287,7 @@
   </main>
 
   <script>
-    const CONTRACT_ADDRESS = "0x71C95911E9a5D330f4D621842EC243EE1343292e";
+    const CONTRACT_ADDRESS = "0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e";
 
     const TOKEN_ADDRESSES = {
       POL: "0x0000000000000000000000000000000000000000",
@@ -403,7 +403,7 @@
           • <strong>Durum:</strong> ${statusText}<br>
           • <strong>Alıcı (Buyer):</strong> ${buyer}<br>
           • <strong>Satıcı (Seller):</strong> ${seller}<br>
-          • <strong>Miktar:</strong> ${formattedAmount} Varlık<br>
+          • <strong>Kasaya Giren Net Miktar (%99):</strong> ${formattedAmount} Varlık<br>
           • <strong>Kilit Bitiş Zamanı:</strong> ${dateObj}
         `;
       } catch (err) {
@@ -510,8 +510,8 @@
       }
 
       const hoursNum = parseInt(hoursStr, 10);
-      if (isNaN(hoursNum) || hoursNum <= 0) {
-        setStatus('❌ Lütfen 0’dan büyük geçerli bir süre (saat) giriniz!', 'error');
+      if (isNaN(hoursNum) || hoursNum < 0) {
+        setStatus('❌ Lütfen geçerli bir süre (saat) giriniz!', 'error');
         return;
       }
 
@@ -531,7 +531,7 @@
         if (token === "POL") {
           const parsedAmount = ethers.parseEther(amountStr);
           
-          setStatus("⏳ Cüzdan onayı bekleniyor (POL Transferi)...", "pending");
+          setStatus("⏳ Cüzdan onayı bekleniyor (POL Transferi & %1 Komisyon Kesintisi)...", "pending");
           const tx = await contract.createBridge(seller, passwordHash, hoursBigInt, tokenAddress, parsedAmount, {
             value: parsedAmount
           });
@@ -539,11 +539,11 @@
           setStatus("⏳ Blokzincir onayı bekleniyor (Tx Hash: " + tx.hash.slice(0, 10) + "...)", "pending");
           const receipt = await tx.wait();
 
-          setStatus("✅ BAŞARILI! " + amountStr + " POL akıllı sözleşmeye kilitlendi.", "success");
+          setStatus("✅ BAŞARILI! " + amountStr + " POL işleme alındı (%1 komisyon cüzdanınıza aktarıldı, kalanı kasaya kilitlendi).", "success");
           renderResult({
             event: "ESCROW_CREATED_SUCCESS",
             token: "POL",
-            amount: amountStr,
+            totalAmount: amountStr,
             seller: seller,
             lockHours: hoursStr,
             passwordHash: passwordHash,
@@ -560,18 +560,18 @@
           const approveTx = await tokenContract.approve(CONTRACT_ADDRESS, parsedAmount);
           await approveTx.wait();
 
-          setStatus("⏳ Adım 2/2: " + token + " kasaya kilitleniyor...", "pending");
+          setStatus("⏳ Adım 2/2: " + token + " işleniyor (%1 komisyon düşülerek kasaya kilitleniyor)...", "pending");
           const tx = await contract.createBridge(seller, passwordHash, hoursBigInt, tokenAddress, parsedAmount, {
             value: 0
           });
 
           const receipt = await tx.wait();
 
-          setStatus("✅ BAŞARILI! " + amountStr + " " + token + " akıllı sözleşmeye kilitlendi.", "success");
+          setStatus("✅ BAŞARILI! " + amountStr + " " + token + " işleme alındı.", "success");
           renderResult({
             event: "ERC20_ESCROW_CREATED_SUCCESS",
             token: token,
-            amount: amountStr,
+            totalAmount: amountStr,
             seller: seller,
             transactionHash: receipt.hash
           });
