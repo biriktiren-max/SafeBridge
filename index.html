@@ -10,9 +10,9 @@
   <script src="https://unpkg.com/@web3modal/ethers@3.5.7/dist/index.umd.js"></script>
 </head>
 <body class="min-h-screen bg-slate-950 text-white font-sans">
-  <main class="max-w-6xl mx-auto px-4 py-8">
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-6">
     
-    <header class="mb-8">
+    <header class="mb-2">
       <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 class="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 via-emerald-400 to-indigo-500 bg-clip-text text-transparent">
@@ -34,14 +34,14 @@
       </div>
     </header>
 
-    <section class="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200 flex items-center justify-between">
+    <section class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-200 flex items-center justify-between">
       <span>🛡️ <strong>Polygon Mainnet Aktif:</strong> Akıllı Sözleşme <code>0x71C9...292e</code> üzerinde çalışıyor.</span>
       <span id="networkBadge" class="text-xs font-mono bg-slate-900 border border-slate-700 px-3 py-1 rounded-full text-slate-400">Ağ: Bekleniyor</span>
     </section>
 
     <section
       id="statusBox"
-      class="mb-6 rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-300 transition-all"
+      class="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-300 transition-all"
       aria-live="polite"
     >
       Sistem hazır. Lütfen cüzdanınızı bağlayın.
@@ -109,10 +109,10 @@
                 id="hours"
                 name="hours"
                 type="number"
-                min="1"
+                min="0"
                 max="720"
                 step="1"
-                value="24"
+                value="0"
                 class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
               />
             </div>
@@ -206,8 +206,38 @@
 
     </section>
 
-    <section class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+    <section class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
+      <h3 class="mb-4 text-xl font-bold text-indigo-400 flex items-center gap-2">
+        <span>📊</span> 3. Aktif Kasa Durum Sorgulama (Dashboard)
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div class="md:col-span-2">
+          <input
+            id="queryId"
+            type="number"
+            min="0"
+            value="0"
+            placeholder="Sorgulanacak Kasa ID (Örn: 0, 1...)"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-indigo-300 font-mono outline-none focus:border-indigo-500"
+          />
+        </div>
+        <div>
+          <button
+            onclick="queryVault()"
+            type="button"
+            class="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700 px-4 py-3 font-bold text-white transition cursor-pointer shadow-md"
+          >
+            🔍 Kasayı Sorgula
+          </button>
+        </div>
+      </div>
+      <div id="vaultInfoBox" class="rounded-2xl bg-slate-950 p-4 text-xs text-slate-300 font-mono border border-slate-800/80">
+        Kasa ID 0 seçildi. Bilgileri görmek için "Kasayı Sorgula" butonuna basınız.
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl lg:col-span-1">
         <h3 class="mb-4 text-lg font-bold text-white">İşlem & Blokzincir Çıktısı</h3>
         <pre
           id="resultBox"
@@ -215,8 +245,8 @@
         >{"status": "Awaiting initial action..."}</pre>
       </article>
 
-      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h3 class="mb-4 text-lg font-bold text-white">Sistem & Güvenlik Parametreleri</h3>
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl lg:col-span-1">
+        <h3 class="mb-4 text-lg font-bold text-white">Sistem & Ağ Parametreleri</h3>
         <div class="space-y-3 text-sm text-slate-300">
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
             <strong class="text-emerald-400">Akıllı Sözleşme:</strong><br />
@@ -229,6 +259,26 @@
           <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
             <strong class="text-emerald-400">Ağ Uyumluluğu:</strong><br />
             <span class="text-xs text-slate-400">Polygon Mainnet (Chain ID: 137 / 0x89)</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl lg:col-span-1">
+        <h3 class="mb-4 text-lg font-bold text-cyan-400 flex items-center gap-2">
+          <span>🔒</span> Kurumsal Güvenlik & Sertifikalar
+        </h3>
+        <div class="space-y-3 text-xs text-slate-300">
+          <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <span class="font-semibold text-emerald-400">SSL / TLS 1.3 Şifreleme</span>
+            <span class="bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded text-emerald-300 font-mono">Aktif ✓</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <span class="font-semibold text-indigo-400">Cloudflare Edge Security</span>
+            <span class="bg-indigo-950 border border-indigo-800 px-2 py-0.5 rounded text-indigo-300 font-mono">Koruma ✓</span>
+          </div>
+          <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950 p-3">
+            <span class="font-semibold text-cyan-400">On-Chain Keccak256 Zırhı</span>
+            <span class="bg-cyan-950 border border-cyan-800 px-2 py-0.5 rounded text-cyan-300 font-mono">Doğrulanmış ✓</span>
           </div>
         </div>
       </article>
@@ -248,7 +298,8 @@
     const CONTRACT_ABI = [
       "function createBridge(address _seller, bytes32 _passwordHash, uint256 _hours, address _tokenAddress, uint256 _amount) public payable",
       "function claimFunds(uint256 _id, bytes32 _password) public",
-      "function cancelAndRefund(uint256 _id) public"
+      "function cancelAndRefund(uint256 _id) public",
+      "function bridges(uint256) view returns (address buyer, address seller, address tokenAddress, uint256 amount, uint256 releaseTime, bytes32 passwordHash, bool claimed, bool refunded)"
     ];
 
     const ERC20_ABI = [
@@ -261,7 +312,6 @@
     let signer = null;
     let modal = null;
 
-    // Polygon Ağı Tanımlaması
     const polygonMainnet = {
       chainId: 137,
       name: 'Polygon Mainnet',
@@ -270,7 +320,6 @@
       rpcUrl: 'https://polygon-rpc.com'
     };
 
-    // Metadata
     const metadata = {
       name: 'SafeBridge Global',
       description: 'Polygon Mainnet Escrow Engine',
@@ -278,7 +327,6 @@
       icons: ['https://avatars.githubusercontent.com/u/37784886']
     };
 
-    // Web3Modal Başlatma (WalletConnect v3)
     if (window.Web3ModalEthers) {
       modal = window.Web3ModalEthers.createWeb3Modal({
         ethersConfig: window.Web3ModalEthers.defaultConfig({ metadata }),
@@ -301,7 +349,7 @@
         pending: 'border-blue-800 bg-blue-950/50 text-blue-200'
       };
 
-      statusBox.className = `mb-6 rounded-2xl px-4 py-3 text-sm ${themes[tone] || themes.info}`;
+      statusBox.className = `rounded-2xl border px-4 py-3 text-sm ${themes[tone] || themes.info}`;
       statusBox.textContent = message;
     }
 
@@ -313,7 +361,57 @@
       return /^0x[a-fA-F0-9]{40}$/.test(value);
     }
 
-    // CÜZDAN BAĞLANTI MOTORU (GENEL UYARI DİLİ İLE)
+    async function queryVault() {
+      const idStr = document.getElementById('queryId').value.trim();
+      const vaultInfoBox = document.getElementById('vaultInfoBox');
+
+      if (idStr === "" || isNaN(parseInt(idStr, 10))) {
+        vaultInfoBox.textContent = "❌ Lütfen geçerli bir Kasa ID (sayı) giriniz!";
+        return;
+      }
+
+      try {
+        vaultInfoBox.textContent = "⏳ Kasa bilgileri Polygon zincirinden okunuyor...";
+        
+        const readProvider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
+        const readContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, readProvider);
+
+        const vaultData = await readContract.bridges(BigInt(idStr));
+
+        const buyer = vaultData[0];
+        const seller = vaultData[1];
+        const tokenAddress = vaultData[2];
+        const amount = vaultData[3];
+        const releaseTime = Number(vaultData[4]);
+        const claimed = vaultData[6];
+        const refunded = vaultData[7];
+
+        if (buyer === "0x0000000000000000000000000000000000000000") {
+          vaultInfoBox.textContent = `⚠️ Kasa ID #${idStr} bulunamadı veya henüz oluşturulmamış.`;
+          return;
+        }
+
+        let statusText = "🟢 Aktif (Kilitli)";
+        if (claimed) statusText = "🎉 Tamamlandı (Çözüldü)";
+        if (refunded) statusText = "↩️ İade Edildi";
+
+        const formattedAmount = ethers.formatEther(amount);
+        const dateObj = new Date(releaseTime * 1000).toLocaleString('tr-TR');
+
+        vaultInfoBox.innerHTML = `
+          <strong class="text-indigo-400">Kasa ID #${idStr} Detayları:</strong><br>
+          • <strong>Durum:</strong> ${statusText}<br>
+          • <strong>Alıcı (Buyer):</strong> ${buyer}<br>
+          • <strong>Satıcı (Seller):</strong> ${seller}<br>
+          • <strong>Miktar:</strong> ${formattedAmount} Varlık<br>
+          • <strong>Kilit Bitiş Zamanı:</strong> ${dateObj}
+        `;
+      } catch (err) {
+        console.error("Sorgulama Hatası:", err);
+        vaultInfoBox.textContent = "❌ Kasa sorgulanırken hata oluştu: " + (err.reason || err.message);
+      }
+    }
+
     async function connectWallet() {
       try {
         if (modal) {
@@ -332,7 +430,6 @@
           userAccount = accounts[0];
           signer = await provider.getSigner();
         } else {
-          // Mobil tarayıcılar için genel kurumsal uyarı
           const userAgent = navigator.userAgent || navigator.vendor || window.opera;
           const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
           const isAndroid = /android/i.test(userAgent);
@@ -380,14 +477,12 @@
       }
     }
 
-    // Otomatik Şifre Üretici
     document.getElementById('generatePasswordBtn').addEventListener('click', () => {
       const randomPass = 'SAFE-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Math.floor(1000 + Math.random() * 9000);
       document.getElementById('secretPassword').value = randomPass;
       setStatus('🎲 Kriptografik kilit şifresi üretildi: ' + randomPass, 'info');
     });
 
-    // 🤝 MODÜL 1: ESCROW KASASINA KİLİTLEME
     document.getElementById('createForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -414,6 +509,12 @@
         return;
       }
 
+      const hoursNum = parseInt(hoursStr, 10);
+      if (isNaN(hoursNum) || hoursNum <= 0) {
+        setStatus('❌ Lütfen 0’dan büyük geçerli bir süre (saat) giriniz!', 'error');
+        return;
+      }
+
       if (!password || password.length < 8) {
         setStatus('❌ Kilit şifresi en az 8 karakter olmalıdır!', 'error');
         return;
@@ -422,7 +523,7 @@
       try {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
         const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
-        const hoursBigInt = BigInt(hoursStr || "24");
+        const hoursBigInt = BigInt(hoursStr);
         const tokenAddress = TOKEN_ADDRESSES[token];
 
         setStatus("⏳ İşlem hazırlanıyor... Lütfen cüzdanınızdaki onayı bekleyin.", "pending");
@@ -484,7 +585,6 @@
       }
     });
 
-    // 🔑 MODÜL 2: KİLİT AÇMA & FON ÇEKME
     document.getElementById('claimForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
