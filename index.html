@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr" class="dark">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeBridge Global - Otonom Emanet Sistemi</title>
+    <title>SafeBridge Global - Autonomous Escrow System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -34,19 +34,19 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-400 bg-clip-text text-transparent">SafeBridge Global</h1>
-                    <p class="text-xs text-slate-400" data-i18n="subtitle">Polygon Mainnet • Otonom Emanet Sistemi V2</p>
+                    <p class="text-xs text-slate-400" data-i18n="subtitle">Polygon Mainnet • Autonomous Escrow System V2</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
                 <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 cursor-pointer">
-                    <option value="tr">🇹🇷 Türkçe</option>
                     <option value="en">🇬🇧 English</option>
+                    <option value="tr">🇹🇷 Türkçe</option>
                 </select>
 
                 <div id="networkBadge" class="hidden px-3 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Polygon Mainnet</div>
                 <button id="connectWalletBtn" onclick="connectWallet()" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-brand-600/30 text-sm flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
-                    <span data-i18n="connectWallet">Cüzdanı Bağla</span>
+                    <span data-i18n="connectWallet">Connect Wallet</span>
                 </button>
             </div>
         </div>
@@ -59,48 +59,48 @@
         </div>
 
         <div class="flex border-b border-slate-800 mb-8 gap-2 overflow-x-auto pb-1">
-            <button onclick="switchTab('create')" id="tabCreate" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-brand-500 text-brand-400 bg-brand-500/5 transition" data-i18n="tabCreate">Emanet Oluştur</button>
-            <button onclick="switchTab('release')" id="tabRelease" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabRelease">Kasayı Çöz (Alıcı)</button>
-            <button onclick="switchTab('refund')" id="tabRefund" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabRefund">İade Al (Gönderici)</button>
-            <button onclick="switchTab('dashboard')" id="tabDashboard" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabDashboard">Canlı Kasa Takip</button>
+            <button onclick="switchTab('create')" id="tabCreate" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-brand-500 text-brand-400 bg-brand-500/5 transition" data-i18n="tabCreate">Create Escrow</button>
+            <button onclick="switchTab('release')" id="tabRelease" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabRelease">Release Escrow (Buyer)</button>
+            <button onclick="switchTab('refund')" id="tabRefund" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabRefund">Refund (Sender)</button>
+            <button onclick="switchTab('dashboard')" id="tabDashboard" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabDashboard">Live Vault DashView</button>
         </div>
 
         <div id="panelCreate" class="space-y-6">
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span data-i18n="createTitle">Güvenli Emanet Kasası Başlat</span>
+                    <span data-i18n="createTitle">Initialize Secure Escrow Vault</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6" data-i18n="createDesc">Paranız akıllı kontrat üzerinde şifrelenir. Alıcı şifreyi bilmeden ve süre dolmadan parayı çekemez.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="createDesc">Your funds are encrypted on the smart contract. The recipient cannot withdraw without the password and before timelock.</p>
 
                 <form id="createForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelRecipient">Alıcı Cüzdan Adresi (Recipient)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelRecipient">Recipient Wallet Address</label>
                         <input type="text" id="sellerAddress" placeholder="0x..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelAmount">Miktar (POL)</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelAmount">Amount (POL)</label>
                             <input type="number" step="0.0001" id="amount" placeholder="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelHours">Süre Aşımı (Saat)</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelHours">Timelock (Hours)</label>
                             <input type="number" id="hours" placeholder="24" value="24" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                         </div>
                     </div>
 
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400" data-i18n="labelPassword">Kriptografik Gizli Şifre</label>
-                            <button type="button" onclick="generateRandomPassword()" class="text-xs text-brand-400 hover:text-brand-300 transition underline" data-i18n="btnGenPass">🎲 Şifre Üret</button>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400" data-i18n="labelPassword">Cryptographic Secret Password</label>
+                            <button type="button" onclick="generateRandomPassword()" class="text-xs text-brand-400 hover:text-brand-300 transition underline" data-i18n="btnGenPass">🎲 Generate Password</button>
                         </div>
-                        <input type="text" id="secretPassword" placeholder="En az 8 karakterli gizli şifre" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
-                        <p class="text-[11px] text-amber-400/80 mt-1.5" data-i18n="passWarning">⚠️ Şifreyi mutlaka not edin! Alıcı parayı çekebilmek için bu şifreyi girmek zorundadır.</p>
+                        <input type="text" id="secretPassword" placeholder="At least 8 characters secret password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
+                        <p class="text-[11px] text-amber-400/80 mt-1.5" data-i18n="passWarning">⚠️ Be sure to save your password! The recipient must enter this password to claim funds.</p>
                     </div>
 
                     <button type="submit" class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-brand-600/20 text-sm mt-2" data-i18n="btnCreateSubmit">
-                        🔒 Güvenli Emanet Oluştur ve Kilitle
+                        🔒 Create Secure Escrow & Lock
                     </button>
                 </form>
             </div>
@@ -110,21 +110,21 @@
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                    <span data-i18n="releaseTitle">Kasayı Çöz (Fonları Teslim Al)</span>
+                    <span data-i18n="releaseTitle">Release Escrow (Claim Funds)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6" data-i18n="releaseDesc">Göndericiden aldığınız şifre ve işlem ID numarası ile kasadaki fonu kendi cüzdanınıza aktarın.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="releaseDesc">Transfer funds in the vault to your wallet using the secret password and Tx ID provided by the sender.</p>
 
                 <form id="releaseForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelTxId">İşlem ID (Tx ID)</label>
-                        <input type="number" id="releaseTxId" placeholder="Örn: 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelTxId">Transaction ID (Tx ID)</label>
+                        <input type="number" id="releaseTxId" placeholder="E.g: 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelRelPass">Göndericinin Paylaştığı Gizli Şifre</label>
-                        <input type="text" id="releasePassword" placeholder="Gizli şifreyi girin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelRelPass">Sender's Secret Password</label>
+                        <input type="text" id="releasePassword" placeholder="Enter secret password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
                     </div>
                     <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20 text-sm mt-2" data-i18n="btnReleaseSubmit">
-                        🔓 Şifreyi Doğrula ve Fonu Al
+                        🔓 Verify Password & Claim Funds
                     </button>
                 </form>
             </div>
@@ -134,17 +134,17 @@
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                    <span data-i18n="refundTitle">Süre Aşımı İadesi (Gönderici)</span>
+                    <span data-i18n="refundTitle">Timelock Refund (Sender)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6" data-i18n="refundDesc">Belirlenen süre (Timelock) dolduysa ve alıcı fonu çekmediysa paranızı cüzdanınıza geri iade alın.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="refundDesc">If the timelock has expired and the recipient hasn't claimed, refund your funds back to your wallet.</p>
 
                 <form id="refundForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelTxId">İşlem ID (Tx ID)</label>
-                        <input type="number" id="refundTxId" placeholder="Örn: 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelTxId">Transaction ID (Tx ID)</label>
+                        <input type="number" id="refundTxId" placeholder="E.g: 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                     </div>
                     <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-amber-600/20 text-sm mt-2" data-i18n="btnRefundSubmit">
-                        🔄 Süresi Dolan Fonu İade Al
+                        🔄 Refund Expired Funds
                     </button>
                 </form>
             </div>
@@ -154,34 +154,34 @@
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <span data-i18n="dashTitle">Canlı Kasa Sorgulama (Live DashView)</span>
+                    <span data-i18n="dashTitle">Live Vault Query (DashView)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6" data-i18n="dashDesc">Polygon zincirinden doğrudan okuma yaparak herhangi bir kasanın güncel durumunu denetleyin.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="dashDesc">Inspect the current status of any escrow vault directly from the Polygon chain.</p>
 
                 <div class="flex gap-3 mb-6">
-                    <input type="number" id="queryTxId" placeholder="Sorgulanacak Tx ID (Örn: 1)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500">
-                    <button onclick="queryEscrow()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-3 rounded-xl transition text-sm whitespace-nowrap" data-i18n="btnQuery">🔍 Sorgula</button>
+                    <input type="number" id="queryTxId" placeholder="Query Tx ID (E.g: 1)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500">
+                    <button onclick="queryEscrow()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-3 rounded-xl transition text-sm whitespace-nowrap" data-i18n="btnQuery">🔍 Query</button>
                 </div>
 
                 <div id="dashboardResult" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 font-mono text-xs">
-                    <div><span class="text-slate-500" data-i18n="resSender">Gönderici:</span> <span id="resSender" class="text-slate-200"></span></div>
-                    <div><span class="text-slate-500" data-i18n="resRecipient">Alıcı:</span> <span id="resRecipient" class="text-slate-200"></span></div>
-                    <div><span class="text-slate-500" data-i18n="resAmount">Miktar:</span> <span id="resAmount" class="text-brand-400 font-bold"></span> POL</div>
-                    <div><span class="text-slate-500" data-i18n="resHash">Şifre Hash:</span> <span id="resHash" class="text-slate-400 truncate block"></span></div>
-                    <div><span class="text-slate-500" data-i18n="resTimelock">Kilit Bitiş (Timelock):</span> <span id="resTimelock" class="text-slate-200"></span></div>
-                    <div><span class="text-slate-500" data-i18n="resStatus">Durum:</span> <span id="resStatus" class="font-bold"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resSender">Sender:</span> <span id="resSender" class="text-slate-200"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resRecipient">Recipient:</span> <span id="resRecipient" class="text-slate-200"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resAmount">Amount:</span> <span id="resAmount" class="text-brand-400 font-bold"></span> POL</div>
+                    <div><span class="text-slate-500" data-i18n="resHash">Password Hash:</span> <span id="resHash" class="text-slate-400 truncate block"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resTimelock">Timelock Expiry:</span> <span id="resTimelock" class="text-slate-200"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resStatus">Status:</span> <span id="resStatus" class="font-bold"></span></div>
                 </div>
             </div>
         </div>
 
         <div id="resultOutput" class="hidden mt-6 bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="outputTitle">İşlem Çıktısı & Onay</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="outputTitle">Transaction Output & Approval</h3>
             <div id="txHashDisplay" class="font-mono text-xs text-brand-400 break-all"></div>
         </div>
     </main>
 
     <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500" data-i18n="footerText">
-        SafeBridge Global © 2026 • Güvenli Zincir İçi Emanet Protokolü
+        SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol
     </footer>
 
     <script>
@@ -197,9 +197,45 @@
         ];
 
         let provider, signer, userAccount;
-        let currentLang = 'tr';
+        let currentLang = 'en'; // Varsayılan açılış dili her zaman İngilizce
 
         const translations = {
+            en: {
+                subtitle: "Polygon Mainnet • Autonomous Escrow System V2",
+                connectWallet: "Connect Wallet",
+                tabCreate: "Create Escrow",
+                tabRelease: "Release Escrow (Buyer)",
+                tabRefund: "Refund (Sender)",
+                tabDashboard: "Live Vault DashView",
+                createTitle: "Initialize Secure Escrow Vault",
+                createDesc: "Your funds are encrypted on the smart contract. The recipient cannot withdraw without the password and before timelock.",
+                labelRecipient: "Recipient Wallet Address",
+                labelAmount: "Amount (POL)",
+                labelHours: "Timelock (Hours)",
+                labelPassword: "Cryptographic Secret Password",
+                btnGenPass: "🎲 Generate Password",
+                passWarning: "⚠️ Be sure to save your password! The recipient must enter this password to claim funds.",
+                btnCreateSubmit: "🔒 Create Secure Escrow & Lock",
+                releaseTitle: "Release Escrow (Claim Funds)",
+                releaseDesc: "Transfer funds in the vault to your wallet using the secret password and Tx ID provided by the sender.",
+                labelTxId: "Transaction ID (Tx ID)",
+                labelRelPass: "Sender's Secret Password",
+                btnReleaseSubmit: "🔓 Verify Password & Claim Funds",
+                refundTitle: "Timelock Refund (Sender)",
+                refundDesc: "If the timelock has expired and the recipient hasn't claimed, refund your funds back to your wallet.",
+                btnRefundSubmit: "🔄 Refund Expired Funds",
+                dashTitle: "Live Vault Query (DashView)",
+                dashDesc: "Inspect the current status of any escrow vault directly from the Polygon chain.",
+                btnQuery: "🔍 Query",
+                resSender: "Sender:",
+                resRecipient: "Recipient:",
+                resAmount: "Amount:",
+                resHash: "Password Hash:",
+                resTimelock: "Timelock Expiry:",
+                resStatus: "Status:",
+                outputTitle: "Transaction Output & Approval",
+                footerText: "SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol"
+            },
             tr: {
                 subtitle: "Polygon Mainnet • Otonom Emanet Sistemi V2",
                 connectWallet: "Cüzdanı Bağla",
@@ -235,56 +271,8 @@
                 resStatus: "Durum:",
                 outputTitle: "İşlem Çıktısı & Onay",
                 footerText: "SafeBridge Global © 2026 • Güvenli Zincir İçi Emanet Protokolü"
-            },
-            en: {
-                subtitle: "Polygon Mainnet • Autonomous Escrow System V2",
-                connectWallet: "Connect Wallet",
-                tabCreate: "Create Escrow",
-                tabRelease: "Release Escrow (Buyer)",
-                tabRefund: "Refund (Sender)",
-                tabDashboard: "Live Escrow DashView",
-                createTitle: "Initialize Secure Escrow Vault",
-                createDesc: "Your funds are encrypted on the smart contract. The recipient cannot withdraw without the password and before timelock.",
-                labelRecipient: "Recipient Wallet Address",
-                labelAmount: "Amount (POL)",
-                labelHours: "Timelock (Hours)",
-                labelPassword: "Cryptographic Secret Password",
-                btnGenPass: "🎲 Generate Password",
-                passWarning: "⚠️ Be sure to save your password! The recipient must enter this password to claim funds.",
-                btnCreateSubmit: "🔒 Create Secure Escrow & Lock",
-                releaseTitle: "Release Escrow (Claim Funds)",
-                releaseDesc: "Transfer funds in the vault to your wallet using the secret password and Tx ID provided by the sender.",
-                labelTxId: "Transaction ID (Tx ID)",
-                labelRelPass: "Sender's Secret Password",
-                btnReleaseSubmit: "🔓 Verify Password & Claim Funds",
-                refundTitle: "Timelock Refund (Sender)",
-                refundDesc: "If the timelock has expired and the recipient hasn't claimed, refund your funds back to your wallet.",
-                btnRefundSubmit: "🔄 Refund Expired Funds",
-                dashTitle: "Live Vault Query (DashView)",
-                dashDesc: "Inspect the current status of any escrow vault directly from the Polygon chain.",
-                btnQuery: "🔍 Query",
-                resSender: "Sender:",
-                resRecipient: "Recipient:",
-                resAmount: "Amount:",
-                resHash: "Password Hash:",
-                resTimelock: "Timelock Expiry:",
-                resStatus: "Status:",
-                outputTitle: "Transaction Output & Approval",
-                footerText: "SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol"
             }
         };
-
-        // Otomatik Dil Algılama (Browser Language Detection)
-        function detectUserLanguage() {
-            const browserLang = navigator.language || navigator.userLanguage || 'tr';
-            if (browserLang.startsWith('en')) {
-                currentLang = 'en';
-            } else {
-                currentLang = 'tr';
-            }
-            document.getElementById('langSelect').value = currentLang;
-            applyTranslations();
-        }
 
         function changeLanguage(lang) {
             currentLang = lang;
@@ -301,9 +289,11 @@
             });
         }
 
-        // Sayfa yüklendiğinde dili otomatik ayarla
+        // Sayfa açıldığında her zaman İngilizce başlat
         window.addEventListener('DOMContentLoaded', () => {
-            detectUserLanguage();
+            currentLang = 'en';
+            document.getElementById('langSelect').value = 'en';
+            applyTranslations();
         });
 
         const STATUS_LABELS = ["Active", "Completed", "Refunded", "ClaimedByPlatform"];
@@ -350,7 +340,7 @@
 
         async function connectWallet() {
             if (!window.ethereum) {
-                alert("Lütfen MetaMask veya Web3 uyumlu bir cüzdan yükleyin!");
+                alert("Please install MetaMask or a Web3 compatible wallet!");
                 return;
             }
             try {
@@ -367,17 +357,17 @@
                             params: [{ chainId: '0x89' }],
                         });
                     } catch (switchError) {
-                        alert("Lütfen Polygon Mainnet ağına geçiş yapın!");
+                        alert("Please switch to Polygon Mainnet network!");
                         return;
                     }
                 }
 
                 document.getElementById('connectWalletBtn').innerHTML = userAccount.substring(0, 6) + "..." + userAccount.substring(38);
                 document.getElementById('networkBadge').classList.remove('hidden');
-                setStatus("Cüzdan başarıyla bağlandı: " + userAccount, "success");
+                setStatus("Wallet successfully connected: " + userAccount, "success");
             } catch (err) {
                 console.error(err);
-                setStatus("Cüzdan bağlantı hatası: " + (err.message || err), "error");
+                setStatus("Wallet connection error: " + (err.message || err), "error");
             }
         }
 
@@ -391,7 +381,7 @@
             const password = document.getElementById('secretPassword').value.trim();
 
             if (!ethers.isAddress(seller)) {
-                setStatus("Geçersiz alıcı cüzdan adresi!", "error");
+                setStatus("Invalid recipient wallet address!", "error");
                 return;
             }
 
@@ -401,18 +391,18 @@
                 const durationSeconds = BigInt(hoursStr) * 3600n;
                 const parsedAmount = ethers.parseEther(amountStr);
 
-                setStatus("İşlem hazırlanıyor... Cüzdan onayını bekleyin.", "info");
+                setStatus("Preparing transaction... Please wait for wallet confirmation.", "info");
                 const tx = await contract.createEscrow(seller, passwordHash, durationSeconds, { value: parsedAmount });
                 
-                setStatus("Blokzincir onayı bekleniyor...", "info");
+                setStatus("Waiting for blockchain confirmation...", "info");
                 const receipt = await tx.wait();
 
-                setStatus("BAŞARILI! Emanet kasası oluşturuldu.", "success");
+                setStatus("SUCCESS! Escrow vault created.", "success");
                 document.getElementById('resultOutput').classList.remove('hidden');
                 document.getElementById('txHashDisplay').innerHTML = `Tx Hash: <a href="https://polygonscan.com/tx/${receipt.hash}" target="_blank" class="underline">${receipt.hash}</a>`;
             } catch (err) {
                 console.error(err);
-                setStatus("İşlem başarısız: " + (err.reason || err.message), "error");
+                setStatus("Transaction failed: " + (err.reason || err.message), "error");
             }
         });
 
@@ -425,16 +415,16 @@
 
             try {
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                setStatus("Kasa çözme işlemi gönderiliyor...", "info");
+                setStatus("Sending release transaction...", "info");
                 const tx = await contract.releaseEscrow(txId, password);
                 const receipt = await tx.wait();
 
-                setStatus("BAŞARILI! Fon alıcı cüzdana aktarıldı.", "success");
+                setStatus("SUCCESS! Funds transferred to recipient wallet.", "success");
                 document.getElementById('resultOutput').classList.remove('hidden');
                 document.getElementById('txHashDisplay').innerHTML = `Tx Hash: <a href="https://polygonscan.com/tx/${receipt.hash}" target="_blank" class="underline">${receipt.hash}</a>`;
             } catch (err) {
                 console.error(err);
-                setStatus("İşlem başarısız: " + (err.reason || err.message), "error");
+                setStatus("Transaction failed: " + (err.reason || err.message), "error");
             }
         });
 
@@ -446,23 +436,23 @@
 
             try {
                 const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                setStatus("İade talebi gönderiliyor...", "info");
+                setStatus("Sending refund request...", "info");
                 const tx = await contract.refundEscrow(txId);
                 const receipt = await tx.wait();
 
-                setStatus("BAŞARILI! Fon göndericiye iade edildi.", "success");
+                setStatus("SUCCESS! Funds refunded to sender.", "success");
                 document.getElementById('resultOutput').classList.remove('hidden');
                 document.getElementById('txHashDisplay').innerHTML = `Tx Hash: <a href="https://polygonscan.com/tx/${receipt.hash}" target="_blank" class="underline">${receipt.hash}</a>`;
             } catch (err) {
                 console.error(err);
-                setStatus("İşlem başarısız: " + (err.reason || err.message), "error");
+                setStatus("Transaction failed: " + (err.reason || err.message), "error");
             }
         });
 
         async function queryEscrow() {
             const txId = document.getElementById('queryTxId').value.trim();
             if (!txId) {
-                alert("Lütfen bir Tx ID girin!");
+                alert("Please enter a Tx ID!");
                 return;
             }
             try {
@@ -476,18 +466,18 @@
                 document.getElementById('resAmount').innerText = ethers.formatEther(data[2]);
                 document.getElementById('resHash').innerText = data[3];
                 
-                const timelockDate = new Date(Number(data[4]) * 1000).toLocaleString('tr-TR');
+                const timelockDate = new Date(Number(data[4]) * 1000).toLocaleString();
                 document.getElementById('resTimelock').innerText = timelockDate;
                 
                 const statusIndex = Number(data[6]);
                 const statusSpan = document.getElementById('resStatus');
-                statusSpan.innerText = STATUS_LABELS[statusIndex] || "Bilinmiyor";
+                statusSpan.innerText = STATUS_LABELS[statusIndex] || "Unknown";
                 statusSpan.className = "font-bold " + (STATUS_CLASSES[statusIndex] || "");
 
                 document.getElementById('dashboardResult').classList.remove('hidden');
             } catch (err) {
                 console.error(err);
-                alert("Kasa bilgisi okunamadı: " + err.message);
+                alert("Vault info could not be read: " + err.message);
             }
         }
     </script>
