@@ -198,11 +198,17 @@
 
         function switchTab(tab) {
             ['Create', 'Release', 'Refund', 'Dashboard'].forEach(t => {
-                document.getElementById('panel' + t).classList.add('hidden');
-                document.getElementById('tab' + t).className = "px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition";
+                const panel = document.getElementById('panel' + t);
+                const tabBtn = document.getElementById('tab' + t);
+                if (panel) panel.classList.add('hidden');
+                if (tabBtn) tabBtn.className = "px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition";
             });
-            document.getElementById('panel' + tab).classList.remove('hidden');
-            document.getElementById('tab' + tab).className = "px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-brand-500 text-brand-400 bg-brand-500/5 transition";
+            const capTab = tab.charAt(0).toUpperCase() + tab.slice(1);
+            const activePanel = document.getElementById('panel' + capTab);
+            const activeTab = document.getElementById('tab' + capTab);
+
+            if (activePanel) activePanel.classList.remove('hidden');
+            if (activeTab) activeTab.className = "px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-brand-500 text-brand-400 bg-brand-500/5 transition";
         }
 
         function setStatus(message, type = 'info') {
@@ -240,7 +246,6 @@
                 userAccount = accounts[0];
                 signer = await provider.getSigner();
 
-                // Check Polygon Network (Chain ID: 137 / 0x89)
                 const network = await provider.getNetwork();
                 if (network.chainId !== 137n) {
                     try {
@@ -263,7 +268,6 @@
             }
         }
 
-        // CREATE ESCROW FORM
         document.getElementById('createForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!signer) { await connectWallet(); if (!signer) return; }
@@ -299,7 +303,6 @@
             }
         });
 
-        // RELEASE ESCROW FORM
         document.getElementById('releaseForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!signer) { await connectWallet(); if (!signer) return; }
@@ -322,7 +325,6 @@
             }
         });
 
-        // REFUND ESCROW FORM
         document.getElementById('refundForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!signer) { await connectWallet(); if (!signer) return; }
@@ -344,7 +346,6 @@
             }
         });
 
-        // QUERY ESCROW DASHBOARD
         async function queryEscrow() {
             const txId = document.getElementById('queryTxId').value.trim();
             if (!txId) {
