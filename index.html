@@ -34,14 +34,19 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-indigo-400 bg-clip-text text-transparent">SafeBridge Global</h1>
-                    <p class="text-xs text-slate-400">Polygon Mainnet • Otonom Emanet Sistemi V2</p>
+                    <p class="text-xs text-slate-400" data-i18n="subtitle">Polygon Mainnet • Otonom Emanet Sistemi V2</p>
                 </div>
             </div>
             <div class="flex items-center gap-3">
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500 cursor-pointer">
+                    <option value="tr">🇹🇷 Türkçe</option>
+                    <option value="en">🇬🇧 English</option>
+                </select>
+
                 <div id="networkBadge" class="hidden px-3 py-1 text-xs rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Polygon Mainnet</div>
                 <button id="connectWalletBtn" onclick="connectWallet()" class="bg-brand-600 hover:bg-brand-500 text-white font-medium px-5 py-2.5 rounded-xl transition shadow-lg shadow-brand-600/30 text-sm flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
-                    Cüzdanı Bağla
+                    <span data-i18n="connectWallet">Cüzdanı Bağla</span>
                 </button>
             </div>
         </div>
@@ -54,47 +59,47 @@
         </div>
 
         <div class="flex border-b border-slate-800 mb-8 gap-2 overflow-x-auto pb-1">
-            <button onclick="switchTab('create')" id="tabCreate" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-brand-500 text-brand-400 bg-brand-500/5 transition">Emanet Oluştur</button>
-            <button onclick="switchTab('release')" id="tabRelease" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">Kasayı Çöz (Alıcı)</button>
-            <button onclick="switchTab('refund')" id="tabRefund" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">İade Al (Gönderici)</button>
-            <button onclick="switchTab('dashboard')" id="tabDashboard" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">Canlı Kasa Takip</button>
+            <button onclick="switchTab('create')" id="tabCreate" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-brand-500 text-brand-400 bg-brand-500/5 transition" data-i18n="tabCreate">Emanet Oluştur</button>
+            <button onclick="switchTab('release')" id="tabRelease" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabRelease">Kasayı Çöz (Alıcı)</button>
+            <button onclick="switchTab('refund')" id="tabRefund" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabRefund">İade Al (Gönderici)</button>
+            <button onclick="switchTab('dashboard')" id="tabDashboard" class="px-5 py-2.5 font-medium text-sm rounded-t-xl border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition" data-i18n="tabDashboard">Canlı Kasa Takip</button>
         </div>
 
         <div id="panelCreate" class="space-y-6">
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    Güvenli Emanet Kasası Başlat
+                    <span data-i18n="createTitle">Güvenli Emanet Kasası Başlat</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6">Paranız akıllı kontrat üzerinde şifrelenir. Alıcı şifreyi bilmeden ve süre dolmadan parayı çekemez.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="createDesc">Paranız akıllı kontrat üzerinde şifrelenir. Alıcı şifreyi bilmeden ve süre dolmadan parayı çekemez.</p>
 
                 <form id="createForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Alıcı Cüzdan Adresi (Recipient)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelRecipient">Alıcı Cüzdan Adresi (Recipient)</label>
                         <input type="text" id="sellerAddress" placeholder="0x..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Miktar (POL)</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelAmount">Miktar (POL)</label>
                             <input type="number" step="0.0001" id="amount" placeholder="0.01" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Süre Aşımı (Saat)</label>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelHours">Süre Aşımı (Saat)</label>
                             <input type="number" id="hours" placeholder="24" value="24" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                         </div>
                     </div>
 
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Kriptografik Gizli Şifre</label>
-                            <button type="button" onclick="generateRandomPassword()" class="text-xs text-brand-400 hover:text-brand-300 transition underline">🎲 Şifre Üret</button>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400" data-i18n="labelPassword">Kriptografik Gizli Şifre</label>
+                            <button type="button" onclick="generateRandomPassword()" class="text-xs text-brand-400 hover:text-brand-300 transition underline" data-i18n="btnGenPass">🎲 Şifre Üret</button>
                         </div>
                         <input type="text" id="secretPassword" placeholder="En az 8 karakterli gizli şifre" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
-                        <p class="text-[11px] text-amber-400/80 mt-1.5">⚠️ Şifreyi mutlaka not edin! Alıcı parayı çekebilmek için bu şifreyi girmek zorundadır.</p>
+                        <p class="text-[11px] text-amber-400/80 mt-1.5" data-i18n="passWarning">⚠️ Şifreyi mutlaka not edin! Alıcı parayı çekebilmek için bu şifreyi girmek zorundadır.</p>
                     </div>
 
-                    <button type="submit" class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-brand-600/20 text-sm mt-2">
+                    <button type="submit" class="w-full bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-brand-600/20 text-sm mt-2" data-i18n="btnCreateSubmit">
                         🔒 Güvenli Emanet Oluştur ve Kilitle
                     </button>
                 </form>
@@ -105,20 +110,20 @@
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                    Kasayı Çöz (Fonları Teslim Al)
+                    <span data-i18n="releaseTitle">Kasayı Çöz (Fonları Teslim Al)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6">Göndericiden aldığınız şifre ve işlem ID numarası ile kasadaki fonu kendi cüzdanınıza aktarın.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="releaseDesc">Göndericiden aldığınız şifre ve işlem ID numarası ile kasadaki fonu kendi cüzdanınıza aktarın.</p>
 
                 <form id="releaseForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">İşlem ID (Tx ID)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelTxId">İşlem ID (Tx ID)</label>
                         <input type="number" id="releaseTxId" placeholder="Örn: 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Göndericinin Paylaştığı Gizli Şifre</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelRelPass">Göndericinin Paylaştığı Gizli Şifre</label>
                         <input type="text" id="releasePassword" placeholder="Gizli şifreyi girin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500 font-mono" required>
                     </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20 text-sm mt-2">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-emerald-600/20 text-sm mt-2" data-i18n="btnReleaseSubmit">
                         🔓 Şifreyi Doğrula ve Fonu Al
                     </button>
                 </form>
@@ -129,16 +134,16 @@
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
-                    Süre Aşımı İadesi (Gönderici)
+                    <span data-i18n="refundTitle">Süre Aşımı İadesi (Gönderici)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6">Belirlenen süre (Timelock) dolduysa ve alıcı fonu çekmediysa paranızı cüzdanınıza geri iade alın.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="refundDesc">Belirlenen süre (Timelock) dolduysa ve alıcı fonu çekmediysa paranızı cüzdanınıza geri iade alın.</p>
 
                 <form id="refundForm" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">İşlem ID (Tx ID)</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="labelTxId">İşlem ID (Tx ID)</label>
                         <input type="number" id="refundTxId" placeholder="Örn: 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500" required>
                     </div>
-                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-amber-600/20 text-sm mt-2">
+                    <button type="submit" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-medium py-3.5 rounded-xl transition shadow-lg shadow-amber-600/20 text-sm mt-2" data-i18n="btnRefundSubmit">
                         🔄 Süresi Dolan Fonu İade Al
                     </button>
                 </form>
@@ -149,33 +154,33 @@
             <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl backdrop-blur">
                 <h2 class="text-lg font-semibold mb-2 flex items-center gap-2">
                     <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    Canlı Kasa Sorgulama (Live DashView)
+                    <span data-i18n="dashTitle">Canlı Kasa Sorgulama (Live DashView)</span>
                 </h2>
-                <p class="text-xs text-slate-400 mb-6">Polygon zincirinden doğrudan okuma yaparak herhangi bir kasanın güncel durumunu denetleyin.</p>
+                <p class="text-xs text-slate-400 mb-6" data-i18n="dashDesc">Polygon zincirinden doğrudan okuma yaparak herhangi bir kasanın güncel durumunu denetleyin.</p>
 
                 <div class="flex gap-3 mb-6">
                     <input type="number" id="queryTxId" placeholder="Sorgulanacak Tx ID (Örn: 1)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-500">
-                    <button onclick="queryEscrow()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-3 rounded-xl transition text-sm whitespace-nowrap">🔍 Sorgula</button>
+                    <button onclick="queryEscrow()" class="bg-slate-800 hover:bg-slate-700 text-white font-medium px-6 py-3 rounded-xl transition text-sm whitespace-nowrap" data-i18n="btnQuery">🔍 Sorgula</button>
                 </div>
 
                 <div id="dashboardResult" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-3 font-mono text-xs">
-                    <div><span class="text-slate-500">Gönderici:</span> <span id="resSender" class="text-slate-200"></span></div>
-                    <div><span class="text-slate-500">Alıcı:</span> <span id="resRecipient" class="text-slate-200"></span></div>
-                    <div><span class="text-slate-500">Miktar:</span> <span id="resAmount" class="text-brand-400 font-bold"></span> POL</div>
-                    <div><span class="text-slate-500">Şifre Hash:</span> <span id="resHash" class="text-slate-400 truncate block"></span></div>
-                    <div><span class="text-slate-500">Kilit Bitiş (Timelock):</span> <span id="resTimelock" class="text-slate-200"></span></div>
-                    <div><span class="text-slate-500">Durum:</span> <span id="resStatus" class="font-bold"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resSender">Gönderici:</span> <span id="resSender" class="text-slate-200"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resRecipient">Alıcı:</span> <span id="resRecipient" class="text-slate-200"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resAmount">Miktar:</span> <span id="resAmount" class="text-brand-400 font-bold"></span> POL</div>
+                    <div><span class="text-slate-500" data-i18n="resHash">Şifre Hash:</span> <span id="resHash" class="text-slate-400 truncate block"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resTimelock">Kilit Bitiş (Timelock):</span> <span id="resTimelock" class="text-slate-200"></span></div>
+                    <div><span class="text-slate-500" data-i18n="resStatus">Durum:</span> <span id="resStatus" class="font-bold"></span></div>
                 </div>
             </div>
         </div>
 
         <div id="resultOutput" class="hidden mt-6 bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">İşlem Çıktısı & Onay</h3>
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2" data-i18n="outputTitle">İşlem Çıktısı & Onay</h3>
             <div id="txHashDisplay" class="font-mono text-xs text-brand-400 break-all"></div>
         </div>
     </main>
 
-    <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500">
+    <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500" data-i18n="footerText">
         SafeBridge Global © 2026 • Güvenli Zincir İçi Emanet Protokolü
     </footer>
 
@@ -192,6 +197,114 @@
         ];
 
         let provider, signer, userAccount;
+        let currentLang = 'tr';
+
+        const translations = {
+            tr: {
+                subtitle: "Polygon Mainnet • Otonom Emanet Sistemi V2",
+                connectWallet: "Cüzdanı Bağla",
+                tabCreate: "Emanet Oluştur",
+                tabRelease: "Kasayı Çöz (Alıcı)",
+                tabRefund: "İade Al (Gönderici)",
+                tabDashboard: "Canlı Kasa Takip",
+                createTitle: "Güvenli Emanet Kasası Başlat",
+                createDesc: "Paranız akıllı kontrat üzerinde şifrelenir. Alıcı şifreyi bilmeden ve süre dolmadan parayı çekemez.",
+                labelRecipient: "Alıcı Cüzdan Adresi (Recipient)",
+                labelAmount: "Miktar (POL)",
+                labelHours: "Süre Aşımı (Saat)",
+                labelPassword: "Kriptografik Gizli Şifre",
+                btnGenPass: "🎲 Şifre Üret",
+                passWarning: "⚠️ Şifreyi mutlaka not edin! Alıcı parayı çekebilmek için bu şifreyi girmek zorundadır.",
+                btnCreateSubmit: "🔒 Güvenli Emanet Oluştur ve Kilitle",
+                releaseTitle: "Kasayı Çöz (Fonları Teslim Al)",
+                releaseDesc: "Göndericiden aldığınız şifre ve işlem ID numarası ile kasadaki fonu kendi cüzdanınıza aktarın.",
+                labelTxId: "İşlem ID (Tx ID)",
+                labelRelPass: "Göndericinin Paylaştığı Gizli Şifre",
+                btnReleaseSubmit: "🔓 Şifreyi Doğrula ve Fonu Al",
+                refundTitle: "Süre Aşımı İadesi (Gönderici)",
+                refundDesc: "Belirlenen süre (Timelock) dolduysa ve alıcı fonu çekmediysa paranızı cüzdanınıza geri iade alın.",
+                btnRefundSubmit: "🔄 Süresi Dolan Fonu İade Al",
+                dashTitle: "Canlı Kasa Sorgulama (Live DashView)",
+                dashDesc: "Polygon zincirinden doğrudan okuma yaparak herhangi bir kasanın güncel durumunu denetleyin.",
+                btnQuery: "🔍 Sorgula",
+                resSender: "Gönderici:",
+                resRecipient: "Alıcı:",
+                resAmount: "Miktar:",
+                resHash: "Şifre Hash:",
+                resTimelock: "Kilit Bitiş (Timelock):",
+                resStatus: "Durum:",
+                outputTitle: "İşlem Çıktısı & Onay",
+                footerText: "SafeBridge Global © 2026 • Güvenli Zincir İçi Emanet Protokolü"
+            },
+            en: {
+                subtitle: "Polygon Mainnet • Autonomous Escrow System V2",
+                connectWallet: "Connect Wallet",
+                tabCreate: "Create Escrow",
+                tabRelease: "Release Escrow (Buyer)",
+                tabRefund: "Refund (Sender)",
+                tabDashboard: "Live Escrow DashView",
+                createTitle: "Initialize Secure Escrow Vault",
+                createDesc: "Your funds are encrypted on the smart contract. The recipient cannot withdraw without the password and before timelock.",
+                labelRecipient: "Recipient Wallet Address",
+                labelAmount: "Amount (POL)",
+                labelHours: "Timelock (Hours)",
+                labelPassword: "Cryptographic Secret Password",
+                btnGenPass: "🎲 Generate Password",
+                passWarning: "⚠️ Be sure to save your password! The recipient must enter this password to claim funds.",
+                btnCreateSubmit: "🔒 Create Secure Escrow & Lock",
+                releaseTitle: "Release Escrow (Claim Funds)",
+                releaseDesc: "Transfer funds in the vault to your wallet using the secret password and Tx ID provided by the sender.",
+                labelTxId: "Transaction ID (Tx ID)",
+                labelRelPass: "Sender's Secret Password",
+                btnReleaseSubmit: "🔓 Verify Password & Claim Funds",
+                refundTitle: "Timelock Refund (Sender)",
+                refundDesc: "If the timelock has expired and the recipient hasn't claimed, refund your funds back to your wallet.",
+                btnRefundSubmit: "🔄 Refund Expired Funds",
+                dashTitle: "Live Vault Query (DashView)",
+                dashDesc: "Inspect the current status of any escrow vault directly from the Polygon chain.",
+                btnQuery: "🔍 Query",
+                resSender: "Sender:",
+                resRecipient: "Recipient:",
+                resAmount: "Amount:",
+                resHash: "Password Hash:",
+                resTimelock: "Timelock Expiry:",
+                resStatus: "Status:",
+                outputTitle: "Transaction Output & Approval",
+                footerText: "SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol"
+            }
+        };
+
+        // Otomatik Dil Algılama (Browser Language Detection)
+        function detectUserLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage || 'tr';
+            if (browserLang.startsWith('en')) {
+                currentLang = 'en';
+            } else {
+                currentLang = 'tr';
+            }
+            document.getElementById('langSelect').value = currentLang;
+            applyTranslations();
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang] && translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+        }
+
+        // Sayfa yüklendiğinde dili otomatik ayarla
+        window.addEventListener('DOMContentLoaded', () => {
+            detectUserLanguage();
+        });
 
         const STATUS_LABELS = ["Active", "Completed", "Refunded", "ClaimedByPlatform"];
         const STATUS_CLASSES = ["text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded", "text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded", "text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded", "text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded"];
