@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge Global - Komisyon ve Net Escrow Önizleme</title>
-  <meta name="description" content="Gönderici komisyonu ve net escrow tutarı önizleme arayüzü" />
+  <title>SafeBridge Global - Decentralized Escrow</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #020617;
-      --bg2: #0f172a;
+      --bg-soft: #0f172a;
       --panel: #111827;
       --border: #1f2937;
       --text: #e5e7eb;
@@ -18,24 +18,24 @@
       --amber: #fbbf24;
       --red: #f87171;
       --white: #ffffff;
+      --brand-glow: rgba(34, 211, 238, 0.15);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: linear-gradient(180deg, var(--bg) 0%, #0b1120 100%);
       color: var(--text);
       line-height: 1.5;
+      min-height: 100vh;
     }
 
     .container {
-      max-width: 1120px;
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 24px 16px 48px;
+      padding: 24px 16px 40px;
     }
 
     .header {
@@ -65,95 +65,93 @@
       font-size: 15px;
     }
 
-    .badge {
-      border: 1px solid #334155;
-      background: var(--bg2);
-      color: #cbd5e1;
-      padding: 12px 18px;
-      border-radius: 16px;
+    .wallet-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
       font-weight: 700;
-      opacity: 0.9;
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    .notice {
-      background: rgba(251, 191, 36, 0.12);
-      border: 1px solid rgba(251, 191, 36, 0.28);
-      color: #fde68a;
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 18px;
-    }
+    .btn:hover { transform: translateY(-1px); opacity: 0.9; }
 
-    .status {
-      background: var(--bg2);
-      border: 1px solid var(--border);
+    .btn-primary { background: linear-gradient(90deg, #0891b2, #0ea5e9); color: white; }
+    .btn-success { background: linear-gradient(90deg, #059669, #10b981); color: white; width: 100%; margin-top: 10px; }
+    .btn-warning { background: linear-gradient(90deg, #d97706, #f59e0b); color: white; width: 100%; margin-top: 10px; }
+
+    .lang-select {
+      background: var(--bg-soft);
       color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .status-box {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
       padding: 14px 16px;
       border-radius: 16px;
       margin-bottom: 24px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-top: 24px;
+      display: none;
     }
 
     .card {
       background: rgba(15, 23, 42, 0.96);
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 24px;
+      padding: 22px;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
     }
 
-    .card h2,
-    .card h3 {
-      margin-top: 0;
-    }
-
-    .card h2 {
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
       margin-bottom: 18px;
-      font-size: 28px;
     }
 
-    .card h3 {
-      margin-bottom: 18px;
-      font-size: 22px;
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s;
     }
 
-    .heading-emerald {
-      color: var(--emerald);
+    .tab-btn.active {
+      color: white;
+      border-color: var(--cyan);
+      background: rgba(14, 165, 233, 0.12);
     }
 
-    .heading-cyan {
-      color: var(--cyan);
-    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
+    .field { margin-bottom: 16px; }
     label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       color: var(--muted);
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
     }
 
-    input,
-    select,
-    button {
-      font: inherit;
-    }
-
-    input,
-    select {
+    input, select {
       width: 100%;
       background: #020617;
       color: var(--white);
@@ -163,357 +161,312 @@
       outline: none;
     }
 
-    input:focus,
-    select:focus {
-      border-color: var(--emerald);
-    }
+    input:focus { border-color: var(--cyan); }
 
-    .field {
-      margin-bottom: 16px;
-    }
+    .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    
+    .mono { font-family: 'Courier New', monospace; word-break: break-all; font-size: 13px; color: var(--cyan); }
 
-    .two-cols {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .inline {
-      display: flex;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    .inline input {
-      flex: 1;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .btn-main {
-      width: 100%;
-      background: linear-gradient(90deg, #059669, #10b981);
-      color: white;
-      padding: 16px 18px;
-      margin-top: 6px;
-    }
-
-    .btn-secondary {
-      white-space: nowrap;
-      background: #062f27;
-      color: #a7f3d0;
-      border: 1px solid #14532d;
-    }
-
-    .helper {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 6px;
-    }
-
-    .info-box {
-      border: 1px solid rgba(34, 211, 238, 0.35);
-      background: rgba(8, 47, 73, 0.35);
-      color: #cffafe;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 10px;
-    }
-
-    .mini-card {
+    .dashboard-res {
+      margin-top: 15px;
       background: #020617;
-      border: 1px solid var(--border);
+      padding: 15px;
       border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 14px;
+      border: 1px solid var(--border);
     }
 
-    .mini-label {
+    .footer {
+      text-align: center;
+      margin-top: 40px;
       color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .mono {
-      font-family: Consolas, Monaco, monospace;
-      word-break: break-all;
-    }
-
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .big-number {
-      font-size: 28px;
-      font-weight: 800;
-    }
-
-    .white {
-      color: var(--white);
-    }
-
-    .amber {
-      color: var(--amber);
-    }
-
-    .emerald {
-      color: var(--emerald);
-    }
-
-    .result {
-      min-height: 220px;
-      background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      color: #cbd5e1;
-      overflow: auto;
-      white-space: pre-wrap;
-      font-family: Consolas, Monaco, monospace;
       font-size: 13px;
-    }
-
-    .notes {
-      margin: 0;
-      padding-left: 20px;
-    }
-
-    .notes li {
-      margin-bottom: 10px;
-    }
-
-    @media (max-width: 900px) {
-      .grid,
-      .grid-2,
-      .two-cols,
-      .summary-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .title {
-        font-size: 32px;
-      }
-
-      .card {
-        padding: 18px;
-      }
     }
   </style>
 </head>
 <body>
-  <main class="container">
+
+  <div class="container">
     <header class="header">
       <div>
         <h1 class="title">SafeBridge Global</h1>
-        <p class="subtitle">Gönderici komisyon önizleme ve net escrow hesaplama arayüzü</p>
+        <p class="subtitle" data-i18n="subtitle">Polygon Mainnet • Multi-Asset Autonomous Escrow System</p>
       </div>
-      <div class="badge">İşlem modu kapalı</div>
+      <div class="wallet-box">
+        <select id="langSelect" onchange="changeLanguage(this.value)" class="lang-select">
+          <option value="en">🇬🇧 EN</option>
+          <option value="tr">🇹🇷 TR</option>
+          <option value="ru">🇷🇺 RU</option>
+          <option value="de">🇩🇪 DE</option>
+          <option value="zh">🇨🇳 ZH</option>
+          <option value="es">🇪🇸 ES</option>
+          <option value="ar">🇸🇦 AR</option>
+          <option value="ko">🇰🇷 KO</option>
+          <option value="ja">🇯🇵 JA</option>
+        </select>
+        <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()" data-i18n="connectWallet">Connect Wallet</button>
+      </div>
     </header>
 
-    <section class="notice">
-      Bu sayfa yalnızca <strong>bilgilendirme ve önizleme</strong> içindir. Gerçek cüzdan bağlantısı, token onayı, fon transferi, claim veya refund işlemi yapmaz.
-    </section>
+    <div id="statusBox" class="status-box"></div>
 
-    <section id="statusBox" class="status">
-      Sistem hazır. Girilen toplam tutar üzerinden komisyon ve net escrow tutarı hesaplanır.
-    </section>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('create', this)" data-i18n="tabCreate">Create Escrow</button>
+      <button class="tab-btn" onclick="switchTab('release', this)" data-i18n="tabRelease">Release (Buyer)</button>
+      <button class="tab-btn" onclick="switchTab('refund', this)" data-i18n="tabRefund">Refund (Sender)</button>
+      <button class="tab-btn" onclick="switchTab('dash', this)" data-i18n="tabDashboard">DashView</button>
+    </div>
 
-    <section class="grid">
-      <article class="card">
-        <h2 class="heading-emerald">İşlem Önizleme</h2>
-
-        <form id="previewForm" novalidate>
-          <div class="field">
-            <label for="senderAddress">Gönderici Cüzdan Adresi</label>
-            <input id="senderAddress" name="senderAddress" type="text" autocomplete="off" spellcheck="false" placeholder="0x ile başlayan 42 karakter adres" />
-          </div>
-
-          <div class="field">
-            <label for="recipientAddress">Alıcı Cüzdan Adresi</label>
-            <input id="recipientAddress" name="recipientAddress" type="text" autocomplete="off" spellcheck="false" placeholder="0x ile başlayan 42 karakter adres" />
-          </div>
-
-          <div class="field">
-            <label for="tokenSelect">Varlık Türü</label>
-            <select id="tokenSelect" name="tokenSelect">
-              <option value="POL">POL</option>
-              <option value="USDT">USDT</option>
-              <option value="XAUT">XAUT</option>
+    <div class="card">
+      <div id="panelCreate" class="tab-panel active">
+        <h3 class="heading-emerald" data-i18n="createTitle">Initialize Secure Vault</h3>
+        <div class="field">
+          <label data-i18n="labelRecipient">Recipient Address</label>
+          <input type="text" id="recipient" placeholder="0x...">
+        </div>
+        <div class="field">
+            <label data-i18n="labelCurrency">Asset Type</label>
+            <select id="currency">
+              <option value="POL">POL (Native Polygon)</option>
+              <option value="USDT">USDT (Tether USD)</option>
+              <option value="XAUT">XAUT (Tether Gold)</option>
             </select>
-          </div>
-
-          <div class="two-cols">
-            <div class="field">
-              <label for="grossAmount">Toplam Gönderim Tutarı</label>
-              <input id="grossAmount" name="grossAmount" type="number" min="0.000001" step="0.000001" inputmode="decimal" placeholder="0.00" />
-            </div>
-
-            <div class="field">
-              <label for="hours">Süre (Saat)</label>
-              <input id="hours" name="hours" type="number" min="1" max="720" step="1" value="24" inputmode="numeric" />
-            </div>
-          </div>
-
+        </div>
+        <div class="two-cols">
           <div class="field">
-            <label for="secretPassword">Gizli Şifre</label>
-            <div class="inline">
-              <input id="secretPassword" name="secretPassword" type="text" autocomplete="off" spellcheck="false" placeholder="En az 12 karakter" />
-              <button id="generatePasswordBtn" type="button" class="btn btn-secondary">Şifre Üret</button>
-            </div>
-            <div class="helper">Bu sürüm işlem göndermez. Şifre alanı yalnızca önizleme ve doğrulama içindir.</div>
+            <label data-i18n="labelAmount">Amount</label>
+            <input type="number" id="amount" placeholder="0.01" step="0.0001">
           </div>
-
-          <div class="info-box">
-            Girilen toplam tutardan <strong>%1 komisyon göndericiden kesilir</strong>. Kalan tutar alıcı için escrow kasasına kilitlenecek net tutar olarak hesaplanır.
+          <div class="field">
+            <label data-i18n="labelHours">Timelock (Hours)</label>
+            <input type="number" id="hours" value="0">
           </div>
-
-          <button type="submit" class="btn btn-main">Önizlemeyi Hesapla</button>
-        </form>
-      </article>
-
-      <article class="card">
-        <h2 class="heading-cyan">Komisyon ve Net Tutar Özeti</h2>
-
-        <div class="mini-card">
-          <div class="mini-label">Komisyon Modeli</div>
-          <div><strong>%1 komisyon göndericiden kesilir</strong></div>
         </div>
-
-        <div class="mini-card">
-          <div class="mini-label">Escrow Kontrat Adresi</div>
-          <div class="mono" style="color: var(--emerald);">0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e</div>
-        </div>
-
-        <div class="mini-card">
-          <div class="mini-label">Komisyon Adresi</div>
-          <div class="mono" style="color: var(--cyan);">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
-        </div>
-
-        <div class="mini-card">
-          <div class="summary-grid">
-            <div>
-              <div class="mini-label">Toplam Gönderim</div>
-              <div id="grossDisplay" class="big-number white">0.00</div>
-            </div>
-            <div>
-              <div class="mini-label">Komisyon (%1)</div>
-              <div id="feeDisplay" class="big-number amber">0.00</div>
-            </div>
-            <div>
-              <div class="mini-label">Net Escrow</div>
-              <div id="netDisplay" class="big-number emerald">0.00</div>
-            </div>
+        <div class="field">
+          <div style="display:flex; justify-content: space-between;">
+            <label data-i18n="labelPassword">Secret Password</label>
+            <span onclick="genPass()" style="font-size:11px; cursor:pointer; color:var(--cyan);">🎲 Auto Gen</span>
           </div>
-          <div id="assetDisplay" class="helper" style="margin-top: 10px;">Varlık: POL</div>
+          <input type="text" id="pass" placeholder="Min 8 characters">
         </div>
+        <button class="btn btn-success" onclick="createEscrow()" data-i18n="btnCreateSubmit">🔒 Create & Lock</button>
+      </div>
 
-        <div class="mini-card">
-          <div style="font-weight: 700; margin-bottom: 10px;">İşlem özeti</div>
-          <ul class="notes">
-            <li>Gönderici toplam tutarı girer.</li>
-            <li>Toplam tutarın %1'i komisyon olarak ayrılır.</li>
-            <li>Kalan net tutar alıcı için escrow'a kilitlenecek tutar olarak hesaplanır.</li>
-            <li>Bu sayfa hesaplama yapar; gerçek zincir işlemi göndermez.</li>
-          </ul>
+      <div id="panelRelease" class="tab-panel">
+        <h3 class="heading-cyan" data-i18n="releaseTitle">Release Funds</h3>
+        <div class="field">
+          <label data-i18n="labelTxId">Transaction ID</label>
+          <input type="number" id="relTxId" placeholder="0">
         </div>
-      </article>
-    </section>
+        <div class="field">
+          <label data-i18n="labelRelPass">Secret Password</label>
+          <input type="text" id="relPass">
+        </div>
+        <button class="btn btn-primary" style="width:100%;" onclick="releaseEscrow()" data-i18n="btnReleaseSubmit">🔓 Verify & Claim</button>
+      </div>
 
-    <section class="grid-2">
-      <article class="card">
-        <h3>Doğrulama Sonucu</h3>
-        <pre id="resultBox" class="result"></pre>
-      </article>
+      <div id="panelRefund" class="tab-panel">
+        <h3 style="color:var(--amber)" data-i18n="refundTitle">Timelock Refund</h3>
+        <div class="field">
+          <label data-i18n="labelTxId">Transaction ID</label>
+          <input type="number" id="refTxId" placeholder="0">
+        </div>
+        <button class="btn btn-warning" onclick="refundEscrow()" data-i18n="btnRefundSubmit">🔄 Request Refund</button>
+      </div>
 
-      <article class="card">
-        <h3>Notlar</h3>
-        <div class="mini-card">Bu sürüm yalnızca göndericiye komisyon etkisini açıkça göstermek için hazırlanmıştır.</div>
-        <div class="mini-card">Gerçek uygulamada komisyon kuralının arayüzde değil, akıllı kontrat içinde zorunlu olması gerekir.</div>
-        <div class="mini-card">Kullanıcıya gösterilen toplam tutar, komisyon ve net escrow tutarı işlemden önce açıkça görülmelidir.</div>
-      </article>
-    </section>
-  </main>
+      <div id="panelDash" class="tab-panel">
+        <h3 data-i18n="dashTitle">Live Vault Query</h3>
+        <div class="field" style="display:flex; gap:10px;">
+          <input type="number" id="qTxId" placeholder="Tx ID (e.g. 0)">
+          <button class="btn btn-primary" onclick="queryEscrow()" data-i18n="btnQuery">Search</button>
+        </div>
+        <div id="dashResult" class="dashboard-res" style="display:none">
+          <p><span data-i18n="resSender">Sender:</span> <span id="resS" class="mono"></span></p>
+          <p><span data-i18n="resRecipient">Recipient:</span> <span id="resR" class="mono"></span></p>
+          <p><span data-i18n="resAmount">Amount:</span> <span id="resA" style="font-weight:800"></span></p>
+          <p><span data-i18n="resStatus">Status:</span> <span id="resSt"></span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer" data-i18n="footerText">
+      SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol
+    </div>
+  </div>
 
   <script>
-    const CONTRACT_ADDRESS = "0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e";
-    const FEE_RECIPIENT = "0x68E0c1948900699E23a5490fcE4e376EDe21588D";
-    const FEE_RATE = 0.01;
+    const CONTRACT = "0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e";
+    const ABI = [
+        "function createEscrow(address payable _recipient, bytes32 _passwordHash, uint256 _duration) external payable",
+        "function releaseEscrow(uint256 _txId, string memory _password) external",
+        "function refundEscrow(uint256 _txId) external",
+        "function transactions(uint256) view returns (address sender, address recipient, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)"
+    ];
 
-    const statusBox = document.getElementById("statusBox");
-    const resultBox = document.getElementById("resultBox");
-    const previewForm = document.getElementById("previewForm");
-    const generatePasswordBtn = document.getElementById("generatePasswordBtn");
-    const grossAmountInput = document.getElementById("grossAmount");
-    const tokenSelect = document.getElementById("tokenSelect");
-    const grossDisplay = document.getElementById("grossDisplay");
-    const feeDisplay = document.getElementById("feeDisplay");
-    const netDisplay = document.getElementById("netDisplay");
-    const assetDisplay = document.getElementById("assetDisplay");
+    let provider, signer;
+    let currentLang = 'en';
 
-    function setStatus(message, tone = "info") {
-      const styles = {
-        info: {
-          border: "1px solid #1e293b",
-          background: "#0f172a",
-          color: "#e5e7eb"
-        },
-        success: {
-          border: "1px solid rgba(52, 211, 153, 0.35)",
-          background: "rgba(6, 78, 59, 0.35)",
-          color: "#d1fae5"
-        },
-        error: {
-          border: "1px solid rgba(248, 113, 113, 0.35)",
-          background: "rgba(127, 29, 29, 0.28)",
-          color: "#fecaca"
-        }
-      };
+    const translations = {
+      en: {
+        subtitle: "Polygon Mainnet • Multi-Asset Autonomous Escrow System",
+        connectWallet: "Connect Wallet",
+        tabCreate: "Create Escrow",
+        tabRelease: "Release",
+        tabRefund: "Refund",
+        tabDashboard: "DashView",
+        createTitle: "Initialize Secure Vault",
+        labelRecipient: "Recipient Address",
+        labelCurrency: "Asset Type",
+        labelAmount: "Amount",
+        labelHours: "Timelock (Hours)",
+        labelPassword: "Secret Password",
+        btnCreateSubmit: "🔒 Create & Lock",
+        releaseTitle: "Release Funds",
+        labelTxId: "Transaction ID",
+        labelRelPass: "Secret Password",
+        btnReleaseSubmit: "🔓 Verify & Claim",
+        refundTitle: "Timelock Refund",
+        btnRefundSubmit: "🔄 Request Refund",
+        dashTitle: "Live Vault Query",
+        btnQuery: "Search",
+        resSender: "Sender:",
+        resRecipient: "Recipient:",
+        resAmount: "Amount:",
+        resStatus: "Status:",
+        footerText: "SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol"
+      },
+      tr: {
+        subtitle: "Polygon Mainnet • Çoklu Varlık Otonom Emanet Sistemi",
+        connectWallet: "Cüzdanı Bağla",
+        tabCreate: "Emanet Oluştur",
+        tabRelease: "Kasayı Çöz",
+        tabRefund: "İade Al",
+        tabDashboard: "Canlı Takip",
+        createTitle: "Güvenli Kasa Başlat",
+        labelRecipient: "Alıcı Adresi",
+        labelCurrency: "Varlık Türü",
+        labelAmount: "Miktar",
+        labelHours: "Süre Aşımı (Saat)",
+        labelPassword: "Gizli Şifre",
+        btnCreateSubmit: "🔒 Oluştur ve Kilitle",
+        releaseTitle: "Fonları Serbest Bırak",
+        labelTxId: "İşlem ID (Tx ID)",
+        labelRelPass: "Gizli Şifre",
+        btnReleaseSubmit: "🔓 Doğrula ve Al",
+        refundTitle: "Süre Sonu İadesi",
+        btnRefundSubmit: "🔄 İade Talep Et",
+        dashTitle: "Canlı Kasa Sorgula",
+        btnQuery: "Sorgula",
+        resSender: "Gönderici:",
+        resRecipient: "Alıcı:",
+        resAmount: "Miktar:",
+        resStatus: "Durum:",
+        footerText: "SafeBridge Global © 2026 • Güvenli Zincir İçi Emanet Protokolü"
+      },
+      ru: { subtitle: "Polygon Mainnet • Мультивалютная система эскроу", connectWallet: "Подключить", tabCreate: "Создать", tabRelease: "Выпуск", tabRefund: "Возврат", tabDashboard: "Панель", createTitle: "Инициализировать сейф", labelRecipient: "Адрес получателя", labelCurrency: "Тип актива", labelAmount: "Сумма", labelHours: "Таймлок", labelPassword: "Пароль", btnCreateSubmit: "🔒 Заблокировать", releaseTitle: "Выпустить средства", labelTxId: "ID транзакции", labelRelPass: "Пароль", btnReleaseSubmit: "🔓 Получить", refundTitle: "Возврат", btnRefundSubmit: "🔄 Вернуть", dashTitle: "Запрос хранилища", btnQuery: "Поиск", resSender: "Отправитель:", resRecipient: "Получатель:", resAmount: "Сумма:", resStatus: "Статус:", footerText: "SafeBridge Global © 2026" },
+      de: { subtitle: "Polygon Mainnet • Multi-Asset Escrow-System", connectWallet: "Verbinden", tabCreate: "Erstellen", tabRelease: "Freigabe", tabRefund: "Erstattung", tabDashboard: "DashView", createTitle: "Tresor initialisieren", labelRecipient: "Empfänger", labelCurrency: "Asset", labelAmount: "Betrag", labelHours: "Sperre (Std)", labelPassword: "Passwort", btnCreateSubmit: "🔒 Sperren", releaseTitle: "Mittel freigeben", labelTxId: "Tx-ID", labelRelPass: "Passwort", btnReleaseSubmit: "🔓 Abheben", refundTitle: "Erstattung", btnRefundSubmit: "🔄 Erstatten", dashTitle: "Live-Abfrage", btnQuery: "Suche", resSender: "Absender:", resRecipient: "Empfänger:", resAmount: "Betrag:", resStatus: "Status:", footerText: "SafeBridge Global © 2026" },
+      zh: { subtitle: "Polygon Mainnet • 多资产自主托管系统", connectWallet: "连接钱包", tabCreate: "创建托管", tabRelease: "释放", tabRefund: "退款", tabDashboard: "看板", createTitle: "初始化保险库", labelRecipient: "接收地址", labelCurrency: "资产类型", labelAmount: "金额", labelHours: "锁定时间", labelPassword: "密码", btnCreateSubmit: "🔒 锁定", releaseTitle: "释放资金", labelTxId: "交易ID", labelRelPass: "密码", btnReleaseSubmit: "🔓 领取", refundTitle: "超时退款", btnRefundSubmit: "🔄 申请退款", dashTitle: "实时查询", btnQuery: "搜索", resSender: "发送方:", resRecipient: "接收方:", resAmount: "金额:", resStatus: "状态:", footerText: "SafeBridge Global © 2026" },
+      es: { subtitle: "Polygon Mainnet • Sistema de custodia multiactivo", connectWallet: "Conectar", tabCreate: "Crear", tabRelease: "Liberar", tabRefund: "Reembolso", tabDashboard: "Vista", createTitle: "Iniciar Bóveda", labelRecipient: "Dirección", labelCurrency: "Activo", labelAmount: "Monto", labelHours: "Bloqueo", labelPassword: "Clave", btnCreateSubmit: "🔒 Bloquear", releaseTitle: "Liberar Fondos", labelTxId: "ID de Transacción", labelRelPass: "Clave", btnReleaseSubmit: "🔓 Reclamar", refundTitle: "Reembolso", btnRefundSubmit: "🔄 Solicitar", dashTitle: "Consulta en vivo", btnQuery: "Buscar", resSender: "Remitente:", resRecipient: "Destinatario:", resAmount: "Monto:", resStatus: "Estado:", footerText: "SafeBridge Global © 2026" },
+      ar: { subtitle: "Polygon Mainnet • نظام الضمان اللامركزي", connectWallet: "ربط المحفظة", tabCreate: "إنشاء", tabRelease: "تحرير", tabRefund: "استرداد", tabDashboard: "عرض", createTitle: "تهيئة الخزنة", labelRecipient: "عنوان المستلم", labelCurrency: "الأصل", labelAmount: "المبلغ", labelHours: "ساعات القفل", labelPassword: "كلمة السر", btnCreateSubmit: "🔒 قفل", releaseTitle: "تحرير الأموال", labelTxId: "رقم المعاملة", labelRelPass: "كلمة السر", btnReleaseSubmit: "🔓 استلام", refundTitle: "استرداد", btnRefundSubmit: "🔄 طلب استرداد", dashTitle: "استعلام مباشر", btnQuery: "بحث", resSender: "المرسل:", resRecipient: "المستلم:", resAmount: "المبلغ:", resStatus: "الحالة:", footerText: "SafeBridge Global © 2026" },
+      ko: { subtitle: "Polygon Mainnet • 멀티 자산 에스크로", connectWallet: "지갑 연결", tabCreate: "생성", tabRelease: "해제", tabRefund: "환불", tabDashboard: "대시보드", createTitle: "보안 볼트 시작", labelRecipient: "수신 주소", labelCurrency: "자산 유형", labelAmount: "금액", labelHours: "타임록", labelPassword: "비밀번호", btnCreateSubmit: "🔒 잠금", releaseTitle: "자금 해제", labelTxId: "트랜잭션 ID", labelRelPass: "비밀번호", btnReleaseSubmit: "🔓 청구", refundTitle: "환불", btnRefundSubmit: "🔄 환불 요청", dashTitle: "실시간 조회", btnQuery: "검색", resSender: "보낸 사람:", resRecipient: "받는 사람:", resAmount: "금액:", resStatus: "상태:", footerText: "SafeBridge Global © 2026" },
+      ja: { subtitle: "Polygon Mainnet • マルチアセットエスクロー", connectWallet: "ウォレット接続", tabCreate: "作成", tabRelease: "解除", tabRefund: "返金", tabDashboard: "ダッシュ", createTitle: "保管庫の初期化", labelRecipient: "受取人アドレス", labelCurrency: "アセット", labelAmount: "金額", labelHours: "ロック時間", labelPassword: "パスワード", btnCreateSubmit: "🔒 ロック", releaseTitle: "資金解除", labelTxId: "トランザクションID", labelRelPass: "パスワード", btnReleaseSubmit: "🔓 請求", refundTitle: "返金", btnRefundSubmit: "🔄 返金依頼", dashTitle: "ライブ照会", btnQuery: "検索", resSender: "送り手:", resRecipient: "受取り手:", resAmount: "金額:", resStatus: "ステータス:", footerText: "SafeBridge Global © 2026" }
+    };
 
-      const selected = styles[tone] || styles.info;
-      statusBox.style.border = selected.border;
-      statusBox.style.background = selected.background;
-      statusBox.style.color = selected.color;
-      statusBox.textContent = message;
+    function changeLanguage(lang) {
+      currentLang = lang;
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if(translations[lang][key]) el.innerText = translations[lang][key];
+      });
     }
 
-    function isValidEvmAddress(value) {
-      return /^0x[a-fA-F0-9]{40}$/.test(value);
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('panel' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
+      btn.classList.add('active');
     }
 
-    function isPositiveNumber(value) {
-      const num = Number(value);
-      return Number.isFinite(num) && num > 0;
+    function genPass() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+      let p = "";
+      for(let i=0; i<12; i++) p += chars.charAt(Math.floor(Math.random()*chars.length));
+      document.getElementById('pass').value = p;
     }
 
-    function isIntegerInRange(value, min, max) {
-      const num = Number(value);
-      return Number.isInteger(num) && num >= min && num <= max;
+    function log(msg, type='info') {
+      const box = document.getElementById('statusBox');
+      box.style.display = 'block';
+      box.style.borderColor = type === 'error' ? 'var(--red)' : 'var(--emerald)';
+      box.innerHTML = `<span style="color:${type === 'error' ? 'var(--red)' : 'var(--emerald)'}">${msg}</span>`;
     }
 
-    function hasMinLength(value, minLength) {
-      return typeof value === "string" && value.trim().length >= minLength;
+    async function connectWallet() {
+      if(!window.ethereum) return alert("Install MetaMask!");
+      provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      document.getElementById('connectBtn').innerText = accounts[0].substring(0,6)+"..."+accounts[0].slice(-4);
+      log("Wallet Connected: " + accounts[0]);
     }
 
-    function generateSecurePassword(length = 18) {
-      const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
-      const bytes = new Uint8Array(length);
-      crypto.getRandomValues(bytes);
-      return Array.from(bytes, byte => alphabet[byte % alphabet.length]).join("");
+    async function createEscrow() {
+      if(!signer) return log("Connect wallet first", "error");
+      const rec = document.getElementById('recipient').value;
+      const amt = document.getElementById('amount').value;
+      const hrs = document.getElementById('hours').value;
+      const pwd = document.getElementById('pass').value;
+
+      try {
+        const contract = new ethers.Contract(CONTRACT, ABI, signer);
+        const hash = ethers.keccak256(ethers.toUtf8Bytes(pwd));
+        const tx = await contract.createEscrow(rec, hash, BigInt(hrs)*3600n, { value: ethers.parseEther(amt) });
+        log("Transaction sent! Pending...");
+        await tx.wait();
+        log("Escrow Created Successfully!", "success");
+      } catch(e) { log(e.reason || e.message, "error"); }
     }
 
-    function formatAmount(value) {
-      const
+    async function releaseEscrow() {
+      if(!signer) return log("Connect wallet", "error");
+      const id = document.getElementById('relTxId').value;
+      const pwd = document.getElementById('relPass').value;
+      try {
+        const contract = new ethers.Contract(CONTRACT, ABI, signer);
+        const tx = await contract.releaseEscrow(id, pwd);
+        await tx.wait();
+        log("Vault Released! Funds sent to buyer.");
+      } catch(e) { log(e.reason || e.message, "error"); }
+    }
+
+    async function refundEscrow() {
+      if(!signer) return log("Connect wallet", "error");
+      const id = document.getElementById('refTxId').value;
+      try {
+        const contract = new ethers.Contract(CONTRACT, ABI, signer);
+        const tx = await contract.refundEscrow(id);
+        await tx.wait();
+        log("Refund Successful!");
+      } catch(e) { log(e.reason || e.message, "error"); }
+    }
+
+    async function queryEscrow() {
+      const id = document.getElementById('qTxId').value;
+      try {
+        const readProvider = new ethers.JsonRpcProvider("https://polygon-rpc.com");
+        const contract = new ethers.Contract(CONTRACT, ABI, readProvider);
+        const data = await contract.transactions(id);
+        document.getElementById('dashResult').style.display = 'block';
+        document.getElementById('resS').innerText = data[0];
+        document.getElementById('resR').innerText = data[1];
+        document.getElementById('resA').innerText = ethers.formatEther(data[2]) + " POL";
+        const st = ["Active", "Completed", "Refunded"][data[6]];
+        document.getElementById('resSt').innerText = st;
+        document.getElementById('resSt').style.color = st === "Active" ? "var(--emerald)" : "var(--muted)";
+      } catch(e) { alert("Tx ID not found"); }
+    }
+
+    window.onload = () => { changeLanguage('en'); };
+  </script>
+</body>
+</html>
