@@ -4,248 +4,446 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Komisyon ve Net Escrow Önizleme</title>
-  <meta
-    name="description"
-    content="SafeBridge Global için gönderici komisyonu ve net escrow tutarı önizleme arayüzü"
-  />
-  <script src="[cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-</head>
-<body class="min-h-screen bg-slate-950 text-white font-sans">
-  <main class="max-w-6xl mx-auto px-4 py-8">
-    <header class="mb-8">
-      <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 class="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-            SafeBridge Global
-          </h1>
-          <p class="mt-2 text-slate-400 text-sm md:text-base">
-            Gönderici komisyon önizleme ve net escrow hesaplama arayüzü
-          </p>
-        </div>
+  <meta name="description" content="Gönderici komisyonu ve net escrow tutarı önizleme arayüzü" />
+  <style>
+    :root {
+      --bg: #020617;
+      --bg2: #0f172a;
+      --panel: #111827;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --cyan: #22d3ee;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --white: #ffffff;
+    }
 
-        <button
-          type="button"
-          disabled
-          class="rounded-2xl bg-slate-800 border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 cursor-not-allowed opacity-80"
-        >
-          İşlem modu kapalı
-        </button>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, var(--bg) 0%, #0b1120 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 42px;
+      font-weight: 800;
+      line-height: 1.1;
+      background: linear-gradient(90deg, var(--cyan), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .badge {
+      border: 1px solid #334155;
+      background: var(--bg2);
+      color: #cbd5e1;
+      padding: 12px 18px;
+      border-radius: 16px;
+      font-weight: 700;
+      opacity: 0.9;
+    }
+
+    .notice {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      color: #fde68a;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 18px;
+    }
+
+    .status {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 16px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 24px;
+    }
+
+    .card h2,
+    .card h3 {
+      margin-top: 0;
+    }
+
+    .card h2 {
+      margin-bottom: 18px;
+      font-size: 28px;
+    }
+
+    .card h3 {
+      margin-bottom: 18px;
+      font-size: 22px;
+    }
+
+    .heading-emerald {
+      color: var(--emerald);
+    }
+
+    .heading-cyan {
+      color: var(--cyan);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select {
+      width: 100%;
+      background: #020617;
+      color: var(--white);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--emerald);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .two-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .inline {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .inline input {
+      flex: 1;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-main {
+      width: 100%;
+      background: linear-gradient(90deg, #059669, #10b981);
+      color: white;
+      padding: 16px 18px;
+      margin-top: 6px;
+    }
+
+    .btn-secondary {
+      white-space: nowrap;
+      background: #062f27;
+      color: #a7f3d0;
+      border: 1px solid #14532d;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .info-box {
+      border: 1px solid rgba(34, 211, 238, 0.35);
+      background: rgba(8, 47, 73, 0.35);
+      color: #cffafe;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 10px;
+    }
+
+    .mini-card {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .mono {
+      font-family: Consolas, Monaco, monospace;
+      word-break: break-all;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .big-number {
+      font-size: 28px;
+      font-weight: 800;
+    }
+
+    .white {
+      color: var(--white);
+    }
+
+    .amber {
+      color: var(--amber);
+    }
+
+    .emerald {
+      color: var(--emerald);
+    }
+
+    .result {
+      min-height: 220px;
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      color: #cbd5e1;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+    }
+
+    .notes {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .notes li {
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .grid-2,
+      .two-cols,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 32px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <div>
+        <h1 class="title">SafeBridge Global</h1>
+        <p class="subtitle">Gönderici komisyon önizleme ve net escrow hesaplama arayüzü</p>
       </div>
+      <div class="badge">İşlem modu kapalı</div>
     </header>
 
-    <section class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+    <section class="notice">
       Bu sayfa yalnızca <strong>bilgilendirme ve önizleme</strong> içindir. Gerçek cüzdan bağlantısı, token onayı, fon transferi, claim veya refund işlemi yapmaz.
     </section>
 
-    <section
-      id="statusBox"
-      class="mb-6 rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-300"
-      aria-live="polite"
-    >
+    <section id="statusBox" class="status">
       Sistem hazır. Girilen toplam tutar üzerinden komisyon ve net escrow tutarı hesaplanır.
     </section>
 
-    <section class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h2 class="mb-5 text-xl font-bold text-emerald-400">İşlem Önizleme</h2>
+    <section class="grid">
+      <article class="card">
+        <h2 class="heading-emerald">İşlem Önizleme</h2>
 
-        <form id="previewForm" class="space-y-4" novalidate>
-          <div>
-            <label for="senderAddress" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Gönderici Cüzdan Adresi
-            </label>
-            <input
-              id="senderAddress"
-              name="senderAddress"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="0x ile başlayan 42 karakter adres"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-            />
+        <form id="previewForm" novalidate>
+          <div class="field">
+            <label for="senderAddress">Gönderici Cüzdan Adresi</label>
+            <input id="senderAddress" name="senderAddress" type="text" autocomplete="off" spellcheck="false" placeholder="0x ile başlayan 42 karakter adres" />
           </div>
 
-          <div>
-            <label for="recipientAddress" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Alıcı Cüzdan Adresi
-            </label>
-            <input
-              id="recipientAddress"
-              name="recipientAddress"
-              type="text"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="0x ile başlayan 42 karakter adres"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-            />
+          <div class="field">
+            <label for="recipientAddress">Alıcı Cüzdan Adresi</label>
+            <input id="recipientAddress" name="recipientAddress" type="text" autocomplete="off" spellcheck="false" placeholder="0x ile başlayan 42 karakter adres" />
           </div>
 
-          <div>
-            <label for="tokenSelect" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Varlık Türü
-            </label>
-            <select
-              id="tokenSelect"
-              name="tokenSelect"
-              class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-            >
+          <div class="field">
+            <label for="tokenSelect">Varlık Türü</label>
+            <select id="tokenSelect" name="tokenSelect">
               <option value="POL">POL</option>
               <option value="USDT">USDT</option>
               <option value="XAUT">XAUT</option>
             </select>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div>
-              <label for="grossAmount" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-                Toplam Gönderim Tutarı
-              </label>
-              <input
-                id="grossAmount"
-                name="grossAmount"
-                type="number"
-                min="0.000001"
-                step="0.000001"
-                inputmode="decimal"
-                placeholder="0.00"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-              />
+          <div class="two-cols">
+            <div class="field">
+              <label for="grossAmount">Toplam Gönderim Tutarı</label>
+              <input id="grossAmount" name="grossAmount" type="number" min="0.000001" step="0.000001" inputmode="decimal" placeholder="0.00" />
             </div>
 
-            <div>
-              <label for="hours" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-                Süre (Saat)
-              </label>
-              <input
-                id="hours"
-                name="hours"
-                type="number"
-                min="1"
-                max="720"
-                step="1"
-                value="24"
-                inputmode="numeric"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-              />
+            <div class="field">
+              <label for="hours">Süre (Saat)</label>
+              <input id="hours" name="hours" type="number" min="1" max="720" step="1" value="24" inputmode="numeric" />
             </div>
           </div>
 
-          <div>
-            <label for="secretPassword" class="mb-1 block text-xs font-bold uppercase tracking-wide text-slate-400">
-              Gizli Şifre
-            </label>
-            <div class="flex gap-2">
-              <input
-                id="secretPassword"
-                name="secretPassword"
-                type="text"
-                autocomplete="off"
-                spellcheck="false"
-                placeholder="En az 12 karakter"
-                class="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500"
-              />
-              <button
-                id="generatePasswordBtn"
-                type="button"
-                class="rounded-xl border border-emerald-700 bg-emerald-900/40 px-4 py-3 text-xs font-bold text-emerald-300 hover:bg-emerald-900/70 transition"
-              >
-                Şifre Üret
-              </button>
+          <div class="field">
+            <label for="secretPassword">Gizli Şifre</label>
+            <div class="inline">
+              <input id="secretPassword" name="secretPassword" type="text" autocomplete="off" spellcheck="false" placeholder="En az 12 karakter" />
+              <button id="generatePasswordBtn" type="button" class="btn btn-secondary">Şifre Üret</button>
             </div>
-            <p class="mt-1 text-xs text-slate-500">
-              Bu sürüm işlem göndermez. Şifre alanı yalnızca önizleme ve doğrulama içindir.
-            </p>
+            <div class="helper">Bu sürüm işlem göndermez. Şifre alanı yalnızca önizleme ve doğrulama içindir.</div>
           </div>
 
-          <div class="rounded-2xl border border-cyan-900/60 bg-cyan-950/30 p-4 text-sm text-cyan-100">
+          <div class="info-box">
             Girilen toplam tutardan <strong>%1 komisyon göndericiden kesilir</strong>. Kalan tutar alıcı için escrow kasasına kilitlenecek net tutar olarak hesaplanır.
           </div>
 
-          <button
-            type="submit"
-            class="w-full rounded-xl bg-emerald-600 px-4 py-4 font-bold text-white transition hover:bg-emerald-700"
-          >
-            Önizlemeyi Hesapla
-          </button>
+          <button type="submit" class="btn btn-main">Önizlemeyi Hesapla</button>
         </form>
       </article>
 
-      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h2 class="mb-5 text-xl font-bold text-cyan-400">Komisyon ve Net Tutar Özeti</h2>
+      <article class="card">
+        <h2 class="heading-cyan">Komisyon ve Net Tutar Özeti</h2>
 
-        <div class="space-y-4">
-          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-            <div class="text-xs uppercase text-slate-500 mb-1">Komisyon Modeli</div>
-            <div class="text-white font-semibold">%1 komisyon göndericiden kesilir</div>
-          </div>
+        <div class="mini-card">
+          <div class="mini-label">Komisyon Modeli</div>
+          <div><strong>%1 komisyon göndericiden kesilir</strong></div>
+        </div>
 
-          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-            <div class="text-xs uppercase text-slate-500 mb-1">Escrow Kontrat Adresi</div>
-            <div class="break-all font-mono text-emerald-300 text-sm">
-              0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e
+        <div class="mini-card">
+          <div class="mini-label">Escrow Kontrat Adresi</div>
+          <div class="mono" style="color: var(--emerald);">0x5C66cB3a7C8Fd4AD49Aa45e97dBf68D18594782e</div>
+        </div>
+
+        <div class="mini-card">
+          <div class="mini-label">Komisyon Adresi</div>
+          <div class="mono" style="color: var(--cyan);">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
+        </div>
+
+        <div class="mini-card">
+          <div class="summary-grid">
+            <div>
+              <div class="mini-label">Toplam Gönderim</div>
+              <div id="grossDisplay" class="big-number white">0.00</div>
+            </div>
+            <div>
+              <div class="mini-label">Komisyon (%1)</div>
+              <div id="feeDisplay" class="big-number amber">0.00</div>
+            </div>
+            <div>
+              <div class="mini-label">Net Escrow</div>
+              <div id="netDisplay" class="big-number emerald">0.00</div>
             </div>
           </div>
+          <div id="assetDisplay" class="helper" style="margin-top: 10px;">Varlık: POL</div>
+        </div>
 
-          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-            <div class="text-xs uppercase text-slate-500 mb-1">Komisyon Adresi</div>
-            <div class="break-all font-mono text-cyan-300 text-sm">
-              0x68E0c1948900699E23a5490fcE4e376EDe21588D
-            </div>
-          </div>
-
-          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div>
-                <div class="text-xs uppercase text-slate-500 mb-1">Toplam Gönderim</div>
-                <div id="grossDisplay" class="text-lg font-bold text-white">0.00</div>
-              </div>
-              <div>
-                <div class="text-xs uppercase text-slate-500 mb-1">Komisyon (%1)</div>
-                <div id="feeDisplay" class="text-lg font-bold text-amber-300">0.00</div>
-              </div>
-              <div>
-                <div class="text-xs uppercase text-slate-500 mb-1">Net Escrow</div>
-                <div id="netDisplay" class="text-lg font-bold text-emerald-300">0.00</div>
-              </div>
-            </div>
-            <div id="assetDisplay" class="mt-3 text-xs text-slate-400">Varlık: POL</div>
-          </div>
-
-          <div class="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300">
-            <div class="font-semibold text-white mb-2">İşlem özeti</div>
-            <ul class="space-y-2 list-disc pl-5">
-              <li>Gönderici toplam tutarı girer.</li>
-              <li>Toplam tutarın %1'i komisyon olarak ayrılır.</li>
-              <li>Kalan net tutar alıcı için escrow'a kilitlenecek tutar olarak hesaplanır.</li>
-              <li>Bu sayfa hesaplama yapar; gerçek zincir işlemi göndermez.</li>
-            </ul>
-          </div>
+        <div class="mini-card">
+          <div style="font-weight: 700; margin-bottom: 10px;">İşlem özeti</div>
+          <ul class="notes">
+            <li>Gönderici toplam tutarı girer.</li>
+            <li>Toplam tutarın %1'i komisyon olarak ayrılır.</li>
+            <li>Kalan net tutar alıcı için escrow'a kilitlenecek tutar olarak hesaplanır.</li>
+            <li>Bu sayfa hesaplama yapar; gerçek zincir işlemi göndermez.</li>
+          </ul>
         </div>
       </article>
     </section>
 
-    <section class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h3 class="mb-4 text-lg font-bold text-white">Doğrulama Sonucu</h3>
-        <pre
-          id="resultBox"
-          class="min-h-[220px] overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-300 whitespace-pre-wrap"
-        ></pre>
+    <section class="grid-2">
+      <article class="card">
+        <h3>Doğrulama Sonucu</h3>
+        <pre id="resultBox" class="result"></pre>
       </article>
 
-      <article class="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
-        <h3 class="mb-4 text-lg font-bold text-white">Notlar</h3>
-        <div class="space-y-3 text-sm text-slate-300">
-          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            Bu sürüm yalnızca göndericiye komisyon etkisini açıkça göstermek için hazırlanmıştır.
-          </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            Gerçek uygulamada komisyon kuralının arayüzde değil, akıllı kontrat içinde zorunlu olması gerekir.
-          </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-950 p-3">
-            Kullanıcıya gösterilen toplam tutar, komisyon ve net escrow tutarı işlemden önce açıkça görülmelidir.
-          </div>
-        </div>
+      <article class="card">
+        <h3>Notlar</h3>
+        <div class="mini-card">Bu sürüm yalnızca göndericiye komisyon etkisini açıkça göstermek için hazırlanmıştır.</div>
+        <div class="mini-card">Gerçek uygulamada komisyon kuralının arayüzde değil, akıllı kontrat içinde zorunlu olması gerekir.</div>
+        <div class="mini-card">Kullanıcıya gösterilen toplam tutar, komisyon ve net escrow tutarı işlemden önce açıkça görülmelidir.</div>
       </article>
     </section>
   </main>
@@ -267,13 +465,28 @@
     const assetDisplay = document.getElementById("assetDisplay");
 
     function setStatus(message, tone = "info") {
-      const themes = {
-        info: "border-slate-800 bg-slate-900 text-slate-300",
-        success: "border-emerald-800 bg-emerald-950/50 text-emerald-200",
-        error: "border-red-800 bg-red-950/50 text-red-200"
+      const styles = {
+        info: {
+          border: "1px solid #1e293b",
+          background: "#0f172a",
+          color: "#e5e7eb"
+        },
+        success: {
+          border: "1px solid rgba(52, 211, 153, 0.35)",
+          background: "rgba(6, 78, 59, 0.35)",
+          color: "#d1fae5"
+        },
+        error: {
+          border: "1px solid rgba(248, 113, 113, 0.35)",
+          background: "rgba(127, 29, 29, 0.28)",
+          color: "#fecaca"
+        }
       };
 
-      statusBox.className = `mb-6 rounded-2xl px-4 py-3 text-sm ${themes[tone] || themes.info}`;
+      const selected = styles[tone] || styles.info;
+      statusBox.style.border = selected.border;
+      statusBox.style.background = selected.background;
+      statusBox.style.color = selected.color;
       statusBox.textContent = message;
     }
 
@@ -303,120 +516,4 @@
     }
 
     function formatAmount(value) {
-      const num = Number(value);
-      if (!Number.isFinite(num)) return "0.00";
-      return num.toLocaleString("tr-TR", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 6
-      });
-    }
-
-    function calculatePreview(grossAmount) {
-      const gross = Number(grossAmount);
-      if (!Number.isFinite(gross) || gross <= 0) {
-        return {
-          gross: 0,
-          fee: 0,
-          net: 0
-        };
-      }
-
-      const fee = gross * FEE_RATE;
-      const net = gross - fee;
-
-      return { gross, fee, net };
-    }
-
-    function updateSummary() {
-      const asset = tokenSelect.value || "POL";
-      const preview = calculatePreview(grossAmountInput.value);
-
-      grossDisplay.textContent = formatAmount(preview.gross);
-      feeDisplay.textContent = formatAmount(preview.fee);
-      netDisplay.textContent = formatAmount(preview.net);
-      assetDisplay.textContent = `Varlık: ${asset}`;
-    }
-
-    function renderResult(data) {
-      resultBox.textContent = JSON.stringify(data, null, 2);
-    }
-
-    generatePasswordBtn.addEventListener("click", () => {
-      const password = generateSecurePassword();
-      document.getElementById("secretPassword").value = password;
-      setStatus("Güçlü örnek şifre üretildi.", "success");
-    });
-
-    grossAmountInput.addEventListener("input", updateSummary);
-    tokenSelect.addEventListener("change", updateSummary);
-
-    previewForm.addEventListener("submit", event => {
-      event.preventDefault();
-
-      const senderAddress = document.getElementById("senderAddress").value.trim();
-      const recipientAddress = document.getElementById("recipientAddress").value.trim();
-      const token = document.getElementById("tokenSelect").value;
-      const grossAmount = document.getElementById("grossAmount").value.trim();
-      const hours = document.getElementById("hours").value.trim();
-      const secretPassword = document.getElementById("secretPassword").value;
-
-      const errors = [];
-
-      if (!isValidEvmAddress(senderAddress)) {
-        errors.push("Gönderici adresi geçerli bir EVM adresi değil.");
-      }
-
-      if (!isValidEvmAddress(recipientAddress)) {
-        errors.push("Alıcı adresi geçerli bir EVM adresi değil.");
-      }
-
-      if (!["POL", "USDT", "XAUT"].includes(token)) {
-        errors.push("Seçilen varlık türü geçersiz.");
-      }
-
-      if (!isPositiveNumber(grossAmount)) {
-        errors.push("Toplam gönderim tutarı sıfırdan büyük bir sayı olmalı.");
-      }
-
-      if (!isIntegerInRange(hours, 1, 720)) {
-        errors.push("Süre 1 ile 720 saat arasında tam sayı olmalı.");
-      }
-
-      if (!hasMinLength(secretPassword, 12)) {
-        errors.push("Gizli şifre en az 12 karakter olmalı.");
-      }
-
-      if (errors.length > 0) {
-        setStatus("Formda düzeltilmesi gereken alanlar var.", "error");
-        renderResult({
-          ok: false,
-          errors
-        });
-        return;
-      }
-
-      const preview = calculatePreview(grossAmount);
-
-      setStatus("Önizleme başarıyla hesaplandı. Bu sürüm gerçek işlem göndermez.", "success");
-
-      renderResult({
-        ok: true,
-        mode: "preview-only",
-        contractAddress: CONTRACT_ADDRESS,
-        feeRecipient: FEE_RECIPIENT,
-        feeRatePercent: 1,
-        senderAddress,
-        recipientAddress,
-        token,
-        hours: Number(hours),
-        grossAmount: preview.gross,
-        feeAmount: preview.fee,
-        netEscrowAmount: preview.net,
-        secretPasswordLength: secretPassword.trim().length
-      });
-    });
-
-    updateSummary();
-  </script>
-</body>
-</html>
+      const
