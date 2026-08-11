@@ -3,519 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge Global - POL Escrow Interface</title>
+  <title>MetaMask Test</title>
   <script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.1/ethers.umd.min.js)"></script>
   <style>
-    :root {
-      --bg: #020617;
-      --bg-soft: #0f172a;
-      --panel: #111827;
-      --border: #1f2937;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --cyan: #22d3ee;
-      --emerald: #34d399;
-      --amber: #fbbf24;
-      --red: #f87171;
-      --white: #ffffff;
-    }
-    * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(180deg, var(--bg) 0%, #0b1120 100%);
-      color: var(--text);
-      line-height: 1.5;
+      font-family: Arial, sans-serif;
+      background: #0b1120;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       min-height: 100vh;
     }
-    .container {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
+    .box {
+      width: 100%;
+      max-width: 500px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 20px;
+      padding: 24px;
     }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-    .title {
-      margin: 0;
-      font-size: 42px;
-      font-weight: 800;
-      line-height: 1.1;
-      background: linear-gradient(90deg, var(--cyan), var(--emerald));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      color: transparent;
-    }
-    .subtitle {
-      margin: 10px 0 0;
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .wallet-box {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .btn {
+    button {
+      width: 100%;
       border: 0;
-      border-radius: 14px;
-      padding: 13px 18px;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-      opacity: 0.92;
-    }
-    .btn-primary {
       background: linear-gradient(90deg, #0891b2, #0ea5e9);
       color: white;
     }
-    .btn-success {
-      background: linear-gradient(90deg, #059669, #10b981);
-      color: white;
-      width: 100%;
-      margin-top: 10px;
-    }
-    .btn-warning {
-      background: linear-gradient(90deg, #d97706, #f59e0b);
-      color: white;
-      width: 100%;
-      margin-top: 10px;
-    }
-    .btn-secondary {
-      background: #062f27;
-      color: #a7f3d0;
-      border: 1px solid #14532d;
-      white-space: nowrap;
-    }
-    .notice {
-      background: rgba(251, 191, 36, 0.12);
-      border: 1px solid rgba(251, 191, 36, 0.28);
-      color: #fde68a;
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 18px;
-    }
-    .status {
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 14px 16px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-    }
-    .top-grid {
-      display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    .card {
-      background: rgba(15, 23, 42, 0.96);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 22px;
-    }
-    .card h2, .card h3 {
-      margin-top: 0;
-      margin-bottom: 18px;
-    }
-    .heading-emerald { color: var(--emerald); }
-    .heading-cyan { color: var(--cyan); }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    .mini-card {
+    pre {
       background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-    }
-    .mini-label {
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .mono {
-      font-family: Consolas, Monaco, monospace;
-      word-break: break-all;
-    }
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-    .tab-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
+      border: 1px solid #1f2937;
       border-radius: 12px;
-      padding: 10px 14px;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .tab-btn.active {
-      color: white;
-      border-color: #0ea5e9;
-      background: rgba(14, 165, 233, 0.12);
-    }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    input, select, button {
-      font: inherit;
-    }
-    input, select {
-      width: 100%;
-      background: #020617;
-      color: var(--white);
-      border: 1px solid #334155;
-      border-radius: 14px;
-      padding: 13px 14px;
-      outline: none;
-    }
-    input:focus, select:focus {
-      border-color: var(--emerald);
-    }
-    .field {
-      margin-bottom: 16px;
-    }
-    .two-cols {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .inline {
-      display: flex;
-      gap: 10px;
-      align-items: stretch;
-    }
-    .inline input {
-      flex: 1;
-    }
-    .helper {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 6px;
-    }
-    .info-box {
-      border: 1px solid rgba(34, 211, 238, 0.35);
-      background: rgba(8, 47, 73, 0.35);
-      color: #cffafe;
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    .big-number {
-      font-size: 28px;
-      font-weight: 800;
-    }
-    .white { color: var(--white); }
-    .amber { color: var(--amber); }
-    .emerald { color: var(--emerald); }
-    .result {
-      min-height: 160px;
-      background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      color: #cbd5e1;
-      overflow: auto;
+      padding: 12px;
+      margin-top: 16px;
       white-space: pre-wrap;
-      font-family: Consolas, Monaco, monospace;
-      font-size: 13px;
-    }
-    .dash-list {
-      display: grid;
-      gap: 12px;
-    }
-    .dash-item {
-      background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-    }
-    @media (max-width: 960px) {
-      .top-grid, .two-cols, .summary-grid {
-        grid-template-columns: 1fr;
-      }
-      .title {
-        font-size: 32px;
-      }
+      word-break: break-word;
     }
   </style>
 </head>
 <body>
-  <main class="container">
-    <header class="header">
-      <div>
-        <h1 class="title">SafeBridge Global</h1>
-        <p class="subtitle" data-i18n="subtitle">Polygon Mainnet • POL-based escrow interface</p>
-      </div>
-
-      <div class="wallet-box">
-        <select id="langSelect" style="width:auto;">
-          <option value="en">🇬🇧 English</option>
-          <option value="ar">🇸🇦 العربية</option>
-          <option value="de">🇩🇪 Deutsch</option>
-          <option value="fr">🇫🇷 Français</option>
-          <option value="es">🇪🇸 Español</option>
-          <option value="zh">🇨🇳 中文</option>
-          <option value="ja">🇯🇵 日本語</option>
-          <option value="ko">🇰🇷 한국어</option>
-          <option value="tr">🇹🇷 Türkçe</option>
-          <option value="ru">🇷🇺 Русский</option>
-        </select>
-        <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()" data-i18n="connectWallet">Connect Wallet</button>
-      </div>
-    </header>
-
-    <section class="notice" data-i18n="notice">
-      This version is configured for POL only. A 1% fee is deducted from the sender's total amount, and the remaining amount is treated as the net escrow value.
-    </section>
-
-    <section id="statusBox" class="status">System ready.</section>
-
-    <section class="top-grid">
-      <article class="card">
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="create" data-i18n="tabCreate">Create Escrow</button>
-          <button class="tab-btn" data-tab="release" data-i18n="tabRelease">Release</button>
-          <button class="tab-btn" data-tab="refund" data-i18n="tabRefund">Refund</button>
-          <button class="tab-btn" data-tab="dash" data-i18n="tabDash">DashView</button>
-        </div>
-
-        <div id="panel-create" class="tab-panel active">
-          <h3 class="heading-emerald" data-i18n="createTitle">Initialize Secure Vault</h3>
-
-          <div class="field">
-            <label for="recipient" data-i18n="labelRecipient">Recipient Address</label>
-            <input type="text" id="recipient" placeholder="0x..." />
-          </div>
-
-          <div class="two-cols">
-            <div class="field">
-              <label for="amount" data-i18n="labelAmount">Amount (POL)</label>
-              <input type="number" id="amount" placeholder="0.10" step="0.000001" min="0.000001" />
-            </div>
-
-            <div class="field">
-              <label for="hours" data-i18n="labelHours">Timelock (Hours)</label>
-              <input type="number" id="hours" placeholder="24" value="24" min="0" max="8760" step="1" />
-            </div>
-          </div>
-
-          <div class="field">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
-              <label for="pass" style="margin-bottom:0;" data-i18n="labelPassword">Secret Password</label>
-              <button type="button" class="btn btn-secondary" onclick="genPass()" style="padding:8px 12px;" data-i18n="generatePass">Generate</button>
-            </div>
-            <input type="text" id="pass" placeholder="At least 12 characters" style="margin-top:8px;" />
-            <div class="helper" data-i18n="passHelp">This password will be used by the recipient during release.</div>
-          </div>
-
-          <div class="info-box" id="feeInfoBox"></div>
-
-          <div class="mini-card">
-            <div class="summary-grid">
-              <div>
-                <div class="mini-label" data-i18n="grossAmount">Gross Amount</div>
-                <div id="grossDisplay" class="big-number white">0.00</div>
-              </div>
-              <div>
-                <div class="mini-label" data-i18n="feeAmount">Fee (1%)</div>
-                <div id="feeDisplay" class="big-number amber">0.00</div>
-              </div>
-              <div>
-                <div class="mini-label" data-i18n="netEscrow">Net Escrow</div>
-                <div id="netDisplay" class="big-number emerald">0.00</div>
-              </div>
-            </div>
-          </div>
-
-          <button class="btn btn-success" onclick="createEscrow()" data-i18n="createButton">🔒 Create & Lock</button>
-        </div>
-
-        <div id="panel-release" class="tab-panel">
-          <h3 class="heading-cyan" data-i18n="releaseTitle">Release Funds</h3>
-
-          <div class="field">
-            <label for="relTxId" data-i18n="labelTxId">Transaction ID</label>
-            <input type="number" id="relTxId" placeholder="0" min="0" step="1" />
-          </div>
-
-          <div class="field">
-            <label for="relPass" data-i18n="labelRelPass">Secret Password</label>
-            <input type="text" id="relPass" placeholder="Secret password" />
-          </div>
-
-          <button class="btn btn-primary" style="width:100%;" onclick="releaseEscrow()" data-i18n="releaseButton">🔓 Verify & Claim</button>
-        </div>
-
-        <div id="panel-refund" class="tab-panel">
-          <h3 class="heading-cyan" data-i18n="refundTitle">Timelock Refund</h3>
-
-          <div class="field">
-            <label for="refTxId" data-i18n="labelTxId">Transaction ID</label>
-            <input type="number" id="refTxId" placeholder="0" min="0" step="1" />
-          </div>
-
-          <button class="btn btn-warning" onclick="refundEscrow()" data-i18n="refundButton">🔄 Request Refund</button>
-        </div>
-
-        <div id="panel-dash" class="tab-panel">
-          <h3 class="heading-cyan" data-i18n="dashTitle">Live Chain Query</h3>
-
-          <div class="field">
-            <label for="dashTxId" data-i18n="labelTxId">Transaction ID</label>
-            <input type="number" id="dashTxId" placeholder="0" min="0" step="1" />
-          </div>
-
-          <button class="btn btn-primary" style="width:100%;" onclick="queryVault()" data-i18n="queryButton">🔍 Query</button>
-          <div id="dashResult" class="dash-list" style="margin-top:16px; display:none;"></div>
-        </div>
-      </article>
-
-      <article class="card">
-        <h3 class="heading-cyan" data-i18n="systemTitle">System Information</h3>
-
-        <div class="meta-grid">
-          <div class="mini-card">
-            <div class="mini-label" data-i18n="contractAddress">Contract Address</div>
-            <div class="mono">0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12</div>
-          </div>
-
-          <div class="mini-card">
-            <div class="mini-label" data-i18n="feeRecipient">Fee Recipient</div>
-            <div class="mono">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
-          </div>
-
-          <div class="mini-card">
-            <div class="mini-label" data-i18n="feeModel">Fee Model</div>
-            <div data-i18n="feeModelText">1% fee is deducted from the sender.</div>
-          </div>
-
-          <div class="mini-card">
-            <div class="mini-label" data-i18n="network">Network</div>
-            <div>Polygon Mainnet (Chain ID 137)</div>
-          </div>
-
-          <div class="mini-card">
-            <div class="mini-label" data-i18n="outputBox">Transaction Output</div>
-            <pre id="resultBox" class="result"></pre>
-          </div>
-        </div>
-      </article>
-    </section>
-  </main>
+  <div class="box">
+    <h2>MetaMask Connection Test</h2>
+    <button onclick="connectWallet()">Connect Wallet</button>
+    <pre id="out">Ready.</pre>
+  </div>
 
   <script>
-    const CONTRACT = "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12";
-    const FEE_RECIPIENT = "0x68E0c1948900699E23a5490fcE4e376EDe21588D";
-    const FEE_RATE = 0.01;
+    async function connectWallet() {
+      const out = document.getElementById("out");
 
-    const ABI = [
-      "function createEscrow(address payable _recipient, address _token, uint256 _grossAmount, bytes32 _passwordHash, uint256 _duration) external payable",
-      "function releaseEscrow(uint256 _txId, string memory _password) external",
-      "function refundEscrow(uint256 _txId) external",
-      "function previewFee(uint256 _grossAmount) external pure returns (uint256 fee, uint256 netAmount)",
-      "function getTransaction(uint256 _txId) external view returns (address sender, address recipient, address token, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)"
-    ];
+      if (!window.ethereum) {
+        out.textContent = "MetaMask not detected.";
+        return;
+      }
 
-    let provider = null;
-    let signer = null;
-    let connectedAccount = null;
-    let currentLang = "en";
+      if (!window.ethers) {
+        out.textContent = "Ethers library not loaded.";
+        return;
+      }
 
-    const translations = {
-      en: {
-        subtitle: "Polygon Mainnet • POL-based escrow interface",
-        connectWallet: "Connect Wallet",
-        notice: "This version is configured for POL only. A 1% fee is deducted from the sender's total amount, and the remaining amount is treated as the net escrow value.",
-        tabCreate: "Create Escrow",
-        tabRelease: "Release",
-        tabRefund: "Refund",
-        tabDash: "DashView",
-        createTitle: "Initialize Secure Vault",
-        labelRecipient: "Recipient Address",
-        labelAmount: "Amount (POL)",
-        labelHours: "Timelock (Hours)",
-        labelPassword: "Secret Password",
-        generatePass: "Generate",
-        passHelp: "This password will be used by the recipient during release.",
-        grossAmount: "Gross Amount",
-        feeAmount: "Fee (1%)",
-        netEscrow: "Net Escrow",
-        createButton: "🔒 Create & Lock",
-        releaseTitle: "Release Funds",
-        labelTxId: "Transaction ID",
-        labelRelPass: "Secret Password",
-        releaseButton: "🔓 Verify & Claim",
-        refundTitle: "Timelock Refund",
-        refundButton: "🔄 Request Refund",
-        dashTitle: "Live Chain Query",
-        queryButton: "🔍 Query",
-        systemTitle: "System Information",
-        contractAddress: "Contract Address",
-        feeRecipient: "Fee Recipient",
-        feeModel: "Fee Model",
-        feeModelText: "1% fee is deducted from the sender.",
-        network: "Network",
-        outputBox: "Transaction Output",
-        feeInfo: "A 1% fee is deducted from the sender's total amount. Fee recipient:",
-        statusReady: "System ready.",
-        statusConnectFirst: "Connect wallet first.",
-        statusConnecting: "Connecting wallet...",
-        statusConnected: "Wallet connected successfully.",
-        statusWrongNetwork: "Please switch to Polygon Mainnet (137).",
-        statusInvalidAddress: "Invalid recipient address.",
-        statusFillAll: "Please fill in all required fields.",
-        statusPassShort: "Password must be at least 12 characters.",
-        statusBadHours: "Timelock must be 0 or more hours.",
-        statusBadAmount: "Amount must be greater than 0.",
-        statusTxPrepare: "Transaction sent. Waiting for wallet confirmation...",
-        statusWaitingChain: "Waiting for blockchain confirmation...",
-        statusCreateSuccess: "Escrow created successfully.",
-        statusReleaseSuccess: "Vault released successfully.",
-        statusRefundSuccess: "Refund successful.",
-        statusQuerying: "Querying chain data...",
-        statusQueryDone: "Query completed.",
-        dashSender: "Sender",
-        dashRecipient: "Recipient",
-        dashToken: "Token",
-        dashAmount: "Amount",
-        dashHash: "Password Hash",
-        dashTimelock: "Timelock",
-        dashCreated: "Created At",
-        dashStatus: "Status"
-      },
-      tr: {
-        subtitle: "Polygon Mainnet • POL tabanlı emanet arayüzü",
-        connectWallet: "Cüzdanı Bağla",
-        notice: "Bu sürüm yalnızca POL için yapılandırılmıştır. Göndericinin toplam tutarından %1 komisyon kesilir ve kalan tutar net escrow değeri olarak
+      try {
+        out.textContent = "Connecting...";
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        const network = await provider.getNetwork();
+
+        out.textContent =
+          "Connected successfully.\n" +
+          "Address: " + address + "\n" +
+          "Chain ID: " + network.chainId.toString();
+      } catch (e) {
+        out.textContent = "Error: " + (e.reason || e.message || String(e));
+      }
+    }
+  </script>
+</body>
+</html>
