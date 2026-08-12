@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Decentralized Escrow</title>
+  <script src="./ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #020617;
@@ -458,71 +459,11 @@
     const FEE_RECIPIENT = "0x68E0c1948900699E23a5490fcE4e376EDe21588D";
     const FEE_RATE = 0.01;
     const POLYGON_CHAIN_ID_HEX = "0x89";
-    const POLYGON_CHAIN_ID_DEC = 137;
 
     let provider = null;
     let signer = null;
     let connectedAccount = null;
     let currentLang = "en";
-
-    const ABI = [
-      {
-        "inputs":[
-          {"internalType":"address payable","name":"_recipient","type":"address"},
-          {"internalType":"address","name":"_token","type":"address"},
-          {"internalType":"uint256","name":"_grossAmount","type":"uint256"},
-          {"internalType":"bytes32","name":"_passwordHash","type":"bytes32"},
-          {"internalType":"uint256","name":"_duration","type":"uint256"}
-        ],
-        "name":"createEscrow",
-        "outputs":[],
-        "stateMutability":"payable",
-        "type":"function"
-      },
-      {
-        "inputs":[
-          {"internalType":"uint256","name":"_txId","type":"uint256"},
-          {"internalType":"string","name":"_password","type":"string"}
-        ],
-        "name":"releaseEscrow",
-        "outputs":[],
-        "stateMutability":"nonpayable",
-        "type":"function"
-      },
-      {
-        "inputs":[{"internalType":"uint256","name":"_txId","type":"uint256"}],
-        "name":"refundEscrow",
-        "outputs":[],
-        "stateMutability":"nonpayable",
-        "type":"function"
-      },
-      {
-        "inputs":[{"internalType":"uint256","name":"_grossAmount","type":"uint256"}],
-        "name":"previewFee",
-        "outputs":[
-          {"internalType":"uint256","name":"fee","type":"uint256"},
-          {"internalType":"uint256","name":"netAmount","type":"uint256"}
-        ],
-        "stateMutability":"pure",
-        "type":"function"
-      },
-      {
-        "inputs":[{"internalType":"uint256","name":"_txId","type":"uint256"}],
-        "name":"getTransaction",
-        "outputs":[
-          {"internalType":"address","name":"sender","type":"address"},
-          {"internalType":"address","name":"recipient","type":"address"},
-          {"internalType":"address","name":"token","type":"address"},
-          {"internalType":"uint256","name":"amount","type":"uint256"},
-          {"internalType":"bytes32","name":"passwordHash","type":"bytes32"},
-          {"internalType":"uint256","name":"timelock","type":"uint256"},
-          {"internalType":"uint256","name":"createdAt","type":"uint256"},
-          {"internalType":"uint8","name":"status","type":"uint8"}
-        ],
-        "stateMutability":"view",
-        "type":"function"
-      }
-    ];
 
     const translations = {
       en: {
@@ -744,28 +685,6 @@
       document.getElementById("netDisplay").textContent = formatAmount(preview.net);
     }
 
-    function toHexUtf8(str) {
-      return "0x" + Array.from(new TextEncoder().encode(str))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-    }
-
-    async function getAccounts() {
-      return await window.ethereum.request({ method: "eth_requestAccounts" });
-    }
-
-    async function getChainId() {
-      const chainId = await window.ethereum.request({ method: "eth_chainId" });
-      return chainId;
-    }
-
-    async function switchToPolygon() {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: POLYGON_CHAIN_ID_HEX }]
-      });
-    }
-
     async function connectWallet() {
       if (!window.ethereum) {
         setStatus(t("noWallet"), "error");
@@ -774,13 +693,18 @@
 
       try {
         setStatus(t("statusConnecting"), "info");
-        const accounts = await getAccounts();
+
+        provider = window.ethereum;
+        const accounts = await provider.request({ method: "eth_requestAccounts" });
         connectedAccount = accounts[0];
 
-        const chainId = await getChainId();
+        const chainId = await provider.request({ method: "eth_chainId" });
         if (chainId !== POLYGON_CHAIN_ID_HEX) {
           try {
-            await switchToPolygon();
+            await provider.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: POLYGON_CHAIN_ID_HEX }]
+            });
           } catch (e) {
             setStatus(t("statusWrongNetwork"), "error");
             return;
@@ -802,12 +726,17 @@
         return;
       }
 
+      if (!window.ethers) {
+        setStatus("ethers.umd.min.js not loaded.", "error");
+        return;
+      }
+
       const rec = document.getElementById("recipient").value.trim();
       const amt = document.getElementById("amount").value.trim();
       const hrs = document.getElementById("hours").value.trim();
       const pwd = document.getElementById("pass").value.trim();
 
-      if (!/^0x[a-fA-F0-9]{40}$/.test(rec)) {
+      if (!ethers.isAddress(rec)) {
         setStatus(t("statusInvalidAddress"), "error");
         return;
       }
@@ -828,52 +757,49 @@
       }
 
       try {
+        const contract = new ethers.Contract(CONTRACT, ABI, new ethers.BrowserProvider(window.ethereum).getSigner());
+        const parsedAmount = ethers.parseEther(amt);
+        const durationSeconds = BigInt(hrs) * 3600n;
+        const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(pwd));
+
         setStatus(t("statusTxSent"), "info");
 
-        const grossWei = BigInt(Math.floor(Number(amt) * 1e18)).toString();
-        const durationSeconds = BigInt(hrs) * 3600n;
-
-        const passwordHash = await window.ethereum.request({
-          method: "eth_hashMessage",
-          params: [pwd]
-        });
-
-        const data = encodeCreateEscrow(
+        const tx = await contract.createEscrow(
           rec,
-          "0x0000000000000000000000000000000000000000",
-          grossWei,
+          ethers.ZeroAddress,
+          parsedAmount,
           passwordHash,
-          durationSeconds.toString()
+          durationSeconds,
+          { value: parsedAmount }
         );
 
-        const txHash = await window.ethereum.request({
-          method: "eth_sendTransaction",
-          params: [{
-            from: connectedAccount,
-            to: CONTRACT,
-            value: "0x" + BigInt(grossWei).toString(16),
-            data
-          }]
-        });
+        setStatus(t("statusWaiting"), "info");
+        const receipt = await tx.wait();
 
-        setStatus(t("statusCreateSuccess"), "success");
         document.getElementById("resultBox").textContent = JSON.stringify({
           ok: true,
           action: "createEscrow",
-          txHash,
+          txHash: receipt.hash,
           contract: CONTRACT,
           feeRecipient: FEE_RECIPIENT,
           recipient: rec,
           grossAmountPOL: amt
         }, null, 2);
+
+        setStatus(t("statusCreateSuccess"), "success");
       } catch (e) {
-        setStatus(e.message || "Transaction failed.", "error");
+        setStatus(e.reason || e.message || "Transaction failed.", "error");
       }
     }
 
     async function releaseEscrow() {
       if (!connectedAccount) {
         setStatus(t("statusConnectFirst"), "error");
+        return;
+      }
+
+      if (!window.ethers) {
+        setStatus("ethers.umd.min.js not loaded.", "error");
         return;
       }
 
@@ -891,31 +817,33 @@
       }
 
       try {
-        const data = encodeReleaseEscrow(id, pwd);
-        const txHash = await window.ethereum.request({
-          method: "eth_sendTransaction",
-          params: [{
-            from: connectedAccount,
-            to: CONTRACT,
-            data
-          }]
-        });
+        const contract = new ethers.Contract(CONTRACT, ABI, new ethers.BrowserProvider(window.ethereum).getSigner());
+        const tx = await contract.releaseEscrow(id, pwd);
 
-        setStatus(t("statusReleaseSuccess"), "success");
+        setStatus(t("statusWaiting"), "info");
+        const receipt = await tx.wait();
+
         document.getElementById("resultBox").textContent = JSON.stringify({
           ok: true,
           action: "releaseEscrow",
-          txHash,
+          txHash: receipt.hash,
           txId: id
         }, null, 2);
+
+        setStatus(t("statusReleaseSuccess"), "success");
       } catch (e) {
-        setStatus(e.message || "Release failed.", "error");
+        setStatus(e.reason || e.message || "Release failed.", "error");
       }
     }
 
     async function refundEscrow() {
       if (!connectedAccount) {
         setStatus(t("statusConnectFirst"), "error");
+        return;
+      }
+
+      if (!window.ethers) {
+        setStatus("ethers.umd.min.js not loaded.", "error");
         return;
       }
 
@@ -927,25 +855,22 @@
       }
 
       try {
-        const data = encodeRefundEscrow(id);
-        const txHash = await window.ethereum.request({
-          method: "eth_sendTransaction",
-          params: [{
-            from: connectedAccount,
-            to: CONTRACT,
-            data
-          }]
-        });
+        const contract = new ethers.Contract(CONTRACT, ABI, new ethers.BrowserProvider(window.ethereum).getSigner());
+        const tx = await contract.refundEscrow(id);
 
-        setStatus(t("statusRefundSuccess"), "success");
+        setStatus(t("statusWaiting"), "info");
+        const receipt = await tx.wait();
+
         document.getElementById("resultBox").textContent = JSON.stringify({
           ok: true,
           action: "refundEscrow",
-          txHash,
+          txHash: receipt.hash,
           txId: id
         }, null, 2);
+
+        setStatus(t("statusRefundSuccess"), "success");
       } catch (e) {
-        setStatus(e.message || "Refund failed.", "error");
+        setStatus(e.reason || e.message || "Refund failed.", "error");
       }
     }
 
@@ -957,57 +882,52 @@
       return "Unknown";
     }
 
-    async function rpcCall(method, params) {
-      const res = await fetch("[polygon-rpc.com](https://polygon-rpc.com)", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method,
-          params
-        })
-      });
-      const json = await res.json();
-      if (json.error) throw new Error(json.error.message);
-      return json.result;
-    }
-
     async function queryEscrow() {
+      if (!window.ethers) {
+        setStatus("ethers.umd.min.js not loaded.", "error");
+        return;
+      }
+
       const inputId = document.getElementById("qTxId").value.trim();
       const container = document.getElementById("dashResult");
       container.style.display = "block";
       container.textContent = t("statusQuerying");
 
       try {
+        const readProvider = window.ethereum
+          ? new ethers.BrowserProvider(window.ethereum)
+          : new ethers.JsonRpcProvider("[polygon-rpc.com](https://polygon-rpc.com)");
+
+        const contract = new ethers.Contract(CONTRACT, ABI, readProvider);
+
         const idsToCheck = inputId !== "" ? [BigInt(inputId)] : [0n, 1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n];
         let foundAny = false;
+
         container.innerHTML = "";
 
         for (const id of idsToCheck) {
           try {
-            const callData = encodeGetTransaction(id.toString());
-            const raw = await rpcCall("eth_call", [
-              { to: CONTRACT, data: callData },
-              "latest"
-            ]);
+            const data = await contract.getTransaction(id);
 
-            const decoded = decodeGetTransaction(raw);
-            if (decoded.sender !== "0x0000000000000000000000000000000000000000") {
+            if (data[0] !== "0x0000000000000000000000000000000000000000") {
               foundAny = true;
+
               const item = document.createElement("div");
               item.className = "dash-item";
-              item.textContent = [
+
+              const lines = [
                 `#${id.toString()}`,
-                `${t("dashSender")}: ${decoded.sender}`,
-                `${t("dashRecipient")}: ${decoded.recipient}`,
-                `${t("dashToken")}: ${decoded.token}`,
-                `${t("dashAmount")}: ${Number(decoded.amount) / 1e18} POL`,
-                `${t("dashHash")}: ${decoded.passwordHash}`,
-                `${t("dashTimelock")}: ${decoded.timelock}`,
-                `${t("dashCreated")}: ${decoded.createdAt}`,
-                `${t("dashStatus")}: ${mapStatus(decoded.status)}`
-              ].join("\n");
+                `${t("dashSender")}: ${data[0]}`,
+                `${t("dashRecipient")}: ${data[1]}`,
+                `${t("dashToken")}: ${data[2]}`,
+                `${t("dashAmount")}: ${ethers.formatEther(data[3])} POL`,
+                `${t("dashHash")}: ${data[4]}`,
+                `${t("dashTimelock")}: ${data[5].toString()}`,
+                `${t("dashCreated")}: ${data[6].toString()}`,
+                `${t("dashStatus")}: ${mapStatus(data[7])}`
+              ];
+
+              item.textContent = lines.join("\n");
               container.appendChild(item);
             }
           } catch (_) {}
@@ -1019,90 +939,8 @@
           setStatus(t("statusQueryDone"), "success");
         }
       } catch (e) {
-        container.textContent = "Error: " + (e.message || String(e));
+        container.textContent = "Error: " + (e.reason || e.message || String(e));
       }
-    }
-
-    function pad64(hex) {
-      return hex.replace(/^0x/, "").padStart(64, "0");
-    }
-
-    function addressToWord(addr) {
-      return pad64(addr.toLowerCase().replace(/^0x/, ""));
-    }
-
-    function uintToWord(value) {
-      return BigInt(value).toString(16).padStart(64, "0");
-    }
-
-    function bytes32ToWord(value) {
-      return value.replace(/^0x/, "").padStart(64, "0");
-    }
-
-    function methodId(signature) {
-      const known = {
-        "createEscrow(address,address,uint256,bytes32,uint256)": "0x255b13fb",
-        "releaseEscrow(uint256,string)": "0xf6d2f89f",
-        "refundEscrow(uint256)": "0xe2179b8e",
-        "getTransaction(uint256)": "0x5fcf4e87"
-      };
-      return known[signature];
-    }
-
-    function encodeCreateEscrow(recipient, token, grossAmount, passwordHash, duration) {
-      return (
-        methodId("createEscrow(address,address,uint256,bytes32,uint256)") +
-        addressToWord(recipient) +
-        addressToWord(token) +
-        uintToWord(grossAmount) +
-        bytes32ToWord(passwordHash) +
-        uintToWord(duration)
-      );
-    }
-
-    function encodeRefundEscrow(id) {
-      return methodId("refundEscrow(uint256)") + uintToWord(id);
-    }
-
-    function encodeReleaseEscrow(id, password) {
-      const selector = methodId("releaseEscrow(uint256,string)").replace(/^0x/, "");
-      const head1 = uintToWord(id);
-      const head2 = uintToWord(64);
-      const encoded = new TextEncoder().encode(password);
-      const len = uintToWord(encoded.length);
-      const dataHex = Array.from(encoded).map(b => b.toString(16).padStart(2, "0")).join("");
-      const padded = dataHex.padEnd(Math.ceil(dataHex.length / 64) * 64, "0");
-      return "0x" + selector + head1 + head2 + len + padded;
-    }
-
-    function encodeGetTransaction(id) {
-      return methodId("getTransaction(uint256)") + uintToWord(id);
-    }
-
-    function readWord(hex, index) {
-      const clean = hex.replace(/^0x/, "");
-      return clean.slice(index * 64, (index + 1) * 64);
-    }
-
-    function wordToAddress(word) {
-      return "0x" + word.slice(24);
-    }
-
-    function wordToUint(word) {
-      return BigInt("0x" + word).toString();
-    }
-
-    function decodeGetTransaction(raw) {
-      return {
-        sender: wordToAddress(readWord(raw, 0)),
-        recipient: wordToAddress(readWord(raw, 1)),
-        token: wordToAddress(readWord(raw, 2)),
-        amount: wordToUint(readWord(raw, 3)),
-        passwordHash: "0x" + readWord(raw, 4),
-        timelock: wordToUint(readWord(raw, 5)),
-        createdAt: wordToUint(readWord(raw, 6)),
-        status: Number(BigInt("0x" + readWord(raw, 7)))
-      };
     }
 
     document.getElementById("amount").addEventListener("input", updatePreviewSummary);
