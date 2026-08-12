@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge Global - Decentralized Escrow</title>
-  <script src="./ethers.umd.min.js"></script>
+  <title>SafeBridge Global - Polygon Escrow</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #020617;
@@ -213,19 +213,17 @@
       gap: 16px;
     }
 
+    .three-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+    }
+
     .mono {
       font-family: "Courier New", monospace;
       word-break: break-all;
       font-size: 13px;
       color: var(--cyan);
-    }
-
-    .dashboard-res {
-      margin-top: 15px;
-      background: #020617;
-      padding: 15px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
     }
 
     .footer {
@@ -254,12 +252,6 @@
       margin-bottom: 6px;
     }
 
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
     .big-number {
       font-size: 28px;
       font-weight: 800;
@@ -282,25 +274,11 @@
       font-size: 13px;
     }
 
-    .dash-item {
-      background: #020617;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
-      white-space: pre-wrap;
-      font-family: Consolas, Monaco, monospace;
-      font-size: 13px;
-    }
-
     @media (max-width: 960px) {
-      .top-grid, .two-cols, .summary-grid {
+      .top-grid, .two-cols, .three-cols {
         grid-template-columns: 1fr;
       }
-
-      .title {
-        font-size: 32px;
-      }
+      .title { font-size: 32px; }
     }
   </style>
 </head>
@@ -309,27 +287,19 @@
     <header class="header">
       <div>
         <h1 class="title">SafeBridge Global</h1>
-        <p class="subtitle" data-i18n="subtitle">Polygon Mainnet • POL-based Escrow System</p>
+        <p class="subtitle" data-i18n="subtitle">Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System</p>
       </div>
       <div class="wallet-box">
         <select id="langSelect" onchange="changeLanguage(this.value)" class="lang-select">
           <option value="en">🇬🇧 EN</option>
-          <option value="ar">🇸🇦 AR</option>
-          <option value="de">🇩🇪 DE</option>
-          <option value="fr">🇫🇷 FR</option>
-          <option value="es">🇪🇸 ES</option>
-          <option value="zh">🇨🇳 中文</option>
-          <option value="ja">🇯🇵 日本語</option>
-          <option value="ko">🇰🇷 한국어</option>
           <option value="tr">🇹🇷 TR</option>
-          <option value="ru">🇷🇺 RU</option>
         </select>
         <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()" data-i18n="connectWallet">Connect Wallet</button>
       </div>
     </header>
 
     <div class="notice-box" data-i18n="notice">
-      This version is configured for POL only. A 1% fee is deducted from the sender's total amount, and the remaining amount is treated as the net escrow value.
+      This interface is prepared for Polygon Mainnet. A 1% fee is deducted from the sender's gross amount and the remaining value becomes the net escrow amount.
     </div>
 
     <div id="statusBox" class="status-box">System ready.</div>
@@ -351,9 +321,19 @@
             <input type="text" id="recipient" placeholder="0x..." />
           </div>
 
+          <div class="field">
+            <label data-i18n="labelAsset">Asset</label>
+            <select id="assetSelect" onchange="updatePreviewSummary()">
+              <option value="POL">POL</option>
+              <option value="USDT">USDT</option>
+              <option value="USDTE">USDT.e</option>
+              <option value="PAXG">PAXG</option>
+            </select>
+          </div>
+
           <div class="two-cols">
             <div class="field">
-              <label data-i18n="labelAmount">Gross Amount (POL)</label>
+              <label data-i18n="labelAmount">Gross Amount</label>
               <input type="number" id="amount" placeholder="0.01" step="0.000001" min="0.000001" />
             </div>
             <div class="field">
@@ -367,7 +347,7 @@
               <label data-i18n="labelPassword" style="margin-bottom:0;">Secret Password</label>
               <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:8px 12px;" data-i18n="generatePass">Generate</button>
             </div>
-            <input type="text" id="pass" placeholder="At least 12 characters" />
+            <input type="text" id="pass" placeholder="At least 8 characters" />
             <div style="color:var(--muted); font-size:12px; margin-top:6px;" data-i18n="passHelp">
               This password will be used by the recipient during release.
             </div>
@@ -375,7 +355,7 @@
 
           <div class="mini-card">
             <div class="mini-label" data-i18n="feePreview">Fee Preview</div>
-            <div class="summary-grid">
+            <div class="three-cols">
               <div>
                 <div class="mini-label" data-i18n="grossAmountLabel">Gross</div>
                 <div id="grossDisplay" class="big-number white">0.00</div>
@@ -389,9 +369,10 @@
                 <div id="netDisplay" class="big-number emerald">0.00</div>
               </div>
             </div>
+            <div id="assetHint" style="margin-top:10px; color:var(--muted); font-size:12px;">Asset: POL</div>
           </div>
 
-          <button class="btn btn-success" onclick="createEscrow()" data-i18n="btnCreateSubmit">🔒 Create & Lock</button>
+          <button class="btn btn-success" onclick="createEscrow()" data-i18n="btnCreateSubmit">Create & Lock</button>
         </div>
 
         <div id="panelRelease" class="tab-panel">
@@ -404,7 +385,7 @@
             <label data-i18n="labelRelPass">Secret Password</label>
             <input type="text" id="relPass" placeholder="Secret password" />
           </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="releaseEscrow()" data-i18n="btnReleaseSubmit">🔓 Verify & Claim</button>
+          <button class="btn btn-primary" onclick="releaseEscrow()" style="width:100%;">Verify & Claim</button>
         </div>
 
         <div id="panelRefund" class="tab-panel">
@@ -413,16 +394,16 @@
             <label data-i18n="labelTxId">Transaction ID</label>
             <input type="number" id="refTxId" placeholder="0" min="0" step="1" />
           </div>
-          <button class="btn btn-warning" onclick="refundEscrow()" data-i18n="btnRefundSubmit">🔄 Request Refund</button>
+          <button class="btn btn-warning" onclick="refundEscrow()" style="width:100%;">Request Refund</button>
         </div>
 
         <div id="panelDash" class="tab-panel">
           <h3 data-i18n="dashTitle">Live Vault Query</h3>
-          <div class="field" style="display:flex; gap:10px;">
+          <div class="field">
+            <label data-i18n="labelTxId">Transaction ID</label>
             <input type="number" id="qTxId" placeholder="0" min="0" step="1" />
-            <button class="btn btn-primary" onclick="queryEscrow()" data-i18n="btnQuery">Search</button>
           </div>
-          <div id="dashResult" class="dashboard-res" style="display:none;"></div>
+          <button class="btn btn-primary" onclick="searchVault()" style="width:100%;">Search</button>
         </div>
       </div>
 
@@ -442,6 +423,10 @@
             <div>Polygon Mainnet (137)</div>
           </div>
           <div class="mini-card">
+            <div class="mini-label" data-i18n="tokenInfo">Token Configuration</div>
+            <div class="mono" id="tokenConfigBox"></div>
+          </div>
+          <div class="mini-card">
             <div class="mini-label" data-i18n="resultOutput">Transaction Output</div>
             <pre id="resultBox" class="result-box"></pre>
           </div>
@@ -455,28 +440,50 @@
   </div>
 
   <script>
-    const CONTRACT = "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12";
-    const FEE_RECIPIENT = "0x68E0c1948900699E23a5490fcE4e376EDe21588D";
-    const FEE_RATE = 0.01;
-    const POLYGON_CHAIN_ID_HEX = "0x89";
+    const APP_CONFIG = {
+      escrowContract: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12",
+      feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D",
+      feeRatePercent: 1,
+      chainIdHex: "0x89",
+      chainIdDec: 137
+    };
 
-    let provider = null;
-    let signer = null;
-    let connectedAccount = null;
+    const TOKENS = {
+      POL: { symbol: "POL", type: "native", address: "0x0000000000000000000000000000000000000000", decimals: 18 },
+      USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
+      USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
+      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
+    };
+
+    const ESCROW_ABI = [
+      "function createEscrow(address _recipient, address _token, uint256 _grossAmount, bytes32 _passwordHash, uint256 _duration) external payable",
+      "function releaseEscrow(uint256 _txId, string memory _password) external",
+      "function refundEscrow(uint256 _txId) external",
+      "function transactions(uint256) external view returns (address sender, address recipient, address token, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)",
+      "function nextTxId() external view returns (uint256)"
+    ];
+
+    const ERC20_ABI = [
+      "function approve(address spender, uint256 amount) external returns (bool)",
+      "function allowance(address owner, address spender) external view returns (uint256)"
+    ];
+
     let currentLang = "en";
+    let provider, signer, connectedAccount, escrowContract;
 
     const translations = {
       en: {
-        subtitle: "Polygon Mainnet • POL-based Escrow System",
+        subtitle: "Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System",
         connectWallet: "Connect Wallet",
-        notice: "This version is configured for POL only. A 1% fee is deducted from the sender's total amount, and the remaining amount is treated as the net escrow value.",
+        notice: "This interface is prepared for Polygon Mainnet. A 1% fee is deducted from the sender's gross amount and the remaining value becomes the net escrow amount.",
         tabCreate: "Create Escrow",
         tabRelease: "Release",
         tabRefund: "Refund",
         tabDashboard: "DashView",
         createTitle: "Initialize Secure Vault",
         labelRecipient: "Recipient Address",
-        labelAmount: "Gross Amount (POL)",
+        labelAsset: "Asset",
+        labelAmount: "Gross Amount",
         labelHours: "Timelock (Hours)",
         labelPassword: "Secret Password",
         generatePass: "Generate",
@@ -485,59 +492,33 @@
         grossAmountLabel: "Gross",
         feeAmountLabel: "Fee",
         netAmountLabel: "Net",
-        btnCreateSubmit: "🔒 Create & Lock",
+        btnCreateSubmit: "Create & Lock",
         releaseTitle: "Release Funds",
+        refundTitle: "Timelock Refund",
+        dashTitle: "Live Vault Query",
         labelTxId: "Transaction ID",
         labelRelPass: "Secret Password",
-        btnReleaseSubmit: "🔓 Verify & Claim",
-        refundTitle: "Timelock Refund",
-        btnRefundSubmit: "🔄 Request Refund",
-        dashTitle: "Live Vault Query",
-        btnQuery: "Search",
         systemInfo: "System Information",
         contractAddress: "Contract Address",
         feeRecipient: "Fee Recipient",
         networkLabel: "Network",
+        tokenInfo: "Token Configuration",
         resultOutput: "Transaction Output",
         footerText: "SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol",
-        statusReady: "System ready.",
-        statusConnecting: "Connecting wallet...",
-        statusConnected: "Wallet connected successfully.",
-        statusWrongNetwork: "Please switch to Polygon Mainnet (137).",
-        statusConnectFirst: "Connect wallet first.",
-        statusInvalidAddress: "Invalid recipient address.",
-        statusInvalidAmount: "Amount must be greater than 0.",
-        statusInvalidPassword: "Password must be at least 12 characters.",
-        statusInvalidDuration: "Timelock must be 0 or more hours.",
-        statusTxSent: "Transaction sent. Waiting for wallet confirmation...",
-        statusWaiting: "Waiting for blockchain confirmation...",
-        statusCreateSuccess: "Escrow created successfully.",
-        statusReleaseSuccess: "Vault released successfully.",
-        statusRefundSuccess: "Refund successful.",
-        statusQuerying: "Querying chain data...",
-        statusNoVault: "No vault records found.",
-        statusQueryDone: "Query completed.",
-        noWallet: "No browser wallet detected.",
-        dashSender: "Sender",
-        dashRecipient: "Recipient",
-        dashToken: "Token",
-        dashAmount: "Amount",
-        dashHash: "Password Hash",
-        dashTimelock: "Timelock",
-        dashCreated: "Created At",
-        dashStatus: "Status"
+        statusReady: "System ready."
       },
       tr: {
-        subtitle: "Polygon Mainnet • POL tabanlı emanet sistemi",
+        subtitle: "Polygon Mainnet • POL / USDT / USDT.e / PAXG Emanet Sistemi",
         connectWallet: "Cüzdanı Bağla",
-        notice: "Bu sürüm yalnızca POL için yapılandırılmıştır. Göndericinin toplam tutarından %1 komisyon kesilir ve kalan tutar net escrow değeri olarak değerlendirilir.",
+        notice: "Bu arayüz Polygon Mainnet için hazırlanmıştır. Göndericinin brüt tutarından %1 komisyon kesilir ve kalan değer net escrow tutarı olur.",
         tabCreate: "Emanet Oluştur",
         tabRelease: "Kasayı Çöz",
         tabRefund: "İade Al",
         tabDashboard: "Canlı Takip",
         createTitle: "Güvenli Kasa Başlat",
         labelRecipient: "Alıcı Adresi",
-        labelAmount: "Brüt Tutar (POL)",
+        labelAsset: "Varlık",
+        labelAmount: "Brüt Tutar",
         labelHours: "Süre Aşımı (Saat)",
         labelPassword: "Gizli Şifre",
         generatePass: "Üret",
@@ -546,47 +527,20 @@
         grossAmountLabel: "Brüt",
         feeAmountLabel: "Komisyon",
         netAmountLabel: "Net",
-        btnCreateSubmit: "🔒 Oluştur ve Kilitle",
+        btnCreateSubmit: "Oluştur ve Kilitle",
         releaseTitle: "Fonları Serbest Bırak",
+        refundTitle: "Süre Sonu İadesi",
+        dashTitle: "Canlı Kasa Sorgusu",
         labelTxId: "İşlem ID",
         labelRelPass: "Gizli Şifre",
-        btnReleaseSubmit: "🔓 Doğrula ve Al",
-        refundTitle: "Süre Sonu İadesi",
-        btnRefundSubmit: "🔄 İade Talep Et",
-        dashTitle: "Canlı Kasa Sorgusu",
-        btnQuery: "Sorgula",
         systemInfo: "Sistem Bilgileri",
         contractAddress: "Kontrat Adresi",
         feeRecipient: "Komisyon Adresi",
         networkLabel: "Ağ",
+        tokenInfo: "Token Yapılandırması",
         resultOutput: "İşlem Çıktısı",
         footerText: "SafeBridge Global © 2026 • Güvenli Zincir İçi Emanet Protokolü",
-        statusReady: "Sistem hazır.",
-        statusConnecting: "Cüzdan bağlanıyor...",
-        statusConnected: "Cüzdan başarıyla bağlandı.",
-        statusWrongNetwork: "Lütfen Polygon Mainnet (137) ağına geçin.",
-        statusConnectFirst: "Önce cüzdanı bağlayın.",
-        statusInvalidAddress: "Geçersiz alıcı adresi.",
-        statusInvalidAmount: "Tutar 0'dan büyük olmalıdır.",
-        statusInvalidPassword: "Şifre en az 12 karakter olmalıdır.",
-        statusInvalidDuration: "Süre 0 veya daha büyük olmalıdır.",
-        statusTxSent: "İşlem gönderildi. Cüzdan onayı bekleniyor...",
-        statusWaiting: "Blockchain onayı bekleniyor...",
-        statusCreateSuccess: "Emanet başarıyla oluşturuldu.",
-        statusReleaseSuccess: "Kasa başarıyla çözüldü.",
-        statusRefundSuccess: "İade başarılı.",
-        statusQuerying: "Zincir verisi sorgulanıyor...",
-        statusNoVault: "Kayıt bulunamadı.",
-        statusQueryDone: "Sorgu tamamlandı.",
-        noWallet: "Tarayıcı cüzdanı bulunamadı.",
-        dashSender: "Gönderici",
-        dashRecipient: "Alıcı",
-        dashToken: "Token",
-        dashAmount: "Tutar",
-        dashHash: "Şifre Hash",
-        dashTimelock: "Süre Sonu",
-        dashCreated: "Oluşturulma",
-        dashStatus: "Durum"
+        statusReady: "Sistem hazır."
       }
     };
 
@@ -606,348 +560,231 @@
       if (!connectedAccount) {
         document.getElementById("connectBtn").textContent = t("connectWallet");
       }
-      setStatus(t("statusReady"), "info");
+      updatePreviewSummary();
+      setStatus(t("statusReady"));
     }
 
     function switchTab(tabId, btn) {
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-
-      const map = {
-        create: "panelCreate",
-        release: "panelRelease",
-        refund: "panelRefund",
-        dash: "panelDash"
-      };
-
+      const map = { create: "panelCreate", release: "panelRelease", refund: "panelRefund", dash: "panelDash" };
       document.getElementById(map[tabId]).classList.add("active");
       btn.classList.add("active");
     }
 
     function genPass() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*";
-      const bytes = new Uint8Array(18);
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+      const bytes = new Uint8Array(12);
       crypto.getRandomValues(bytes);
-
       let p = "";
       for (let i = 0; i < bytes.length; i++) {
         p += chars[bytes[i] % chars.length];
       }
-
       document.getElementById("pass").value = p;
     }
 
-    function setStatus(message, type = "info") {
-      const box = document.getElementById("statusBox");
+    function setStatus(msg) {
+      document.getElementById("statusBox").textContent = msg;
+    }
 
-      if (type === "error") {
-        box.style.borderColor = "var(--red)";
-        box.style.color = "var(--red)";
-      } else if (type === "success") {
-        box.style.borderColor = "var(--emerald)";
-        box.style.color = "var(--emerald)";
-      } else {
-        box.style.borderColor = "var(--border)";
-        box.style.color = "var(--text)";
-      }
+    function logOutput(obj) {
+      document.getElementById("resultBox").textContent = typeof obj === 'object' ? JSON.stringify(obj, null, 2) : obj;
+    }
 
-      box.textContent = message;
+    function getSelectedToken() {
+      return TOKENS[document.getElementById("assetSelect").value];
     }
 
     function calculatePreview(amountStr) {
       const gross = Number(amountStr);
-
-      if (!Number.isFinite(gross) || gross <= 0) {
-        return { gross: 0, fee: 0, net: 0 };
-      }
-
-      const fee = gross * FEE_RATE;
+      if (!Number.isFinite(gross) || gross <= 0) return { gross: 0, fee: 0, net: 0 };
+      const fee = gross * (APP_CONFIG.feeRatePercent / 100);
       const net = gross - fee;
-
       return { gross, fee, net };
     }
 
     function formatAmount(value) {
       const num = Number(value);
       if (!Number.isFinite(num)) return "0.00";
-      return num.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 6
-      });
+      return num.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 6 });
     }
 
     function updatePreviewSummary() {
       const amountValue = document.getElementById("amount").value;
       const preview = calculatePreview(amountValue);
+      const token = getSelectedToken();
 
-      document.getElementById("grossDisplay").textContent = formatAmount(preview.gross);
-      document.getElementById("feeDisplay").textContent = formatAmount(preview.fee);
-      document.getElementById("netDisplay").textContent = formatAmount(preview.net);
+      document.getElementById("grossDisplay").textContent = `${formatAmount(preview.gross)} ${token.symbol}`;
+      document.getElementById("feeDisplay").textContent = `${formatAmount(preview.fee)} ${token.symbol}`;
+      document.getElementById("netDisplay").textContent = `${formatAmount(preview.net)} ${token.symbol}`;
+      document.getElementById("assetHint").textContent = `${t("labelAsset")}: ${token.symbol}`;
     }
 
     async function connectWallet() {
       if (!window.ethereum) {
-        setStatus(t("noWallet"), "error");
+        alert("Lütfen MetaMask veya uyumlu bir Web3 cüzdanı yükleyin.");
         return;
       }
-
       try {
-        setStatus(t("statusConnecting"), "info");
-
-        provider = window.ethereum;
-        const accounts = await provider.request({ method: "eth_requestAccounts" });
-        connectedAccount = accounts[0];
-
-        const chainId = await provider.request({ method: "eth_chainId" });
-        if (chainId !== POLYGON_CHAIN_ID_HEX) {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const network = await provider.getNetwork();
+        
+        if (Number(network.chainId) !== APP_CONFIG.chainIdDec) {
           try {
-            await provider.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: POLYGON_CHAIN_ID_HEX }]
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: APP_CONFIG.chainIdHex }]
             });
-          } catch (e) {
-            setStatus(t("statusWrongNetwork"), "error");
+          } catch (switchError) {
+            alert("Lütfen cüzdanınızda Polygon Mainnet ağını seçin.");
             return;
           }
         }
 
-        document.getElementById("connectBtn").textContent =
-          connectedAccount.slice(0, 6) + "..." + connectedAccount.slice(-4);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        connectedAccount = accounts[0];
+        signer = await provider.getSigner();
+        escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
 
-        setStatus(t("statusConnected"), "success");
-      } catch (e) {
-        setStatus(e.message || "Wallet connection failed.", "error");
+        const shortAddr = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
+        document.getElementById("connectBtn").textContent = shortAddr;
+        setStatus(`Cüzdan bağlandı: ${shortAddr}`);
+      } catch (err) {
+        console.error(err);
+        setStatus(`Bağlantı hatası: ${err.message}`);
       }
     }
 
     async function createEscrow() {
-      if (!connectedAccount) {
-        setStatus(t("statusConnectFirst"), "error");
-        return;
-      }
+      if (!signer) return alert("Önce cüzdanınızı bağlayın!");
+      
+      const recipient = document.getElementById("recipient").value.trim();
+      const rawAmount = document.getElementById("amount").value;
+      const hours = document.getElementById("hours").value;
+      const password = document.getElementById("pass").value.trim();
+      const token = getSelectedToken();
 
-      if (!window.ethers) {
-        setStatus("ethers.umd.min.js not loaded.", "error");
-        return;
-      }
-
-      const rec = document.getElementById("recipient").value.trim();
-      const amt = document.getElementById("amount").value.trim();
-      const hrs = document.getElementById("hours").value.trim();
-      const pwd = document.getElementById("pass").value.trim();
-
-      if (!ethers.isAddress(rec)) {
-        setStatus(t("statusInvalidAddress"), "error");
-        return;
-      }
-
-      if (!amt || Number(amt) <= 0) {
-        setStatus(t("statusInvalidAmount"), "error");
-        return;
-      }
-
-      if (!pwd || pwd.length < 12) {
-        setStatus(t("statusInvalidPassword"), "error");
-        return;
-      }
-
-      if (hrs === "" || Number(hrs) < 0) {
-        setStatus(t("statusInvalidDuration"), "error");
-        return;
-      }
+      if (!ethers.isAddress(recipient)) return alert("Geçersiz alıcı adresi!");
+      if (!rawAmount || Number(rawAmount) <= 0) return alert("Geçerli bir tutar girin!");
+      if (!password || password.length < 6) return alert("Şifre en az 6 karakter olmalı!");
 
       try {
-        const contract = new ethers.Contract(CONTRACT, ABI, new ethers.BrowserProvider(window.ethereum).getSigner());
-        const parsedAmount = ethers.parseEther(amt);
-        const durationSeconds = BigInt(hrs) * 3600n;
-        const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(pwd));
+        setStatus("İşlem hazırlanıyor...");
+        const grossAmountUnits = ethers.parseUnits(rawAmount, token.decimals);
+        const durationSeconds = BigInt(hours) * 3600n;
+        const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
 
-        setStatus(t("statusTxSent"), "info");
+        if (token.type === "erc20") {
+          setStatus(`${token.symbol} için harcama izni (Approve) isteniyor...`);
+          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
+          const approveTx = await tokenContract.approve(APP_CONFIG.escrowContract, grossAmountUnits);
+          setStatus("Onay bekleniyor...");
+          await approveTx.wait();
+        }
 
-        const tx = await contract.createEscrow(
-          rec,
-          ethers.ZeroAddress,
-          parsedAmount,
+        setStatus("Emanet kasası oluşturuluyor...");
+        const tx = await escrowContract.createEscrow(
+          recipient,
+          token.address,
+          grossAmountUnits,
           passwordHash,
           durationSeconds,
-          { value: parsedAmount }
+          { value: token.type === "native" ? grossAmountUnits : 0n }
         );
 
-        setStatus(t("statusWaiting"), "info");
+        setStatus("Blok zincir onayı bekleniyor...");
         const receipt = await tx.wait();
-
-        document.getElementById("resultBox").textContent = JSON.stringify({
-          ok: true,
-          action: "createEscrow",
-          txHash: receipt.hash,
-          contract: CONTRACT,
-          feeRecipient: FEE_RECIPIENT,
-          recipient: rec,
-          grossAmountPOL: amt
-        }, null, 2);
-
-        setStatus(t("statusCreateSuccess"), "success");
-      } catch (e) {
-        setStatus(e.reason || e.message || "Transaction failed.", "error");
+        setStatus("Emanet kasası başarıyla oluşturuldu! 🎉");
+        logOutput({ transactionHash: receipt.hash, blockNumber: receipt.blockNumber });
+      } catch (err) {
+        console.error(err);
+        setStatus(`İşlem başarısız: ${err.reason || err.message}`);
       }
     }
 
     async function releaseEscrow() {
-      if (!connectedAccount) {
-        setStatus(t("statusConnectFirst"), "error");
-        return;
-      }
+      if (!signer) return alert("Önce cüzdanınızı bağlayın!");
+      const txId = document.getElementById("relTxId").value;
+      const password = document.getElementById("relPass").value.trim();
 
-      if (!window.ethers) {
-        setStatus("ethers.umd.min.js not loaded.", "error");
-        return;
-      }
-
-      const id = document.getElementById("relTxId").value.trim();
-      const pwd = document.getElementById("relPass").value.trim();
-
-      if (id === "") {
-        setStatus(t("labelTxId") + " required.", "error");
-        return;
-      }
-
-      if (!pwd) {
-        setStatus(t("labelRelPass") + " required.", "error");
-        return;
-      }
+      if (txId === "" || !password) return alert("İşlem ID ve Şifre zorunludur!");
 
       try {
-        const contract = new ethers.Contract(CONTRACT, ABI, new ethers.BrowserProvider(window.ethereum).getSigner());
-        const tx = await contract.releaseEscrow(id, pwd);
-
-        setStatus(t("statusWaiting"), "info");
-        const receipt = await tx.wait();
-
-        document.getElementById("resultBox").textContent = JSON.stringify({
-          ok: true,
-          action: "releaseEscrow",
-          txHash: receipt.hash,
-          txId: id
-        }, null, 2);
-
-        setStatus(t("statusReleaseSuccess"), "success");
-      } catch (e) {
-        setStatus(e.reason || e.message || "Release failed.", "error");
+        setStatus("Fonlar serbest bırakılıyor...");
+        const tx = await escrowContract.releaseEscrow(txId, password);
+        await tx.wait();
+        setStatus(`İşlem #${txId} başarıyla çözüldü ve fonlar aktarıldı!`);
+        logOutput({ status: "Released", txId });
+      } catch (err) {
+        console.error(err);
+        setStatus(`Hata: ${err.reason || err.message}`);
       }
     }
 
     async function refundEscrow() {
-      if (!connectedAccount) {
-        setStatus(t("statusConnectFirst"), "error");
-        return;
-      }
-
-      if (!window.ethers) {
-        setStatus("ethers.umd.min.js not loaded.", "error");
-        return;
-      }
-
-      const id = document.getElementById("refTxId").value.trim();
-
-      if (id === "") {
-        setStatus(t("labelTxId") + " required.", "error");
-        return;
-      }
+      if (!signer) return alert("Önce cüzdanınızı bağlayın!");
+      const txId = document.getElementById("refTxId").value;
+      if (txId === "") return alert("İşlem ID zorunludur!");
 
       try {
-        const contract = new ethers.Contract(CONTRACT, ABI, new ethers.BrowserProvider(window.ethereum).getSigner());
-        const tx = await contract.refundEscrow(id);
-
-        setStatus(t("statusWaiting"), "info");
-        const receipt = await tx.wait();
-
-        document.getElementById("resultBox").textContent = JSON.stringify({
-          ok: true,
-          action: "refundEscrow",
-          txHash: receipt.hash,
-          txId: id
-        }, null, 2);
-
-        setStatus(t("statusRefundSuccess"), "success");
-      } catch (e) {
-        setStatus(e.reason || e.message || "Refund failed.", "error");
+        setStatus("İade talebi gönderiliyor...");
+        const tx = await escrowContract.refundEscrow(txId);
+        await tx.wait();
+        setStatus(`İşlem #${txId} başarıyla iade edildi!`);
+        logOutput({ status: "Refunded", txId });
+      } catch (err) {
+        console.error(err);
+        setStatus(`Hata: ${err.reason || err.message}`);
       }
     }
 
-    function mapStatus(status) {
-      const s = Number(status);
-      if (s === 0) return "Active";
-      if (s === 1) return "Completed";
-      if (s === 2) return "Refunded";
-      return "Unknown";
-    }
-
-    async function queryEscrow() {
-      if (!window.ethers) {
-        setStatus("ethers.umd.min.js not loaded.", "error");
-        return;
-      }
-
-      const inputId = document.getElementById("qTxId").value.trim();
-      const container = document.getElementById("dashResult");
-      container.style.display = "block";
-      container.textContent = t("statusQuerying");
+    async function searchVault() {
+      const txId = document.getElementById("qTxId").value;
+      if (txId === "") return alert("İşlem ID zorunludur!");
 
       try {
-        const readProvider = window.ethereum
-          ? new ethers.BrowserProvider(window.ethereum)
-          : new ethers.JsonRpcProvider("[polygon-rpc.com](https://polygon-rpc.com)");
+        setStatus("Kasa sorgulanıyor...");
+        const readProvider = provider || new ethers.JsonRpcProvider("https://polygon-rpc.com");
+        const readContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, readProvider);
+        
+        const data = await readContract.transactions(txId);
+        const statusMap = ["Active", "Completed", "Refunded"];
 
-        const contract = new ethers.Contract(CONTRACT, ABI, readProvider);
-
-        const idsToCheck = inputId !== "" ? [BigInt(inputId)] : [0n, 1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n];
-        let foundAny = false;
-
-        container.innerHTML = "";
-
-        for (const id of idsToCheck) {
-          try {
-            const data = await contract.getTransaction(id);
-
-            if (data[0] !== "0x0000000000000000000000000000000000000000") {
-              foundAny = true;
-
-              const item = document.createElement("div");
-              item.className = "dash-item";
-
-              const lines = [
-                `#${id.toString()}`,
-                `${t("dashSender")}: ${data[0]}`,
-                `${t("dashRecipient")}: ${data[1]}`,
-                `${t("dashToken")}: ${data[2]}`,
-                `${t("dashAmount")}: ${ethers.formatEther(data[3])} POL`,
-                `${t("dashHash")}: ${data[4]}`,
-                `${t("dashTimelock")}: ${data[5].toString()}`,
-                `${t("dashCreated")}: ${data[6].toString()}`,
-                `${t("dashStatus")}: ${mapStatus(data[7])}`
-              ];
-
-              item.textContent = lines.join("\n");
-              container.appendChild(item);
-            }
-          } catch (_) {}
-        }
-
-        if (!foundAny) {
-          container.textContent = t("statusNoVault");
-        } else {
-          setStatus(t("statusQueryDone"), "success");
-        }
-      } catch (e) {
-        container.textContent = "Error: " + (e.reason || e.message || String(e));
+        logOutput({
+          txId: txId,
+          sender: data.sender,
+          recipient: data.recipient,
+          token: data.token,
+          netAmount: ethers.formatUnits(data.amount, 18),
+          passwordHash: data.passwordHash,
+          timelock: new Date(Number(data.timelock) * 1000).toLocaleString(),
+          status: statusMap[data.status] || "Unknown"
+        });
+        setStatus("Sorgulama tamamlandı.");
+      } catch (err) {
+        console.error(err);
+        setStatus(`Sorgulama hatası: ${err.message}`);
       }
+    }
+
+    function updateTokenConfigBox() {
+      const box = document.getElementById("tokenConfigBox");
+      box.textContent = [
+        `POL: native`,
+        `USDT: ${TOKENS.USDT.address}`,
+        `USDT.e: ${TOKENS.USDTE.address}`,
+        `PAXG: ${TOKENS.PAXG.address}`
+      ].join("\n");
     }
 
     document.getElementById("amount").addEventListener("input", updatePreviewSummary);
+    document.getElementById("assetSelect").addEventListener("change", updatePreviewSummary);
     document.getElementById("langSelect").value = "en";
+
     changeLanguage("en");
     updatePreviewSummary();
-    setStatus(t("statusReady"), "info");
+    updateTokenConfigBox();
+    setStatus(t("statusReady"));
   </script>
 </body>
 </html>
