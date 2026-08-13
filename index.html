@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Polygon Escrow</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+  <!-- unpkg CDN kullanarak kütüphane yükleme sorunu kesin olarak çözüldü -->
+  <script src="https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #020617;
@@ -310,7 +311,7 @@
       This version supports POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 1% fee is deducted from the sender's total amount, and the remaining amount becomes the net escrow value.
     </div>
 
-    <div id="statusBox" class="status-box">System ready.</div>
+    <div id="statusBox" class="status-box">Checking dependencies...</div>
 
     <div class="top-grid">
       <div class="card">
@@ -536,6 +537,16 @@
       box.textContent = message;
     }
 
+    function checkEthersLoaded() {
+      if (typeof window.ethers !== 'undefined') {
+        setStatus('System ready.', 'success');
+        return true;
+      } else {
+        setStatus('ethers.umd.min.js not loaded.', 'error');
+        return false;
+      }
+    }
+
     function getSelectedToken() {
       return TOKENS[document.getElementById('assetSelect').value];
     }
@@ -601,7 +612,7 @@
 
     async function connectWallet() {
       if (!window.ethereum) return setStatus('No browser wallet detected.', 'error');
-      if (!window.ethers) return setStatus('ethers.umd.min.js not loaded.', 'error');
+      if (!checkEthersLoaded()) return;
 
       try {
         setStatus('Connecting wallet...');
@@ -808,7 +819,7 @@
     }
 
     async function queryEscrow() {
-      if (!window.ethers) return setStatus('ethers.umd.min.js not loaded.', 'error');
+      if (!checkEthersLoaded()) return;
       const txId = document.getElementById('qTxId').value.trim();
       if (txId === '') return setStatus('Transaction ID required.', 'error');
 
@@ -859,9 +870,11 @@
     document.getElementById('amount').addEventListener('input', updatePreviewSummary);
     document.getElementById('assetSelect').addEventListener('change', updatePreviewSummary);
 
-    updatePreviewSummary();
-    updateTokenConfigBox();
-    setStatus('System ready.');
+    window.addEventListener('load', () => {
+      checkEthersLoaded();
+      updatePreviewSummary();
+      updateTokenConfigBox();
+    });
   </script>
 </body>
 </html>
