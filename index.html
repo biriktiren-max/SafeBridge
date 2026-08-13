@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Polygon Escrow</title>
-  <script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js)"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #020617;
@@ -351,9 +351,12 @@
           </div>
 
           <div class="field">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
               <label style="margin-bottom:0;">Secret Password</label>
-              <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:8px 12px;">Generate</button>
+              <div style="display:flex; gap:6px;">
+                <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">Generate</button>
+                <button type="button" onclick="copyPass()" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">Copy</button>
+              </div>
             </div>
             <input type="text" id="pass" placeholder="At least 8 characters" />
             <div style="color:var(--muted); font-size:12px; margin-top:6px;">
@@ -506,6 +509,16 @@
       let p = '';
       for (let i = 0; i < bytes.length; i++) p += chars[bytes[i] % chars.length];
       document.getElementById('pass').value = p;
+    }
+
+    function copyPass() {
+      const passInput = document.getElementById('pass');
+      if (!passInput.value) return setStatus('No password to copy.', 'error');
+      navigator.clipboard.writeText(passInput.value).then(() => {
+        setStatus('Password copied to clipboard!', 'success');
+      }).catch(() => {
+        setStatus('Failed to copy password.', 'error');
+      });
     }
 
     function setStatus(message, type = 'info') {
@@ -804,7 +817,7 @@
       container.textContent = 'Querying chain data...';
 
       try {
-        const readProvider = provider || new ethers.JsonRpcProvider('[polygon-rpc.com](https://polygon-rpc.com)');
+        const readProvider = provider || new ethers.JsonRpcProvider('https://polygon-rpc.com');
         const readContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, readProvider);
         const data = await readContract.getTransaction(txId);
 
