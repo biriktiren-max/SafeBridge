@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Guide — SafeBridge Global</title>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1, h2, h3 { color: #00f2fe; }
+    h1 { border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .badge {
+      background: #00f2fe22;
+      color: #00f2fe;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    code {
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    a.btn-back {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #00f2fe;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="index.html" class="btn-back">← Back to SafeBridge App</a>
+
+  <h1>SafeBridge Global — User Guide</h1>
+  <p>Non-custodial, structured escrow protocol operating on <strong>Polygon Mainnet</strong>.</p>
+
+  <div class="card">
+    <h2>🚀 Key Features</h2>
+    <ul>
+      <li><strong>Supported Tokens:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code>, and <code>PAXG</code></li>
+      <li><strong>Security Mechanics:</strong> Password-protected release & time-locked refund triggers</li>
+      <li><strong>Transparent Fee:</strong> 1% sender fee deducted before net amount lock</li>
+      <li><strong>DashView:</strong> Real-time on-chain verification & event tracking</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>📖 Step-by-Step Instructions</h2>
+    
+    <h3>1. Connect Wallet</h3>
+    <p>Ensure your Web3 wallet (MetaMask, Coinbase Wallet, etc.) is connected and switched to <strong>Polygon Mainnet</strong>.</p>
+
+    <h3>2. Create Escrow Vault</h3>
+    <ul>
+      <li>Select the asset (POL, USDT, USDT.e, or PAXG) and enter the amount.</li>
+      <li>Review the <strong>1% Sender Fee</strong> preview.</li>
+      <li>Set a <strong>Time Lock</strong> duration (determines when refund logic becomes active).</li>
+      <li>Set a <strong>Secret Password</strong>. <i>(Share this password with the recipient off-chain)</i>.</li>
+      <li>Confirm and submit the transaction.</li>
+    </ul>
+
+    <h3>3. Release or Refund</h3>
+    <ul>
+      <li><span class="badge">Recipient</span> Enter Vault ID + Secret Password to claim the locked net amount.</li>
+      <li><span class="badge">Sender</span> If the Time Lock expires without release, trigger the Refund action to reclaim funds.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>🔒 Security Notice</h2>
+    <p>SafeBridge Global operates entirely via non-custodial smart contracts. Protocol administrators never have access to your locked assets or secret passwords.</p>
+  </div>
+
+</body>
+</html>
