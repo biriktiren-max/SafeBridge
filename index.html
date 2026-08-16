@@ -4,17 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Polygon Escrow</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+  
   <script>
-    if (typeof window.ethers === 'undefined') {
-      document.write('<script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js"><\/script>');
+    function ensureEthersLoaded() {
+      return new Promise((resolve, reject) => {
+        if (window.ethers) return resolve(window.ethers);
+
+        const cdns = [
+          "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
+          "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js",
+          "https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"
+        ];
+
+        let index = 0;
+
+        function loadNext() {
+          if (index >= cdns.length) {
+            return reject(new Error("Ethers kütüphanesi hiçbir CDN üzerinden yüklenemedi."));
+          }
+
+          const script = document.createElement('script');
+          script.src = cdns[index++];
+          script.onload = () => resolve(window.ethers);
+          script.onerror = () => loadNext();
+          document.head.appendChild(script);
+        }
+
+        loadNext();
+      });
     }
   </script>
-  <script>
-    if (typeof window.ethers === 'undefined') {
-      document.write('<script src="https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"><\/script>');
-    }
-  </script>
+
   <style>
     :root {
       --bg: #020617;
@@ -68,7 +88,7 @@
     .btn-success { background: linear-gradient(90deg, #059669, #10b981); color: white; width: 100%; margin-top: 10px; }
     .btn-warning { background: linear-gradient(90deg, #d97706, #f59e0b); color: white; width: 100%; margin-top: 10px; }
     .btn-secondary { background: #062f27; color: #a7f3d0; border: 1px solid #14532d; white-space: nowrap; }
-    .status-box { background: var(--bg-soft); border: 1px solid var(--border); padding: 14px 16px; border-radius: 16px; margin-bottom: 18px; display: block; font-size: 14px; }
+    .status-box { background: var(--bg-soft); border: 1px solid var(--border); padding: 14px 16px; border-radius: 16px; margin-bottom: 18px; display: block; font-size: 14px; word-break: break-word; }
     .notice-box { background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.28); color: #fde68a; padding: 14px 16px; border-radius: 16px; margin-bottom: 24px; font-size: 14px; }
     .top-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; margin-bottom: 24px; }
     .card { background: rgba(15, 23, 42, 0.96); border: 1px solid var(--border); border-radius: 24px; padding: 22px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
@@ -120,7 +140,7 @@
       This version supports POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 1% fee is deducted from the sender's total amount, and the remaining amount becomes the net escrow value.
     </div>
 
-    <div id="statusBox" class="status-box">System ready.</div>
+    <div id="statusBox" class="status-box">System initializing...</div>
 
     <div class="top-grid">
       <div class="card">
@@ -161,9 +181,12 @@
           </div>
 
           <div class="field">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
               <label style="margin-bottom:0;">Secret Password</label>
-              <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:8px 12px;">Generate</button>
+              <div style="display:flex; gap:6px;">
+                <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:6px 10px; font-size:12px;">Generate</button>
+                <button type="button" onclick="copyPass()" class="btn btn-secondary" style="padding:6px 10px; font-size:12px;">Copy</button>
+              </div>
             </div>
             <input type="text" id="pass" placeholder="At least 8 characters" />
             <div style="color:var(--muted); font-size:12px; margin-top:6px;">
@@ -318,6 +341,13 @@
       document.getElementById('pass').value = p;
     }
 
+    function copyPass() {
+      const p = document.getElementById('pass').value.trim();
+      if (!p) return setStatus('No password to copy.', 'error');
+      navigator.clipboard.writeText(p);
+      setStatus('Password copied to clipboard!', 'success');
+    }
+
     function setStatus(message, type = 'info') {
       const box = document.getElementById('statusBox');
       if (type === 'error') {
@@ -384,8 +414,13 @@
     }
 
     async function connectWallet() {
-      if (!window.ethereum) return setStatus('No browser wallet detected.', 'error');
-      if (typeof window.ethers === 'undefined') return setStatus('ethers.js library failed to load. Please refresh the page.', 'error');
+      try {
+        await ensureEthersLoaded();
+      } catch (e) {
+        return setStatus('Ethers.js library failed to load. Check your network or AdBlocker.', 'error');
+      }
+
+      if (!window.ethereum) return setStatus('No browser wallet detected (e.g. MetaMask).', 'error');
 
       try {
         setStatus('Connecting wallet...');
@@ -435,15 +470,21 @@
         const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
 
         if (token.type === 'erc20') {
-          setStatus('Approval transaction is being requested...');
           const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
-          const approveTx = await tokenContract.approve(APP_CONFIG.escrowContract, grossAmountUnits);
-          setStatus('Waiting for approval confirmation...');
-          await approveTx.wait();
-          setStatus('Approval completed.', 'success');
+          
+          setStatus('Checking allowance...');
+          const currentAllowance = await tokenContract.allowance(connectedAccount, APP_CONFIG.escrowContract);
+
+          if (currentAllowance < grossAmountUnits) {
+            setStatus('Approval transaction requested...');
+            const approveTx = await tokenContract.approve(APP_CONFIG.escrowContract, grossAmountUnits);
+            setStatus('Waiting for approval confirmation...');
+            await approveTx.wait();
+            setStatus('Approval completed.', 'success');
+          }
         }
 
-        setStatus('Create transaction is being requested...');
+        setStatus('Create transaction requested...');
         let tx;
 
         if (token.type === 'native') {
@@ -465,7 +506,7 @@
           );
         }
 
-        setStatus('Waiting for blockchain confirmation...');
+        setStatus('Waiting for block confirmation...');
         const receipt = await tx.wait();
 
         let createdEvent = null;
@@ -592,7 +633,6 @@
     }
 
     async function queryEscrow() {
-      if (typeof window.ethers === 'undefined') return setStatus('ethers.js library failed to load.', 'error');
       const txId = document.getElementById('qTxId').value.trim();
       if (txId === '') return setStatus('Transaction ID required.', 'error');
 
@@ -601,6 +641,7 @@
       container.textContent = 'Querying chain data...';
 
       try {
+        await ensureEthersLoaded();
         const readProvider = provider || new ethers.JsonRpcProvider('https://polygon-rpc.com');
         const readContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, readProvider);
         const data = await readContract.getTransaction(txId);
@@ -626,7 +667,7 @@
         container.appendChild(item);
         setStatus('Query completed.', 'success');
       } catch (e) {
-        container.textContent = 'No vault records found.';
+        container.textContent = 'No vault records found or RPC network error.';
       }
     }
 
@@ -640,12 +681,21 @@
       ].join('\n');
     }
 
-    document.getElementById('amount').addEventListener('input', updatePreviewSummary);
-    document.getElementById('assetSelect').addEventListener('change', updatePreviewSummary);
+    // Sayfa Yüklendiğinde
+    window.addEventListener('load', async () => {
+      document.getElementById('amount').addEventListener('input', updatePreviewSummary);
+      document.getElementById('assetSelect').addEventListener('change', updatePreviewSummary);
 
-    updatePreviewSummary();
-    updateTokenConfigBox();
-    setStatus('System ready.');
+      updatePreviewSummary();
+      updateTokenConfigBox();
+
+      try {
+        await ensureEthersLoaded();
+        setStatus('System ready.');
+      } catch (err) {
+        setStatus('Ethers.js library failed to load. Please disable AdBlock or check network.', 'error');
+      }
+    });
   </script>
 </body>
 </html>
