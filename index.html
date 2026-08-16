@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Polygon Escrow</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
+  <script>
+    if (typeof window.ethers === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js"><\/script>');
+    }
+  </script>
+  <script>
+    if (typeof window.ethers === 'undefined') {
+      document.write('<script src="https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"><\/script>');
+    }
+  </script>
   <style>
     :root {
       --bg: #020617;
@@ -375,7 +385,7 @@
 
     async function connectWallet() {
       if (!window.ethereum) return setStatus('No browser wallet detected.', 'error');
-      if (!window.ethers) return setStatus('ethers library is not loaded.', 'error');
+      if (typeof window.ethers === 'undefined') return setStatus('ethers.js library failed to load. Please refresh the page.', 'error');
 
       try {
         setStatus('Connecting wallet...');
@@ -582,7 +592,7 @@
     }
 
     async function queryEscrow() {
-      if (!window.ethers) return setStatus('ethers library is not loaded.', 'error');
+      if (typeof window.ethers === 'undefined') return setStatus('ethers.js library failed to load.', 'error');
       const txId = document.getElementById('qTxId').value.trim();
       if (txId === '') return setStatus('Transaction ID required.', 'error');
 
