@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Polygon Escrow</title>
-  <script src="https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"></script>
+  <script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js)"></script>
   <style>
     :root {
       --bg: #020617;
@@ -61,13 +61,13 @@
       color: var(--muted);
       font-size: 15px;
     }
-<div class="wallet-box">
-  <a href="user-guide.html" class="btn btn-secondary">User Guide</a>
-  <a href="instant.html" class="btn btn-secondary">Instant Transfer</a>
-  <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
-</div>
 
-    
+    .wallet-box {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
 
     .btn {
       border: 0;
@@ -77,6 +77,9 @@
       cursor: pointer;
       transition: all 0.2s ease;
       text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn:hover {
@@ -108,20 +111,6 @@
       color: #a7f3d0;
       border: 1px solid #14532d;
       white-space: nowrap;
-    }
-
-    .btn-guide {
-      background: rgba(34, 211, 238, 0.1);
-      color: var(--cyan);
-      border: 1px solid rgba(34, 211, 238, 0.3);
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-guide:hover {
-      background: rgba(34, 211, 238, 0.2);
-      border-color: var(--cyan);
     }
 
     .status-box {
@@ -316,8 +305,10 @@
         <h1 class="title">SafeBridge Global</h1>
         <p class="subtitle">Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System</p>
       </div>
+
       <div class="wallet-box">
-        <a href="user-guide.html" target="_blank" class="btn btn-guide">📖 User Guide</a>
+        <a href="user-guide.html" class="btn btn-secondary">User Guide</a>
+        <a href="instant.html" class="btn btn-secondary">Instant Transfer</a>
         <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
       </div>
     </header>
@@ -326,7 +317,7 @@
       This version supports POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 1% fee is deducted from the sender's total amount, and the remaining amount becomes the net escrow value.
     </div>
 
-    <div id="statusBox" class="status-box">Checking dependencies...</div>
+    <div id="statusBox" class="status-box">System ready.</div>
 
     <div class="top-grid">
       <div class="card">
@@ -367,12 +358,9 @@
           </div>
 
           <div class="field">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
               <label style="margin-bottom:0;">Secret Password</label>
-              <div style="display:flex; gap:6px;">
-                <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">Generate</button>
-                <button type="button" onclick="copyPass()" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;">Copy</button>
-              </div>
+              <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:8px 12px;">Generate</button>
             </div>
             <input type="text" id="pass" placeholder="At least 8 characters" />
             <div style="color:var(--muted); font-size:12px; margin-top:6px;">
@@ -527,16 +515,6 @@
       document.getElementById('pass').value = p;
     }
 
-    function copyPass() {
-      const passInput = document.getElementById('pass');
-      if (!passInput.value) return setStatus('No password to copy.', 'error');
-      navigator.clipboard.writeText(passInput.value).then(() => {
-        setStatus('Password copied to clipboard!', 'success');
-      }).catch(() => {
-        setStatus('Failed to copy password.', 'error');
-      });
-    }
-
     function setStatus(message, type = 'info') {
       const box = document.getElementById('statusBox');
       if (type === 'error') {
@@ -550,16 +528,6 @@
         box.style.color = 'var(--text)';
       }
       box.textContent = message;
-    }
-
-    function checkEthersLoaded() {
-      if (typeof window.ethers !== 'undefined') {
-        setStatus('System ready.', 'success');
-        return true;
-      } else {
-        setStatus('ethers.umd.min.js not loaded.', 'error');
-        return false;
-      }
     }
 
     function getSelectedToken() {
@@ -627,7 +595,7 @@
 
     async function connectWallet() {
       if (!window.ethereum) return setStatus('No browser wallet detected.', 'error');
-      if (!checkEthersLoaded()) return;
+      if (!window.ethers) return setStatus('ethers.umd.min.js not loaded.', 'error');
 
       try {
         setStatus('Connecting wallet...');
@@ -834,7 +802,7 @@
     }
 
     async function queryEscrow() {
-      if (!checkEthersLoaded()) return;
+      if (!window.ethers) return setStatus('ethers.umd.min.js not loaded.', 'error');
       const txId = document.getElementById('qTxId').value.trim();
       if (txId === '') return setStatus('Transaction ID required.', 'error');
 
@@ -843,7 +811,7 @@
       container.textContent = 'Querying chain data...';
 
       try {
-        const readProvider = provider || new ethers.JsonRpcProvider('https://polygon-rpc.com');
+        const readProvider = provider || new ethers.JsonRpcProvider('[polygon-rpc.com](https://polygon-rpc.com)');
         const readContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, readProvider);
         const data = await readContract.getTransaction(txId);
 
@@ -885,11 +853,9 @@
     document.getElementById('amount').addEventListener('input', updatePreviewSummary);
     document.getElementById('assetSelect').addEventListener('change', updatePreviewSummary);
 
-    window.addEventListener('load', () => {
-      checkEthersLoaded();
-      updatePreviewSummary();
-      updateTokenConfigBox();
-    });
+    updatePreviewSummary();
+    updateTokenConfigBox();
+    setStatus('System ready.');
   </script>
 </body>
 </html>
