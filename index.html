@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SafeBridge Global - Polygon Escrow</title>
-  <script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js)"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg: #020617;
@@ -375,7 +375,7 @@
 
     async function connectWallet() {
       if (!window.ethereum) return setStatus('No browser wallet detected.', 'error');
-      if (!window.ethers) return setStatus('ethers.umd.min.js not loaded.', 'error');
+      if (!window.ethers) return setStatus('ethers library is not loaded.', 'error');
 
       try {
         setStatus('Connecting wallet...');
@@ -582,7 +582,7 @@
     }
 
     async function queryEscrow() {
-      if (!window.ethers) return setStatus('ethers.umd.min.js not loaded.', 'error');
+      if (!window.ethers) return setStatus('ethers library is not loaded.', 'error');
       const txId = document.getElementById('qTxId').value.trim();
       if (txId === '') return setStatus('Transaction ID required.', 'error');
 
@@ -591,7 +591,7 @@
       container.textContent = 'Querying chain data...';
 
       try {
-        const readProvider = provider || new ethers.JsonRpcProvider('[polygon-rpc.com](https://polygon-rpc.com)');
+        const readProvider = provider || new ethers.JsonRpcProvider('https://polygon-rpc.com');
         const readContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, readProvider);
         const data = await readContract.getTransaction(txId);
 
