@@ -1,320 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafeBridge Global — Instant Transfer Panel</title>
-  <script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js)"></script>
-  <link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeBridge Global — Instant Transfer</title>
+
+  <script>
+    function ensureEthersLoaded() {
+      return new Promise((resolve, reject) => {
+        if (window.ethers) return resolve(window.ethers);
+
+        const cdns = [
+          "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
+          "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js",
+          "https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"
+        ];
+
+        let index = 0;
+
+        function loadNext() {
+          if (index >= cdns.length) {
+            return reject(new Error("Ethers kütüphanesi hiçbir CDN üzerinden yüklenemedi."));
+          }
+
+          const script = document.createElement('script');
+          script.src = cdns[index++];
+          script.onload = () => resolve(window.ethers);
+          script.onerror = () => loadNext();
+          document.head.appendChild(script);
+        }
+
+        loadNext();
+      });
+    }
+  </script>
+
   <style>
     :root {
-      --bg-color: #0b0e14;
-      --card-bg: #141923;
-      --card-border: #232a3b;
-      --accent-purple: #8247e5;
-      --accent-cyan: #00f2fe;
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --success-color: #10b981;
-      --error-color: #ef4444;
+      --bg: #030712;
+      --panel: #0b0f19;
+      --card-bg: #111827;
+      --border: #1f2937;
+      --input-bg: #030712;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --emerald: #10b981;
+      --red: #ef4444;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', sans-serif;
-    }
+    * { box-sizing: border-box; }
 
     body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
+      margin: 0;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       padding: 20px;
     }
 
-    .header {
+    .nav-bar {
       width: 100%;
       max-width: 480px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
-      padding: 12px 0;
-      gap: 12px;
-      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 1.2rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #a855f7, var(--accent-cyan));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 18px;
+      color: #38bdf8;
     }
 
-    .header-actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      flex-wrap: wrap;
+    .btn-nav {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      padding: 8px 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
     }
 
-    .btn-connect,
-    .btn-back {
-      background: linear-gradient(135deg, var(--accent-purple), #6366f1);
+    .btn-nav:hover { background: #334155; }
+
+    .btn-connect {
+      background: var(--primary);
       color: white;
       border: none;
       padding: 10px 18px;
       border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(130, 71, 229, 0.3);
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      transition: all 0.2s;
     }
 
-    .btn-back {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid #2c3448;
-      box-shadow: none;
-    }
-
-    .btn-connect:hover,
-    .btn-back:hover {
-      transform: translateY(-1px);
-    }
+    .btn-connect:hover { background: var(--primary-hover); }
 
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
       width: 100%;
       max-width: 480px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
       padding: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
 
-    .wallet-info {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
+    .status-badge-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       padding: 12px 16px;
-      margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.85rem;
-      gap: 12px;
+      margin-bottom: 24px;
+      font-size: 13px;
     }
 
     .network-badge {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-weight: 500;
-      color: var(--success-color);
-      white-space: nowrap;
+      color: var(--emerald);
+      font-weight: 600;
     }
 
     .dot {
       width: 8px;
       height: 8px;
-      background-color: var(--success-color);
+      background: var(--emerald);
       border-radius: 50%;
-      box-shadow: 0 0 8px var(--success-color);
     }
 
-    .panel-title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      margin-bottom: 20px;
-      background: linear-gradient(135deg, #ffffff, #a5b4fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 26px;
+      font-weight: 800;
     }
 
-    .panel-subtitle {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      margin-bottom: 20px;
+    .desc {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 24px;
     }
 
-    .form-group {
+    .field {
       margin-bottom: 18px;
     }
 
     label {
       display: block;
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: var(--text-muted);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
       margin-bottom: 8px;
     }
 
     input, select {
       width: 100%;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--card-border);
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
       border-radius: 12px;
-      padding: 12px 16px;
-      color: var(--text-main);
-      font-size: 0.95rem;
+      padding: 14px;
+      font-size: 14px;
       outline: none;
-      transition: border-color 0.2s ease;
     }
 
     input:focus, select:focus {
-      border-color: var(--accent-purple);
+      border-color: var(--primary);
     }
 
-    .input-row {
-      display: flex;
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
       gap: 12px;
     }
 
-    .input-row > div:nth-child(1) { flex: 2; }
-    .input-row > div:nth-child(2) { flex: 1; }
-
-    .btn-action {
+    .btn-send {
       width: 100%;
-      background: linear-gradient(135deg, var(--accent-purple), #6366f1);
+      background: linear-gradient(90deg, #6366f1, #818cf8);
       color: white;
       border: none;
-      padding: 14px;
+      padding: 16px;
       border-radius: 14px;
+      font-size: 15px;
       font-weight: 700;
-      font-size: 1rem;
       cursor: pointer;
       margin-top: 10px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 16px rgba(130, 71, 229, 0.3);
+      transition: all 0.2s;
     }
 
-    .btn-action:hover {
-      opacity: 0.95;
+    .btn-send:hover {
+      opacity: 0.92;
       transform: translateY(-1px);
     }
 
-    .status-box {
-      margin-top: 20px;
+    .msg-box {
+      margin-top: 18px;
       padding: 14px;
       border-radius: 12px;
-      font-size: 0.85rem;
-      line-height: 1.4;
-      display: none;
-      word-break: break-word;
-    }
-
-    .status-box.info {
-      background: rgba(130, 71, 229, 0.1);
-      border: 1px solid rgba(130, 71, 229, 0.3);
-      color: #c084fc;
-      display: block;
-    }
-
-    .status-box.success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: #34d399;
-      display: block;
-    }
-
-    .status-box.error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #f87171;
-      display: block;
+      font-size: 13px;
+      word-break: break-all;
+      background: rgba(31, 41, 55, 0.5);
+      border: 1px solid var(--border);
+      color: var(--muted);
     }
 
     .footer {
       margin-top: 30px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      color: var(--muted);
+      font-size: 12px;
       text-align: center;
-    }
-
-    @media (max-width: 520px) {
-      .input-row {
-        flex-direction: column;
-      }
-      .wallet-info {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .header {
-        align-items: flex-start;
-      }
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
+  <div class="nav-bar">
     <div class="logo">
       <span>⚡ SafeBridge Transfer</span>
     </div>
-    <div class="header-actions">
-      <a href="index.html" class="btn-back">← Escrow App</a>
-      <button class="btn-connect" id="btnConnect" onclick="connectWallet()">Connect Wallet</button>
+    <div>
+      <a href="index.html" class="btn-nav">← Escrow App</a>
+      <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="wallet-info">
+    <div class="status-badge-box">
       <div>
-        <div style="font-size: 0.75rem; color: var(--text-muted);">Connected Address</div>
-        <div id="accountDisplay" style="font-weight: 600;">Not connected</div>
+        <div style="color: var(--muted); font-size: 11px;">Connected Address</div>
+        <div id="addrDisplay" style="font-weight: 700; margin-top: 2px;">Not connected</div>
       </div>
       <div class="network-badge">
-        <span class="dot"></span>
-        <span>Polygon Mainnet</span>
+        <span class="dot"></span> Polygon Mainnet
       </div>
     </div>
 
-    <div class="panel-title">Instant Transfer</div>
-    <div class="panel-subtitle">
+    <h2>Instant Transfer</h2>
+    <p class="desc">
       Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet.
+    </p>
+
+    <div class="field">
+      <label>Recipient Wallet Address</label>
+      <input type="text" id="recipient" placeholder="0x..." />
     </div>
 
-    <div class="form-group">
-      <label for="recipientAddress">Recipient Wallet Address</label>
-      <input type="text" id="recipientAddress" placeholder="0x..." />
-    </div>
-
-    <div class="form-group">
-      <div class="input-row">
-        <div>
-          <label for="transferAmount">Amount</label>
-          <input type="number" id="transferAmount" placeholder="0.0" step="any" />
-        </div>
-        <div>
-          <label for="tokenSelect">Asset</label>
-          <select id="tokenSelect">
-            <option value="POL">POL (Native)</option>
-            <option value="USDT">USDT</option>
-            <option value="USDTE">USDT.e</option>
-            <option value="PAXG">PAXG</option>
-          </select>
-        </div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Amount</label>
+        <input type="number" id="amount" placeholder="0.0" step="0.000001" min="0" />
+      </div>
+      <div class="field">
+        <label>Asset</label>
+        <select id="assetSelect">
+          <option value="POL">POL (Native)</option>
+          <option value="USDT">USDT</option>
+          <option value="USDTE">USDT.e</option>
+          <option value="PAXG">PAXG</option>
+        </select>
       </div>
     </div>
 
-    <button class="btn-action" id="btnAction" onclick="sendInstantTransfer()">
-      ⚡ Send Instant Transfer
-    </button>
+    <button class="btn-send" onclick="sendTransfer()">⚡ Send Instant Transfer</button>
 
-    <div class="status-box" id="statusBox"></div>
+    <div id="statusBox" class="msg-box">System initializing...</div>
   </div>
 
   <div class="footer">
@@ -322,137 +290,130 @@
   </div>
 
   <script>
-    const POLYGON_CHAIN_ID = "0x89";
-
-    const TOKEN_CONTRACTS = {
-      USDT: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
-      USDTE: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
-      PAXG: "0x714db550b574b3e927fb3d93e26127d15721d4c2"
+    const CONFIG = {
+      chainIdHex: "0x89",
+      chainIdDec: 137
     };
 
-    const TOKEN_DECIMALS = {
-      POL: 18,
-      USDT: 6,
-      USDTE: 6,
-      PAXG: 18
+    const TOKENS = {
+      POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
+      USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
+      USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
+      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
     };
 
-    let account = null;
+    const ERC20_ABI = [
+      "function transfer(address to, uint256 amount) external returns (bool)",
+      "function balanceOf(address account) external view returns (uint256)"
+    ];
 
-    function showStatus(msg, type = "info") {
-      const box = document.getElementById("statusBox");
-      box.className = "status-box " + type;
+    let provider = null;
+    let signer = null;
+    let connectedAccount = null;
+
+    function setStatus(msg, type = 'info') {
+      const box = document.getElementById('statusBox');
       box.textContent = msg;
+      if (type === 'error') {
+        box.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        box.style.color = '#fca5a5';
+        box.style.background = 'rgba(239, 68, 68, 0.1)';
+      } else if (type === 'success') {
+        box.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        box.style.color = '#6ee7b7';
+        box.style.background = 'rgba(16, 185, 129, 0.1)';
+      } else {
+        box.style.borderColor = 'var(--border)';
+        box.style.color = 'var(--muted)';
+        box.style.background = 'rgba(31, 41, 55, 0.5)';
+      }
     }
 
     async function connectWallet() {
-      if (!window.ethereum) {
-        showStatus("MetaMask or a compatible browser wallet was not detected.", "error");
-        return;
+      try {
+        await ensureEthersLoaded();
+      } catch (e) {
+        return setStatus("Ethers.js library failed to load.", "error");
       }
 
-      if (!window.ethers) {
-        showStatus("ethers library is not loaded.", "error");
-        return;
+      if (!window.ethereum) {
+        return setStatus("No Web3 wallet detected. Please install MetaMask.", "error");
       }
 
       try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send("eth_requestAccounts", []);
-        account = accounts[0];
+        setStatus("Connecting wallet...");
+        provider = new ethers.BrowserProvider(window.ethereum);
 
-        const network = await provider.getNetwork();
-        if (network.chainId !== 137n) {
-          showStatus("Switching to Polygon Mainnet...", "info");
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== CONFIG.chainIdHex) {
           try {
             await window.ethereum.request({
-              method: "wallet_switchEthereumChain",
-              params: [{ chainId: POLYGON_CHAIN_ID }]
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: CONFIG.chainIdHex }]
             });
-          } catch (switchError) {
-            showStatus("Please switch to Polygon Mainnet in your wallet.", "error");
-            return;
+          } catch (e) {
+            return setStatus("Please switch your wallet to Polygon Mainnet.", "error");
           }
         }
 
-        document.getElementById("accountDisplay").innerText =
-          account.substring(0,6) + "..." + account.substring(account.length - 4);
-        document.getElementById("btnConnect").innerText = "Connected";
-        showStatus("Wallet connected successfully.", "success");
-      } catch (err) {
-        console.error(err);
-        showStatus("Wallet connection was rejected or failed.", "error");
+        const accounts = await provider.send("eth_requestAccounts", []);
+        connectedAccount = accounts[0];
+        signer = await provider.getSigner();
+
+        const shortAddr = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
+        document.getElementById('addrDisplay').textContent = shortAddr;
+        document.getElementById('connectBtn').textContent = shortAddr;
+        
+        setStatus("Wallet connected successfully.", "success");
+      } catch (e) {
+        setStatus(e.reason || e.message || "Failed to connect wallet.", "error");
       }
     }
 
-    async function sendInstantTransfer() {
-      if (!account) {
-        await connectWallet();
-        if (!account) return;
-      }
+    async function sendTransfer() {
+      if (!signer) return setStatus("Please connect your wallet first.", "error");
 
-      const recipient = document.getElementById("recipientAddress").value.trim();
-      const amount = document.getElementById("transferAmount").value;
-      const token = document.getElementById("tokenSelect").value;
+      const recipient = document.getElementById('recipient').value.trim();
+      const rawAmount = document.getElementById('amount').value.trim();
+      const selectedKey = document.getElementById('assetSelect').value;
+      const token = TOKENS[selectedKey];
 
-      if (!ethers.isAddress(recipient)) {
-        showStatus("Invalid recipient address. Please enter a valid 0x wallet address.", "error");
-        return;
-      }
-
-      if (!amount || Number(amount) <= 0) {
-        showStatus("Please enter a valid amount greater than zero.", "error");
-        return;
-      }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", "error");
+      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Enter a valid amount greater than 0.", "error");
 
       try {
-        showStatus(`Preparing ${amount} ${token} instant transfer. Waiting for wallet confirmation...`, "info");
+        const parsedAmount = ethers.parseUnits(rawAmount, token.decimals);
+        setStatus(`Preparing ${token.symbol} transfer...`);
 
-        if (token === "POL") {
-          const tx = await signer.sendTransaction({
+        let tx;
+        if (token.type === 'native') {
+          // POL (Native Token) Transfer
+          tx = await signer.sendTransaction({
             to: recipient,
-            value: ethers.parseEther(amount)
+            value: parsedAmount
           });
-
-          showStatus(`POL transfer submitted. Tx Hash: ${tx.hash.substring(0, 12)}...`, "info");
-          await tx.wait();
-          showStatus(`Success! ${amount} POL was sent directly to the recipient wallet.`, "success");
         } else {
-          const tokenAddr = TOKEN_CONTRACTS[token];
-          const decimals = TOKEN_DECIMALS[token];
-          const parsedAmount = ethers.parseUnits(amount, decimals);
-
-          const erc20Abi = [
-            "function transfer(address to, uint256 amount) public returns (bool)"
-          ];
-
-          const tokenContract = new ethers.Contract(tokenAddr, erc20Abi, signer);
-          const tx = await tokenContract.transfer(recipient, parsedAmount);
-
-          showStatus(`${token} transfer submitted. Waiting for confirmation... Tx: ${tx.hash.substring(0, 12)}...`, "info");
-          await tx.wait();
-
-          showStatus(`Success! ${amount} ${token} was sent directly to the recipient wallet.`, "success");
+          // ERC-20 Token Transfer
+          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
+          tx = await tokenContract.transfer(recipient, parsedAmount);
         }
 
-        document.getElementById("transferAmount").value = "";
-        document.getElementById("recipientAddress").value = "";
-      } catch (err) {
-        console.error(err);
-        if (err.code === "ACTION_REJECTED" || err.code === 4001) {
-          showStatus("Transaction cancelled: wallet confirmation was rejected.", "error");
-        } else {
-          showStatus("Transfer failed. Check balance, gas fee, or token settings.", "error");
-        }
+        setStatus(`Transaction submitted. Waiting for confirmation...\nHash: ${tx.hash}`);
+        const receipt = await tx.wait();
+
+        setStatus(`Transfer completed successfully!\nTx Hash: ${receipt.hash}`, "success");
+      } catch (e) {
+        setStatus(e.reason || e.message || "Transfer failed.", "error");
       }
     }
 
-    window.addEventListener("load", () => {
-      if (window.ethereum && window.ethereum.selectedAddress) {
-        connectWallet();
+    // Sayfa Yüklendiğinde
+    window.addEventListener('load', async () => {
+      try {
+        await ensureEthersLoaded();
+        setStatus("System ready.");
+      } catch (err) {
+        setStatus("Ethers.js library failed to load. Please check your connection or AdBlocker.", "error");
       }
     });
   </script>
