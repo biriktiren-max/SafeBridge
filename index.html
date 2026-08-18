@@ -862,5 +862,92 @@
     </button>
   </div>
 </div>
+  <div id="walletModal" class="wallet-modal-overlay">
+      </div>
+
+    <script>
+      // 1. Modal Elemanları
+      const walletModal = document.getElementById('walletModal');
+      const closeWalletModalBtn = document.getElementById('closeWalletModal');
+      const walletListContainer = document.getElementById('walletList');
+      const connectWalletMainBtn = document.getElementById('connectWalletBtn'); // Ana sayfanızdaki bağlam butonunun ID'si
+
+      // 2. Algılanan Cüzdanlar
+      const discoveredWallets = [];
+
+      function openModal() { walletModal.classList.add('active'); }
+      function closeModal() { walletModal.classList.remove('active'); }
+
+      if (connectWalletMainBtn) connectWalletMainBtn.addEventListener('click', openModal);
+      closeWalletModalBtn.addEventListener('click', closeModal);
+
+      window.addEventListener('click', (e) => {
+        if (e.target === walletModal) closeModal();
+      });
+
+      // 3. EIP-6963 ile Cüzdanları Dinle
+      window.addEventListener("eip6963:announceProvider", (event) => {
+        const providerDetail = event.detail;
+        
+        if (!discoveredWallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
+          discoveredWallets.push(providerDetail);
+          renderWalletCard(providerDetail);
+        }
+      });
+
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+
+      // 4. Cüzdan Kartını Ekrana Bas
+      function renderWalletCard(walletDetail) {
+        const card = document.createElement('button');
+        card.className = 'wallet-card';
+        card.innerHTML = `
+          <img src="${walletDetail.info.icon}" alt="${walletDetail.info.name}" />
+          <div class="wallet-info">
+            <span class="wallet-name">${walletDetail.info.name}</span>
+            <span class="wallet-desc">Tarayıcı Eklentisi</span>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          connectToProvider(walletDetail);
+        });
+
+        walletListContainer.appendChild(card);
+      }
+
+      // 5. Cüzdana Bağlanma ve Polygon Ağ Kontrolü
+      async function connectToProvider(walletDetail) {
+        try {
+          const provider = walletDetail.provider;
+          const accounts = await provider.request({ method: "eth_requestAccounts" });
+          const userAddress = accounts[0];
+
+          // Polygon Ağı Kontrolü (ChainID: 0x89)
+          const chainId = await provider.request({ method: "eth_chainId" });
+          if (chainId !== "0x89") {
+            try {
+              await provider.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: "0x89" }]
+              });
+            } catch (switchError) {
+              console.warn("Polygon ağı cüzdana ekli değil veya geçiş reddedildi.");
+            }
+          }
+
+          if (connectWalletMainBtn) {
+            connectWalletMainBtn.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
+          }
+
+          closeModal();
+        } catch (error) {
+          console.error("Cüzdan bağlantı hatası:", error);
+        }
+      }
+    </script>
+
+  </body>
+</html>
 </body>
 </html>
