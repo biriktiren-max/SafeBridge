@@ -417,5 +417,29 @@
       }
     });
   </script>
+  <script>
+  window.addEventListener('DOMContentLoaded', async () => {
+      if (window.ethereum) {
+          try {
+              // Ekrana cüzdan bağlama popup'ı AÇMADAN bağlı adresi sorgular
+              const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+              
+              if (accounts.length > 0) {
+                  const userAddress = accounts[0];
+                  
+                  // BURAYA DİKKAT: instant.html üzerinde cüzdan adresini 
+                  // ekranda gösteren kendi fonksiyonunuzun adını yazın.
+                  // Örneğin:
+                  showConnectedWallet(userAddress); 
+              }
+          } catch (error) {
+              console.error("Otomatik cüzdan kontrolü hatası:", error);
+          }
+      }
+  });
+</script>
+
+</body>
+</html>
 </body>
 </html>
