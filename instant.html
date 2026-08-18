@@ -20,7 +20,7 @@
 
         function loadNext() {
           if (index >= cdns.length) {
-            return reject(new Error("Ethers kütüphanesi hiçbir CDN üzerinden yüklenemedi."));
+            return reject(new Error("Ethers library failed to load across all CDNs."));
           }
 
           const script = document.createElement('script');
@@ -329,6 +329,36 @@
       }
     }
 
+    async function setupConnectedState(accountAddress) {
+      try {
+        await ensureEthersLoaded();
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        connectedAccount = accountAddress;
+
+        localStorage.setItem('safebridge_connected_account', accountAddress);
+
+        const shortAddr = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
+        document.getElementById('addrDisplay').textContent = shortAddr;
+        document.getElementById('connectBtn').textContent = shortAddr;
+        
+        setStatus("Wallet connected successfully.", "success");
+      } catch (e) {
+        console.error("Setup connected state error:", e);
+        setStatus("Failed to initialize wallet session.", "error");
+      }
+    }
+
+    function clearConnectedState() {
+      connectedAccount = null;
+      signer = null;
+      provider = null;
+      localStorage.removeItem('safebridge_connected_account');
+      document.getElementById('addrDisplay').textContent = "Not connected";
+      document.getElementById('connectBtn').textContent = "Connect Wallet";
+      setStatus("Wallet disconnected.");
+    }
+
     async function connectWallet() {
       try {
         await ensureEthersLoaded();
@@ -337,12 +367,11 @@
       }
 
       if (!window.ethereum) {
-        return setStatus("No Web3 wallet detected. Please install MetaMask.", "error");
+        return setStatus("No Web3 wallet detected. Please install MetaMask or Rabby.", "error");
       }
 
       try {
         setStatus("Connecting wallet...");
-        provider = new ethers.BrowserProvider(window.ethereum);
 
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         if (chainId !== CONFIG.chainIdHex) {
@@ -356,15 +385,10 @@
           }
         }
 
-        const accounts = await provider.send("eth_requestAccounts", []);
-        connectedAccount = accounts[0];
-        signer = await provider.getSigner();
-
-        const shortAddr = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-        document.getElementById('addrDisplay').textContent = shortAddr;
-        document.getElementById('connectBtn').textContent = shortAddr;
-        
-        setStatus("Wallet connected successfully.", "success");
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts.length > 0) {
+          await setupConnectedState(accounts[0]);
+        }
       } catch (e) {
         setStatus(e.reason || e.message || "Failed to connect wallet.", "error");
       }
@@ -387,13 +411,11 @@
 
         let tx;
         if (token.type === 'native') {
-          // POL (Native Token) Transfer
           tx = await signer.sendTransaction({
             to: recipient,
             value: parsedAmount
           });
         } else {
-          // ERC-20 Token Transfer
           const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
           tx = await tokenContract.transfer(recipient, parsedAmount);
         }
@@ -407,36 +429,39 @@
       }
     }
 
-    // Sayfa Yüklendiğinde
-    window.addEventListener('load', async () => {
+    // SAYFA YÜKLENDİĞİNDE SESSİZ CÜZDAN KONTROLÜ VE EVENT DINLEYICILERI
+    window.addEventListener('DOMContentLoaded', async () => {
       try {
         await ensureEthersLoaded();
         setStatus("System ready.");
+
+        if (window.ethereum) {
+          // Sayfa açılışında daha önce bağlanmış hesabı popup çıkarmadan sorgula
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+            await setupConnectedState(accounts[0]);
+          } else {
+            clearConnectedState();
+          }
+
+          // Cüzdanda hesap değiştiğinde otomatik senkronize et
+          window.ethereum.on('accountsChanged', async (accs) => {
+            if (accs.length > 0) {
+              await setupConnectedState(accs[0]);
+            } else {
+              clearConnectedState();
+            }
+          });
+
+          // Ağ değiştiğinde sayfayı yenile
+          window.ethereum.on('chainChanged', () => {
+            window.location.reload();
+          });
+        }
       } catch (err) {
-        setStatus("Ethers.js library failed to load. Please check your connection or AdBlocker.", "error");
+        setStatus("Ethers.js library failed to load. Please check your connection.", "error");
       }
     });
   </script>
-  <script>
-  window.addEventListener('DOMContentLoaded', async () => {
-      if (window.ethereum) {
-          try {
-              // Ekrana cüzdan bağlama popup'ı AÇMADAN bağlı adresi sorgular
-              const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-              
-              if (accounts.length > 0) {
-                  const userAddress = accounts[0];
-                  
-                  // BURAYA DİKKAT: instant.html üzerinde cüzdan adresini 
-                  // ekranda gösteren kendi fonksiyonunuzun adını yazın.
-                  // Örneğin:
-                  showConnectedWallet(userAddress); 
-              }
-          } catch (error) {
-              console.error("Otomatik cüzdan kontrolü hatası:", error);
-          }
-      }
-  });
-</script>
 </body>
 </html>
