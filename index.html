@@ -697,5 +697,32 @@
       }
     });
   </script>
+  <div id="walletModal" class="wallet-modal-overlay">
+  <div class="wallet-modal-content">
+    <div class="wallet-modal-header">
+      <h3>Cüzdan Bağla</h3>
+      <button id="closeWalletModal" class="modal-close-btn">&times;</button>
+    </div>
+    
+    <p class="wallet-modal-subtitle">Polygon ağında işlem yapmak için cüzdanınızı seçin:</p>
+    
+    <div id="walletList" class="wallet-grid">
+      </div>
+
+    <div class="wallet-divider">
+      <span>veya Mobil İle Bağlan</span>
+    </div>
+
+    <button id="walletConnectBtn" class="wallet-card wallet-card-qr">
+      <div class="wallet-icon-wrapper">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="wallet-info">
+        <span class="wallet-name">WalletConnect (QR Kod)</span>
+        <span class="wallet-desc">Trust Wallet, Rainbow ve Mobil Cüzdanlar</span>
+      </div>
+    </button>
+  </div>
+</div>
 </body>
 </html>
