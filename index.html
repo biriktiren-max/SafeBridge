@@ -37,143 +37,144 @@
 
   <style>
     /* Modal Arka Plan Karartma */
-.wallet-modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(5, 10, 20, 0.85);
-  backdrop-filter: blur(8px);
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-  animation: fadeIn 0.25s ease-out;
-}
+    .wallet-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(5, 10, 20, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 0.25s ease-out;
+    }
 
-.wallet-modal-overlay.active {
-  display: flex;
-}
+    .wallet-modal-overlay.active {
+      display: flex;
+    }
 
-/* Modal Kutusu */
-.wallet-modal-content {
-  background: #0d1527;
-  border: 1px solid rgba(0, 242, 254, 0.25);
-  box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
-  border-radius: 16px;
-  width: 90%;
-  max-width: 440px;
-  padding: 24px;
-  color: #ffffff;
-  font-family: system-ui, -apple-system, sans-serif;
-}
+    /* Modal Kutusu */
+    .wallet-modal-content {
+      background: #0d1527;
+      border: 1px solid rgba(0, 242, 254, 0.25);
+      box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 440px;
+      padding: 24px;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
 
-.wallet-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
+    .wallet-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
 
-.wallet-modal-header h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #00f2fe;
-}
+    .wallet-modal-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #00f2fe;
+    }
 
-.modal-close-btn {
-  background: transparent;
-  border: none;
-  color: #8a99ad;
-  font-size: 1.8rem;
-  cursor: pointer;
-  transition: color 0.2s;
-}
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: #8a99ad;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
 
-.modal-close-btn:hover { color: #ffffff; }
+    .modal-close-btn:hover { color: #ffffff; }
 
-.wallet-modal-subtitle {
-  font-size: 0.88rem;
-  color: #8a99ad;
-  margin-bottom: 20px;
-}
+    .wallet-modal-subtitle {
+      font-size: 0.88rem;
+      color: #8a99ad;
+      margin-bottom: 20px;
+    }
 
-/* Cüzdan Kartları Listesi */
-.wallet-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: 280px;
-  overflow-y: auto;
-}
+    /* Cüzdan Kartları Listesi */
+    .wallet-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
 
-.wallet-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #141f36;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 14px 16px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-  text-align: left;
-}
+    .wallet-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #141f36;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: left;
+    }
 
-.wallet-card:hover {
-  background: #1c2b4a;
-  border-color: #00f2fe;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 242, 254, 0.1);
-}
+    .wallet-card:hover {
+      background: #1c2b4a;
+      border-color: #00f2fe;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 242, 254, 0.1);
+    }
 
-.wallet-card img {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-}
+    .wallet-card img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+    }
 
-.wallet-info {
-  display: flex;
-  flex-direction: column;
-}
+    .wallet-info {
+      display: flex;
+      flex-direction: column;
+    }
 
-.wallet-name {
-  font-weight: 600;
-  font-size: 1rem;
-  color: #ffffff;
-}
+    .wallet-name {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #ffffff;
+    }
 
-.wallet-desc {
-  font-size: 0.75rem;
-  color: #8a99ad;
-}
+    .wallet-desc {
+      font-size: 0.75rem;
+      color: #8a99ad;
+    }
 
-/* Ayraç */
-.wallet-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 20px 0 14px 0;
-  color: #586980;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+    /* Ayraç */
+    .wallet-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 20px 0 14px 0;
+      color: #586980;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-.wallet-divider::before, .wallet-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+    .wallet-divider::before, .wallet-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
 
-.wallet-divider span { padding: 0 10px; }
+    .wallet-divider span { padding: 0 10px; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     :root {
       --bg: #020617;
       --bg-soft: #0f172a;
@@ -319,7 +320,7 @@
           </div>
 
           <div class="field">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
+            <div style="display:flex; justify-space-between; align-items:center; gap:10px; margin-bottom:8px;">
               <label style="margin-bottom:0;">Secret Password</label>
               <div style="display:flex; gap:6px;">
                 <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:6px 10px; font-size:12px;">Generate</button>
@@ -426,6 +427,31 @@
     </div>
   </div>
 
+  <div id="walletModal" class="wallet-modal-overlay">
+    <div class="wallet-modal-content">
+      <div class="wallet-modal-header">
+        <h3>Cüzdan Bağla</h3>
+        <button id="closeWalletModal" class="modal-close-btn">&times;</button>
+      </div>
+      
+      <p class="wallet-modal-subtitle">Polygon ağında işlem yapmak için cüzdanınızı seçin:</p>
+      
+      <div id="walletList" class="wallet-grid">
+        </div>
+
+      <div class="wallet-divider">
+        <span>veya Mobil İle Bağlan</span>
+      </div>
+
+      <button id="walletConnectBtn" class="wallet-card">
+        <div class="wallet-info">
+          <span class="wallet-name">WalletConnect</span>
+          <span class="wallet-desc">Trust Wallet, Rainbow ve Mobil Cüzdanlar</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
   <script>
     const APP_CONFIG = {
       escrowContract: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12",
@@ -461,7 +487,119 @@
     let signer = null;
     let connectedAccount = null;
     let escrowContract = null;
+    const discoveredWallets = [];
 
+    /* --- Modal & Cüzdan Algılama (EIP-6963) --- */
+    function openModal() {
+      const modal = document.getElementById('walletModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('walletModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    window.addEventListener("eip6963:announceProvider", (event) => {
+      const providerDetail = event.detail;
+      if (!discoveredWallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
+        discoveredWallets.push(providerDetail);
+        renderWalletCard(providerDetail);
+      }
+    });
+
+    function renderWalletCard(walletDetail) {
+      const walletListContainer = document.getElementById('walletList');
+      if (!walletListContainer) return;
+
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'wallet-card';
+      card.innerHTML = `
+        <img src="${walletDetail.info.icon}" alt="${walletDetail.info.name}" />
+        <div class="wallet-info">
+          <span class="wallet-name">${walletDetail.info.name}</span>
+          <span class="wallet-desc">Tarayıcı Eklentisi</span>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        connectToDiscoveredWallet(walletDetail);
+      });
+
+      walletListContainer.appendChild(card);
+    }
+
+    async function connectToDiscoveredWallet(walletDetail) {
+      try {
+        await ensureEthersLoaded();
+      } catch (e) {
+        return setStatus('Ethers.js library failed to load.', 'error');
+      }
+
+      try {
+        setStatus(`${walletDetail.info.name} cüzdanına bağlanılıyor...`);
+        const eipProvider = walletDetail.provider;
+        provider = new ethers.BrowserProvider(eipProvider);
+
+        const chainId = await eipProvider.request({ method: 'eth_chainId' });
+        if (chainId !== APP_CONFIG.chainIdHex) {
+          try {
+            await eipProvider.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: APP_CONFIG.chainIdHex }]
+            });
+          } catch (e) {
+            return setStatus('Please switch to Polygon Mainnet (137).', 'error');
+          }
+        }
+
+        const accounts = await provider.send('eth_requestAccounts', []);
+        connectedAccount = accounts[0];
+        signer = await provider.getSigner();
+        escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
+
+        const btn = document.getElementById('connectBtn');
+        if (btn) btn.textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
+        
+        setStatus(`${walletDetail.info.name} başarıyla bağlandı.`, 'success');
+        closeModal();
+      } catch (e) {
+        setStatus(e.reason || e.message || 'Cüzdan bağlantı hatası.', 'error');
+      }
+    }
+
+    async function connectWallet() {
+      openModal();
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+      
+      // Standart window.ethereum fallback
+      if (discoveredWallets.length === 0 && window.ethereum) {
+        try {
+          await ensureEthersLoaded();
+          provider = new ethers.BrowserProvider(window.ethereum);
+          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+          if (chainId !== APP_CONFIG.chainIdHex) {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: APP_CONFIG.chainIdHex }]
+            });
+          }
+          const accounts = await provider.send('eth_requestAccounts', []);
+          connectedAccount = accounts[0];
+          signer = await provider.getSigner();
+          escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
+
+          document.getElementById('connectBtn').textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
+          setStatus('Wallet connected successfully.', 'success');
+          closeModal();
+        } catch (e) {
+          setStatus(e.reason || e.message || 'Wallet connection failed.', 'error');
+        }
+      }
+    }
+
+    /* --- Temel İşlevler --- */
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -549,43 +687,6 @@
       document.getElementById('netDisplay').textContent = `${formatAmount(preview.net)} ${token.symbol}`;
       document.getElementById('assetHint').textContent = `Asset: ${token.symbol}`;
       updateApprovalInfo();
-    }
-
-    async function connectWallet() {
-      try {
-        await ensureEthersLoaded();
-      } catch (e) {
-        return setStatus('Ethers.js library failed to load. Check your network or AdBlocker.', 'error');
-      }
-
-      if (!window.ethereum) return setStatus('No browser wallet detected (e.g. MetaMask).', 'error');
-
-      try {
-        setStatus('Connecting wallet...');
-        provider = new ethers.BrowserProvider(window.ethereum);
-
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== APP_CONFIG.chainIdHex) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: APP_CONFIG.chainIdHex }]
-            });
-          } catch (e) {
-            return setStatus('Please switch to Polygon Mainnet (137).', 'error');
-          }
-        }
-
-        const accounts = await provider.send('eth_requestAccounts', []);
-        connectedAccount = accounts[0];
-        signer = await provider.getSigner();
-        escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
-
-        document.getElementById('connectBtn').textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-        setStatus('Wallet connected successfully.', 'success');
-      } catch (e) {
-        setStatus(e.reason || e.message || 'Wallet connection failed.', 'error');
-      }
     }
 
     async function createEscrow() {
@@ -811,143 +912,40 @@
 
     function updateTokenConfigBox() {
       const box = document.getElementById('tokenConfigBox');
-      box.textContent = [
-        `POL: native`,
-        `USDT: ${TOKENS.USDT.address}`,
-        `USDT.e: ${TOKENS.USDTE.address}`,
-        `PAXG: ${TOKENS.PAXG.address}`
-      ].join('\n');
+      if (box) {
+        box.textContent = [
+          `POL: native`,
+          `USDT: ${TOKENS.USDT.address}`,
+          `USDT.e: ${TOKENS.USDTE.address}`,
+          `PAXG: ${TOKENS.PAXG.address}`
+        ].join('\n');
+      }
     }
 
     // Sayfa Yüklendiğinde
     window.addEventListener('load', async () => {
-      document.getElementById('amount').addEventListener('input', updatePreviewSummary);
-      document.getElementById('assetSelect').addEventListener('change', updatePreviewSummary);
-
+      const amountEl = document.getElementById('amount');
+      if (amountEl) amountEl.addEventListener('input', updatePreviewSummary);
+      
       updatePreviewSummary();
       updateTokenConfigBox();
 
-      try {
-        await ensureEthersLoaded();
-        setStatus('System ready.');
-      } catch (err) {
-        setStatus('Ethers.js library failed to load. Please disable AdBlock or check network.', 'error');
-      }
-    });
-  </script>
-  <div id="walletModal" class="wallet-modal-overlay">
-  <div class="wallet-modal-content">
-    <div class="wallet-modal-header">
-      <h3>Cüzdan Bağla</h3>
-      <button id="closeWalletModal" class="modal-close-btn">&times;</button>
-    </div>
-    
-    <p class="wallet-modal-subtitle">Polygon ağında işlem yapmak için cüzdanınızı seçin:</p>
-    
-    <div id="walletList" class="wallet-grid">
-      </div>
-
-    <div class="wallet-divider">
-      <span>veya Mobil İle Bağlan</span>
-    </div>
-
-    <button id="walletConnectBtn" class="wallet-card wallet-card-qr">
-      <div class="wallet-icon-wrapper">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      </div>
-      <div class="wallet-info">
-        <span class="wallet-name">WalletConnect (QR Kod)</span>
-        <span class="wallet-desc">Trust Wallet, Rainbow ve Mobil Cüzdanlar</span>
-      </div>
-    </button>
-  </div>
-</div>
-  <div id="walletModal" class="wallet-modal-overlay">
-      </div>
-
-    <script>
-      // 1. Modal Elemanları
-      const walletModal = document.getElementById('walletModal');
-      const closeWalletModalBtn = document.getElementById('closeWalletModal');
-      const walletListContainer = document.getElementById('walletList');
-      const connectWalletMainBtn = document.getElementById('connectWalletBtn'); // Ana sayfanızdaki bağlam butonunun ID'si
-
-      // 2. Algılanan Cüzdanlar
-      const discoveredWallets = [];
-
-      function openModal() { walletModal.classList.add('active'); }
-      function closeModal() { walletModal.classList.remove('active'); }
-
-      if (connectWalletMainBtn) connectWalletMainBtn.addEventListener('click', openModal);
-      closeWalletModalBtn.addEventListener('click', closeModal);
-
-      window.addEventListener('click', (e) => {
-        if (e.target === walletModal) closeModal();
-      });
-
-      // 3. EIP-6963 ile Cüzdanları Dinle
-      window.addEventListener("eip6963:announceProvider", (event) => {
-        const providerDetail = event.detail;
-        
-        if (!discoveredWallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
-          discoveredWallets.push(providerDetail);
-          renderWalletCard(providerDetail);
-        }
-      });
-
+      // Cüzdan taramasını başlat
       window.dispatchEvent(new Event("eip6963:requestProvider"));
 
-      // 4. Cüzdan Kartını Ekrana Bas
-      function renderWalletCard(walletDetail) {
-        const card = document.createElement('button');
-        card.className = 'wallet-card';
-        card.innerHTML = `
-          <img src="${walletDetail.info.icon}" alt="${walletDetail.info.name}" />
-          <div class="wallet-info">
-            <span class="wallet-name">${walletDetail.info.name}</span>
-            <span class="wallet-desc">Tarayıcı Eklentisi</span>
-          </div>
-        `;
+      // Modal Kapatma Dinleyicileri
+      const closeBtn = document.getElementById('closeWalletModal');
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
-        card.addEventListener('click', () => {
-          connectToProvider(walletDetail);
+      const modal = document.getElementById('walletModal');
+      if (modal) {
+        window.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal();
         });
-
-        walletListContainer.appendChild(card);
       }
-
-      // 5. Cüzdana Bağlanma ve Polygon Ağ Kontrolü
-      async function connectToProvider(walletDetail) {
-        try {
-          const provider = walletDetail.provider;
-          const accounts = await provider.request({ method: "eth_requestAccounts" });
-          const userAddress = accounts[0];
-
-          // Polygon Ağı Kontrolü (ChainID: 0x89)
-          const chainId = await provider.request({ method: "eth_chainId" });
-          if (chainId !== "0x89") {
-            try {
-              await provider.request({
-                method: "wallet_switchEthereumChain",
-                params: [{ chainId: "0x89" }]
-              });
-            } catch (switchError) {
-              console.warn("Polygon ağı cüzdana ekli değil veya geçiş reddedildi.");
-            }
-          }
-
-          if (connectWalletMainBtn) {
-            connectWalletMainBtn.innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(userAddress.length - 4)}`;
-          }
-
-          closeModal();
-        } catch (error) {
-          console.error("Cüzdan bağlantı hatası:", error);
-        }
-      }
-    </script>
-
-  </body>
-</html>
+      
+      setStatus('System ready.');
+    });
+  </script>
 </body>
 </html>
