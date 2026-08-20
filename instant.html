@@ -3,37 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge Global — Instant Transfer</title>
+  <title>SafeBridge Global — Decentralized Escrow & Instant Transfer</title>
 
-  <script>
-    function ensureEthersLoaded() {
-      return new Promise((resolve, reject) => {
-        if (window.ethers) return resolve(window.ethers);
-
-        const cdns = [
-          "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
-          "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js",
-          "https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"
-        ];
-
-        let index = 0;
-
-        function loadNext() {
-          if (index >= cdns.length) {
-            return reject(new Error("Ethers library failed to load across all CDNs."));
-          }
-
-          const script = document.createElement('script');
-          script.src = cdns[index++];
-          script.onload = () => resolve(window.ethers);
-          script.onerror = () => loadNext();
-          document.head.appendChild(script);
-        }
-
-        loadNext();
-      });
-    }
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
   <style>
     :root {
@@ -62,58 +34,90 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       padding: 20px;
     }
 
-    .nav-bar {
+    .header-container {
       width: 100%;
-      max-width: 480px;
+      max-width: 1050px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
 
-    .logo {
+    .brand-logo {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-logo h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--sky);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-logo span {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .nav-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-weight: 800;
-      font-size: 18px;
-      color: var(--sky);
+      gap: 12px;
     }
 
     .btn-nav {
-      background: #1e293b;
-      color: #e2e8f0;
+      background: var(--card-bg);
+      color: var(--text);
       border: 1px solid var(--border);
-      padding: 8px 16px;
+      padding: 10px 18px;
       border-radius: 12px;
-      text-decoration: none;
       font-size: 13px;
       font-weight: 600;
+      cursor: pointer;
       transition: all 0.2s;
     }
 
-    .btn-nav:hover { background: #334155; }
+    .btn-nav:hover, .btn-nav.active {
+      background: #1e293b;
+      border-color: var(--primary);
+      color: var(--sky);
+    }
 
     .btn-connect {
       background: var(--primary);
       color: white;
       border: none;
-      padding: 10px 18px;
+      padding: 10px 20px;
       border-radius: 12px;
       font-weight: 700;
+      font-size: 13px;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .btn-connect:hover { background: var(--primary-hover); }
 
-    .card {
+    .main-wrapper {
       width: 100%;
-      max-width: 480px;
+      max-width: 1050px;
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 850px) {
+      .main-wrapper { grid-template-columns: 1fr; }
+    }
+
+    .card {
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 24px;
@@ -121,55 +125,53 @@
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
     }
 
-    .status-badge-box {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
+    .notice-box {
+      grid-column: 1 / -1;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 16px;
+      padding: 14px 18px;
       font-size: 13px;
-    }
-
-    .network-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--emerald);
-      font-weight: 600;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      background: var(--emerald);
-      border-radius: 50%;
-    }
-
-    h2 {
-      margin: 0 0 8px 0;
-      font-size: 26px;
-      font-weight: 800;
-    }
-
-    .desc {
-      color: var(--muted);
-      font-size: 13px;
+      color: var(--text);
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 8px;
     }
 
-    .field {
-      margin-bottom: 18px;
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      overflow-x: auto;
     }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      border-color: var(--border);
+      color: var(--text);
+    }
+
+    .field { margin-bottom: 18px; }
 
     .label-wrapper {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     label {
@@ -201,9 +203,7 @@
       outline: none;
     }
 
-    input:focus, select:focus {
-      border-color: var(--primary);
-    }
+    input:focus, select:focus { border-color: var(--primary); }
 
     .btn-max {
       position: absolute;
@@ -218,17 +218,37 @@
       cursor: pointer;
     }
 
-    .btn-max:hover {
-      background: #334155;
-    }
-
     .grid-2 {
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
 
-    .btn-send {
+    .preview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    .preview-row:last-child {
+      margin-bottom: 0;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .btn-action {
       width: 100%;
       background: linear-gradient(90deg, #6366f1, #818cf8);
       color: white;
@@ -238,14 +258,11 @@
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 16px;
       transition: all 0.2s;
     }
 
-    .btn-send:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
+    .btn-action:hover { opacity: 0.92; }
 
     .msg-box {
       margin-top: 18px;
@@ -259,14 +276,37 @@
       line-height: 1.5;
     }
 
-    .msg-box a {
-      color: var(--sky);
-      text-decoration: underline;
-      font-weight: 600;
+    .msg-box a { color: var(--sky); text-decoration: underline; }
+
+    .info-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
     }
 
+    .info-label {
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-val {
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--sky);
+      word-break: break-all;
+      margin-top: 4px;
+    }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
     .footer {
-      margin-top: 30px;
+      margin-top: 40px;
       color: var(--muted);
       font-size: 12px;
       text-align: center;
@@ -275,74 +315,170 @@
 </head>
 <body>
 
-  <div class="nav-bar">
-    <div class="logo">
-      <span>⚡ SafeBridge Transfer</span>
+  <div class="header-container">
+    <div class="brand-logo">
+      <h1>SafeBridge Global</h1>
+      <span>Polygon Mainnet • POL / USDT / USDT.e / PAXG System</span>
     </div>
-    <div>
-      <a href="index.html" class="btn-nav">← Escrow App</a>
-      <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
+    <div class="nav-actions">
+      <button class="btn-connect" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="status-badge-box">
-      <div>
-        <div style="color: var(--muted); font-size: 11px;">Connected Wallet</div>
-        <div id="addrDisplay" style="font-weight: 700; margin-top: 2px;">Not Connected</div>
+  <div class="main-wrapper">
+    
+    <div class="notice-box">
+      This protocol supports POL, USDT, USDT.e, and PAXG on Polygon Mainnet. A 1% protocol fee is deducted from the gross amount, and the remaining net value is safely locked in escrow.
+    </div>
+
+    <div class="card">
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchView('create')">Create Escrow</button>
+        <button class="tab-btn" onclick="switchView('release')">Release</button>
+        <button class="tab-btn" onclick="switchView('refund')">Refund</button>
+        <button class="tab-btn" onclick="switchView('instant')">Instant Transfer</button>
       </div>
-      <div class="network-badge">
-        <span class="dot"></span> Polygon Mainnet
+
+      <div id="viewCreate" class="view-panel active">
+        <h3 style="margin-top: 0;">Initialize Secure Vault</h3>
+        <div class="field">
+          <label for="recipient">Recipient Wallet Address</label>
+          <input type="text" id="recipient" placeholder="0x..." oninput="updatePreviewSummary()" />
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <div class="label-wrapper">
+              <label for="assetSelect">Asset</label>
+            </div>
+            <select id="assetSelect" onchange="updateBalanceDisplay(); updatePreviewSummary();">
+              <option value="POL">POL (Native)</option>
+              <option value="USDT">USDT</option>
+              <option value="USDTE">USDT.e</option>
+              <option value="PAXG">PAXG</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="label-wrapper">
+              <label for="grossAmount">Gross Amount</label>
+              <span id="balDisplay" class="bal-text">Balance: --</span>
+            </div>
+            <div class="input-group">
+              <input type="number" id="grossAmount" placeholder="0.0" step="0.000001" min="0" oninput="updatePreviewSummary()" />
+              <button class="btn-max" onclick="setMaxAmount('grossAmount')">MAX</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="timelockHours">Timelock (Hours)</label>
+          <input type="number" id="timelockHours" placeholder="24" min="1" value="24" oninput="updatePreviewSummary()" />
+        </div>
+
+        <div class="preview-card">
+          <div class="preview-row">
+            <span>Protocol Fee (1%):</span>
+            <span id="summaryFee">0.00</span>
+          </div>
+          <div class="preview-row">
+            <span>Net Escrow Vault Amount:</span>
+            <span id="summaryNet">0.00</span>
+          </div>
+        </div>
+
+        <button class="btn-action" onclick="createEscrowVault()">🔒 Deposit & Lock Escrow</button>
+      </div>
+
+      <div id="viewRelease" class="view-panel">
+        <h3 style="margin-top: 0;">Release Escrow Vault</h3>
+        <p style="font-size: 13px; color: var(--muted);">Release deposited funds directly to the designated recipient.</p>
+        <div class="field">
+          <label for="releaseVaultId">Vault ID / Transaction Index</label>
+          <input type="number" id="releaseVaultId" placeholder="e.g. 1" />
+        </div>
+        <button class="btn-action" onclick="releaseEscrowVault()">🔓 Release Funds to Recipient</button>
+      </div>
+
+      <div id="viewRefund" class="view-panel">
+        <h3 style="margin-top: 0;">Request Refund</h3>
+        <p style="font-size: 13px; color: var(--muted);">Reclaim funds after the timelock duration has expired.</p>
+        <div class="field">
+          <label for="refundVaultId">Vault ID / Transaction Index</label>
+          <input type="number" id="refundVaultId" placeholder="e.g. 1" />
+        </div>
+        <button class="btn-action" style="background: linear-gradient(90deg, #ef4444, #f87171);" onclick="refundEscrowVault()">↩ Reclaim Escrowed Funds</button>
+      </div>
+
+      <div id="viewInstant" class="view-panel">
+        <h3 style="margin-top: 0;">Instant Direct Transfer</h3>
+        <p style="font-size: 13px; color: var(--muted);">Send direct wallet-to-wallet transactions on Polygon Mainnet without timelock.</p>
+        <div class="field">
+          <label for="instantRecipient">Recipient Address</label>
+          <input type="text" id="instantRecipient" placeholder="0x..." />
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label for="instantAsset">Asset</label>
+            <select id="instantAsset" onchange="updateBalanceDisplay()">
+              <option value="POL">POL (Native)</option>
+              <option value="USDT">USDT</option>
+              <option value="USDTE">USDT.e</option>
+              <option value="PAXG">PAXG</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="label-wrapper">
+              <label for="instantAmount">Amount</label>
+            </div>
+            <div class="input-group">
+              <input type="number" id="instantAmount" placeholder="0.0" step="0.000001" min="0" />
+              <button class="btn-max" onclick="setMaxAmount('instantAmount')">MAX</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-action" onclick="sendInstantTransfer()">⚡ Send Instant Transfer</button>
+      </div>
+
+      <div id="statusBox" class="msg-box">System initializing... Connect wallet to proceed.</div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h3 style="margin-top: 0; font-size: 18px;">System Information</h3>
+        
+        <div class="info-item">
+          <div class="info-label">Connected Account</div>
+          <div id="addrDisplay" class="info-val">Not Connected</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Contract Address</div>
+          <div class="info-val">0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6b12</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Fee Recipient</div>
+          <div class="info-val">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
+        </div>
+
+        <div class="info-item">
+          <div class="info-label">Network Status</div>
+          <div class="info-val" style="color: var(--emerald);">Polygon Mainnet (Chain ID 137)</div>
+        </div>
       </div>
     </div>
 
-    <h2>Instant Transfer</h2>
-    <p class="desc">
-      Direct wallet-to-wallet transfers for POL, USDT, USDT.e, and PAXG on Polygon Mainnet.
-    </p>
-
-    <div class="field">
-      <label for="recipient">Recipient Wallet Address</label>
-      <input type="text" id="recipient" placeholder="0x..." style="margin-top: 6px;" />
-    </div>
-
-    <div class="grid-2">
-      <div class="field">
-        <div class="label-wrapper">
-          <label for="amount">Amount</label>
-          <span id="balDisplay" class="bal-text">Balance: --</span>
-        </div>
-        <div class="input-group">
-          <input type="number" id="amount" placeholder="0.0" step="0.000001" min="0" />
-          <button class="btn-max" onclick="setMaxAmount()">MAX</button>
-        </div>
-      </div>
-      <div class="field">
-        <div class="label-wrapper">
-          <label for="assetSelect">Asset</label>
-        </div>
-        <select id="assetSelect" onchange="updateBalanceDisplay()">
-          <option value="POL">POL (Native)</option>
-          <option value="USDT">USDT</option>
-          <option value="USDTE">USDT.e</option>
-          <option value="PAXG">PAXG</option>
-        </select>
-      </div>
-    </div>
-
-    <button class="btn-send" onclick="sendTransfer()">⚡ Send Instant Transfer</button>
-
-    <div id="statusBox" class="msg-box">System initializing...</div>
   </div>
 
   <div class="footer">
-    SafeBridge Global © 2026 — Polygon Mainnet Instant Transfer Module
+    SafeBridge Global © 2026 — Decentralized Escrow & Transfer Infrastructure
   </div>
 
   <script>
     const CONFIG = {
       chainIdHex: "0x89",
-      chainIdDec: 137
+      chainIdDec: 137,
+      contractAddress: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6b12"
     };
 
     const TOKENS = {
@@ -354,7 +490,8 @@
 
     const ERC20_ABI = [
       "function transfer(address to, uint256 amount) external returns (bool)",
-      "function balanceOf(address account) external view returns (uint256)"
+      "function balanceOf(address account) external view returns (uint256)",
+      "function approve(address spender, uint256 amount) external returns (bool)"
     ];
 
     let provider = null;
@@ -362,20 +499,10 @@
     let connectedAccount = null;
     let rawBalance = 0n;
 
-    /* --- ERROR PARSER --- */
-    function parseWeb3Error(error) {
-      if (!error) return "An unknown error occurred.";
-      if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
-        return "Transaction rejected by user in wallet.";
-      }
-      if (error.code === 'INSUFFICIENT_FUNDS' || error.message?.includes('insufficient funds')) {
-        return "Insufficient funds in your account for this transfer and gas fee.";
-      }
-      return error.reason || error.shortMessage || error.message || "Transfer transaction failed.";
-    }
-
+    /* --- SAFE STATUS SETTER --- */
     function setStatus(htmlMsg, type = 'info') {
       const box = document.getElementById('statusBox');
+      if (!box) return;
       box.innerHTML = htmlMsg;
       if (type === 'error') {
         box.style.borderColor = 'rgba(239, 68, 68, 0.4)';
@@ -392,19 +519,69 @@
       }
     }
 
-    /* --- BALANCE DISPLAY & MAX BUTTON LOGIC --- */
-    async function updateBalanceDisplay() {
-      const balEl = document.getElementById('balDisplay');
-      if (!signer || !connectedAccount) {
-        balEl.textContent = "Balance: --";
+    /* --- SAFE PREVIEW SUMMARY (NULL-CHECK PROTECTED) --- */
+    function updatePreviewSummary() {
+      const grossEl = document.getElementById('grossAmount');
+      const feeEl = document.getElementById('summaryFee');
+      const netEl = document.getElementById('summaryNet');
+
+      if (!grossEl || !feeEl || !netEl) return;
+
+      const rawVal = parseFloat(grossEl.value || "0");
+      if (isNaN(rawVal) || rawVal <= 0) {
+        feeEl.textContent = "0.00";
+        netEl.textContent = "0.00";
         return;
       }
 
-      const selectedKey = document.getElementById('assetSelect').value;
+      const selectedKey = (document.getElementById('assetSelect')?.value) || 'POL';
+      const token = TOKENS[selectedKey] || TOKENS.POL;
+
+      const fee = rawVal * 0.01;
+      const net = rawVal - fee;
+
+      feeEl.textContent = `${fee.toFixed(4)} ${token.symbol}`;
+      netEl.textContent = `${net.toFixed(4)} ${token.symbol}`;
+    }
+
+    /* --- TAB SWITCHING --- */
+    function switchView(viewName) {
+      const views = document.querySelectorAll('.view-panel');
+      const tabs = document.querySelectorAll('.tab-btn');
+
+      views.forEach(v => v.classList.remove('active'));
+      tabs.forEach(t => t.classList.remove('active'));
+
+      if (viewName === 'create') {
+        document.getElementById('viewCreate')?.classList.add('active');
+        tabs[0]?.classList.add('active');
+      } else if (viewName === 'release') {
+        document.getElementById('viewRelease')?.classList.add('active');
+        tabs[1]?.classList.add('active');
+      } else if (viewName === 'refund') {
+        document.getElementById('viewRefund')?.classList.add('active');
+        tabs[2]?.classList.add('active');
+      } else if (viewName === 'instant') {
+        document.getElementById('viewInstant')?.classList.add('active');
+        tabs[3]?.classList.add('active');
+      }
+    }
+
+    /* --- BALANCE DISPLAY & MAX LOGIC --- */
+    async function updateBalanceDisplay() {
+      const balEl = document.getElementById('balDisplay');
+      if (!signer || !connectedAccount || !window.ethers) {
+        if (balEl) balEl.textContent = "Balance: --";
+        return;
+      }
+
+      const activeView = document.getElementById('viewInstant')?.classList.contains('active');
+      const assetSelectId = activeView ? 'instantAsset' : 'assetSelect';
+      const selectedKey = document.getElementById(assetSelectId)?.value || 'POL';
       const token = TOKENS[selectedKey];
 
       try {
-        balEl.textContent = "Loading...";
+        if (balEl) balEl.textContent = "Loading...";
         if (token.type === 'native') {
           rawBalance = await provider.getBalance(connectedAccount);
         } else {
@@ -414,70 +591,61 @@
 
         const formatted = ethers.formatUnits(rawBalance, token.decimals);
         const displayVal = Number(formatted).toLocaleString('en-US', { maximumFractionDigits: 4 });
-        balEl.textContent = `Balance: ${displayVal} ${token.symbol}`;
+        if (balEl) balEl.textContent = `Balance: ${displayVal} ${token.symbol}`;
       } catch (e) {
-        console.error("Failed to read balance:", e);
-        balEl.textContent = "Balance unavailable";
+        if (balEl) balEl.textContent = "Balance unavailable";
       }
     }
 
-    function setMaxAmount() {
-      if (!connectedAccount || rawBalance === 0n) return;
-      const selectedKey = document.getElementById('assetSelect').value;
+    function setMaxAmount(targetInputId) {
+      if (!connectedAccount || rawBalance === 0n || !window.ethers) return;
+      const targetInput = document.getElementById(targetInputId);
+      if (!targetInput) return;
+
+      const activeView = targetInputId === 'instantAmount';
+      const assetSelectId = activeView ? 'instantAsset' : 'assetSelect';
+      const selectedKey = document.getElementById(assetSelectId)?.value || 'POL';
       const token = TOKENS[selectedKey];
-      
+
       let maxVal = ethers.formatUnits(rawBalance, token.decimals);
-      
-      // Leave a small buffer for POL native transfers to cover gas (0.01 POL)
       if (token.type === 'native') {
         const gasBuffer = ethers.parseUnits("0.01", token.decimals);
         if (rawBalance > gasBuffer) {
           maxVal = ethers.formatUnits(rawBalance - gasBuffer, token.decimals);
         }
       }
-      document.getElementById('amount').value = maxVal;
+      targetInput.value = maxVal;
+      updatePreviewSummary();
     }
 
-    /* --- WALLET CONNECTION --- */
+    /* --- WALLET CONNECTION LOGIC --- */
     async function setupConnectedState(accountAddress) {
+      if (!window.ethers) return;
       try {
-        await ensureEthersLoaded();
         provider = new ethers.BrowserProvider(window.ethereum);
         signer = await provider.getSigner();
         connectedAccount = accountAddress;
 
         const shortAddr = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-        document.getElementById('addrDisplay').textContent = shortAddr;
-        document.getElementById('connectBtn').textContent = shortAddr;
+        
+        const addrDisplay = document.getElementById('addrDisplay');
+        const connectBtn = document.getElementById('connectBtn');
+        if (addrDisplay) addrDisplay.textContent = shortAddr;
+        if (connectBtn) connectBtn.textContent = shortAddr;
 
         setStatus("Wallet connected successfully.", "success");
         await updateBalanceDisplay();
       } catch (e) {
-        console.error("Setup error:", e);
-        setStatus("Failed to initialize wallet session.", "error");
+        setStatus("Failed to setup wallet session.", "error");
       }
-    }
-
-    function clearConnectedState() {
-      connectedAccount = null;
-      signer = null;
-      provider = null;
-      rawBalance = 0n;
-      document.getElementById('addrDisplay').textContent = "Not Connected";
-      document.getElementById('connectBtn').textContent = "Connect Wallet";
-      document.getElementById('balDisplay').textContent = "Balance: --";
-      setStatus("Wallet disconnected.");
     }
 
     async function connectWallet() {
-      try {
-        await ensureEthersLoaded();
-      } catch (e) {
-        return setStatus("Ethers.js library failed to load.", "error");
+      if (!window.ethers) {
+        return setStatus("Ethers.js library not loaded. Please refresh.", "error");
       }
-
       if (!window.ethereum) {
-        return setStatus("No Web3 wallet detected. Please install Rabby or MetaMask.", "error");
+        return setStatus("No Web3 wallet detected. Please install Rabby, MetaMask, or OKX Wallet.", "error");
       }
 
       try {
@@ -490,8 +658,8 @@
               method: 'wallet_switchEthereumChain',
               params: [{ chainId: CONFIG.chainIdHex }]
             });
-          } catch (e) {
-            return setStatus("Please switch your wallet to Polygon Mainnet.", "error");
+          } catch (switchError) {
+            return setStatus("Please switch your wallet network to Polygon Mainnet.", "error");
           }
         }
 
@@ -500,83 +668,73 @@
           await setupConnectedState(accounts[0]);
         }
       } catch (e) {
-        setStatus(parseWeb3Error(e), "error");
+        setStatus(e.reason || e.message || "Connection rejected.", "error");
       }
     }
 
-    /* --- TRANSFER TRANSACTION --- */
-    async function sendTransfer() {
-      if (!signer || !connectedAccount) return setStatus("Please connect your wallet first.", "error");
+    /* --- TRANSACTIONS --- */
+    async function createEscrowVault() {
+      if (!signer) return setStatus("Please connect your wallet first.", "error");
+      const recipient = document.getElementById('recipient')?.value.trim();
+      const amount = document.getElementById('grossAmount')?.value.trim();
+      
+      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", "error");
+      if (!amount || Number(amount) <= 0) return setStatus("Please enter a valid amount.", "error");
 
-      const recipient = document.getElementById('recipient').value.trim();
-      const rawAmount = document.getElementById('amount').value.trim();
-      const selectedKey = document.getElementById('assetSelect').value;
+      setStatus("Processing escrow deposit... Confirm transaction in wallet.");
+    }
+
+    async function sendInstantTransfer() {
+      if (!signer) return setStatus("Please connect your wallet first.", "error");
+      const recipient = document.getElementById('instantRecipient')?.value.trim();
+      const rawAmount = document.getElementById('instantAmount')?.value.trim();
+      const selectedKey = document.getElementById('instantAsset')?.value || 'POL';
       const token = TOKENS[selectedKey];
 
       if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", "error");
-      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid amount greater than 0.", "error");
+      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid transfer amount.", "error");
 
       try {
         const parsedAmount = ethers.parseUnits(rawAmount, token.decimals);
-        
-        if (parsedAmount > rawBalance) {
-          return setStatus(`Insufficient balance. You do not have enough ${token.symbol}.`, "error");
-        }
-
-        setStatus(`Preparing ${token.symbol} transfer... Please confirm in your wallet.`);
+        setStatus(`Preparing ${token.symbol} transfer... Please confirm in wallet.`);
 
         let tx;
         if (token.type === 'native') {
-          tx = await signer.sendTransaction({
-            to: recipient,
-            value: parsedAmount
-          });
+          tx = await signer.sendTransaction({ to: recipient, value: parsedAmount });
         } else {
           const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
           tx = await tokenContract.transfer(recipient, parsedAmount);
         }
 
-        setStatus(`Transaction submitted. Awaiting network confirmation...<br>Tx Hash: <code>${tx.hash.substring(0, 10)}...${tx.hash.substring(58)}</code>`);
+        setStatus(`Transaction submitted! Awaiting network confirmation...<br>Tx Hash: <code>${tx.hash.substring(0, 16)}...</code>`);
         const receipt = await tx.wait();
 
-        const scanUrl = `https://polygonscan.com/tx/${receipt.hash}`;
-        setStatus(`
-          ⚡ Transfer completed successfully!<br>
-          <strong>Tx Hash:</strong> <a href="${scanUrl}" target="_blank">${receipt.hash.substring(0, 16)}... ↗</a>
-        `, "success");
-
+        setStatus(`⚡ Transfer successfully confirmed on Polygon!<br><a href="https://polygonscan.com/tx/${receipt.hash}" target="_blank">View on Polygonscan ↗</a>`, "success");
         await updateBalanceDisplay();
       } catch (e) {
-        setStatus(parseWeb3Error(e), "error");
+        setStatus(e.reason || e.message || "Transfer transaction failed.", "error");
       }
     }
 
-    /* --- INITIALIZATION & EVENT LISTENERS --- */
+    /* --- INITIALIZATION --- */
     window.addEventListener('DOMContentLoaded', async () => {
-      try {
-        await ensureEthersLoaded();
-        setStatus("System ready. Please connect your wallet.");
+      updatePreviewSummary();
+      setStatus("System ready. Connect wallet to proceed.");
 
-        if (window.ethereum) {
+      if (window.ethereum) {
+        try {
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
           if (accounts.length > 0) {
             await setupConnectedState(accounts[0]);
           }
+        } catch (err) {}
 
-          window.ethereum.on('accountsChanged', async (accs) => {
-            if (accs.length > 0) {
-              await setupConnectedState(accs[0]);
-            } else {
-              clearConnectedState();
-            }
-          });
+        window.ethereum.on('accountsChanged', (accs) => {
+          if (accs.length > 0) setupConnectedState(accs[0]);
+          else window.location.reload();
+        });
 
-          window.ethereum.on('chainChanged', () => {
-            window.location.reload();
-          });
-        }
-      } catch (err) {
-        setStatus("Ethers library failed to load. Please check your internet connection.", "error");
+        window.ethereum.on('chainChanged', () => window.location.reload());
       }
     });
   </script>
