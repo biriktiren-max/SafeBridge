@@ -19,6 +19,7 @@
       --cyan-muted: #38bdf8;
       --green-accent: #059669;
       --green-bright: #10b981;
+      --red-bright: #ef4444;
       --warning-bg: rgba(180, 83, 9, 0.15);
       --warning-border: rgba(245, 158, 11, 0.3);
       --warning-text: #fef3c7;
@@ -77,7 +78,7 @@
       background: rgba(16, 185, 129, 0.1);
       border: 1px solid var(--green-accent);
       color: #6ee7b7;
-      padding: 8px 16px;
+      padding: 9px 18px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
@@ -92,7 +93,7 @@
       background: #0284c7;
       color: white;
       border: none;
-      padding: 9px 18px;
+      padding: 10px 20px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 700;
@@ -150,6 +151,7 @@
       display: flex;
       gap: 8px;
       margin-bottom: 24px;
+      overflow-x: auto;
     }
 
     .tab-btn {
@@ -162,6 +164,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     .tab-btn.active {
@@ -274,7 +277,7 @@
     </div>
 
     <div class="status-banner" id="statusBox">
-      OKX Wallet connected successfully.
+      System initializing... Please connect your wallet.
     </div>
 
     <div class="main-grid">
@@ -297,7 +300,7 @@
           <div class="form-group">
             <label>Asset</label>
             <select id="assetSelect" onchange="updatePreviewSummary()">
-              <option value="POL">POL</option>
+              <option value="POL">POL (Native)</option>
               <option value="USDT">USDT</option>
               <option value="USDTE">USDT.e</option>
               <option value="PAXG">PAXG</option>
@@ -307,11 +310,11 @@
           <div class="grid-2-col">
             <div class="form-group">
               <label>Gross Amount</label>
-              <input type="number" id="grossAmount" placeholder="0.0" step="0.0001" oninput="updatePreviewSummary()" />
+              <input type="number" id="grossAmount" placeholder="0.0" step="0.000001" min="0" oninput="updatePreviewSummary()" />
             </div>
             <div class="form-group">
               <label>Timelock (Hours)</label>
-              <input type="number" id="timelockHours" placeholder="24" value="24" />
+              <input type="number" id="timelockHours" placeholder="24" value="24" min="1" />
             </div>
           </div>
 
@@ -326,30 +329,31 @@
             </div>
           </div>
 
-          <button class="btn-submit" onclick="createVault()">🔒 Create Escrow Vault</button>
+          <button class="btn-submit" onclick="createVault()">🔒 Deposit & Lock Escrow</button>
         </div>
 
         <div id="panelRelease" class="view-panel">
           <h2 style="margin: 0 0 16px 0; font-size: 20px;">Release Vault Funds</h2>
           <div class="form-group">
             <label>Vault ID</label>
-            <input type="number" id="releaseVaultId" placeholder="1" />
+            <input type="number" id="releaseVaultId" placeholder="e.g. 1" />
           </div>
-          <button class="btn-submit" onclick="releaseVault()">🔓 Release Funds</button>
+          <button class="btn-submit" onclick="releaseVault()">🔓 Release Funds to Recipient</button>
         </div>
 
         <div id="panelRefund" class="view-panel">
           <h2 style="margin: 0 0 16px 0; font-size: 20px;">Request Refund</h2>
           <div class="form-group">
             <label>Vault ID</label>
-            <input type="number" id="refundVaultId" placeholder="1" />
+            <input type="number" id="refundVaultId" placeholder="e.g. 1" />
           </div>
-          <button class="btn-submit" style="background:#dc2626;" onclick="refundVault()">↩ Reclaim Funds</button>
+          <button class="btn-submit" style="background:#dc2626;" onclick="refundVault()">↩ Reclaim Escrowed Funds</button>
         </div>
 
         <div id="panelDash" class="view-panel">
           <h2 style="margin: 0 0 16px 0; font-size: 20px;">Active Vault Overview</h2>
-          <p style="font-size:13px; color:var(--text-muted);">Connect wallet to query existing vaults linked to your address.</p>
+          <p style="font-size:13px; color:var(--text-muted);">Connect wallet to view active vaults and transaction statuses.</p>
+          <div id="dashContent" style="font-size:13px; color:var(--cyan-muted);">-- No active query --</div>
         </div>
 
         <div id="panelInstant" class="view-panel">
@@ -362,7 +366,7 @@
             <div class="form-group">
               <label>Asset</label>
               <select id="instantAsset">
-                <option value="POL">POL</option>
+                <option value="POL">POL (Native)</option>
                 <option value="USDT">USDT</option>
                 <option value="USDTE">USDT.e</option>
                 <option value="PAXG">PAXG</option>
@@ -370,7 +374,7 @@
             </div>
             <div class="form-group">
               <label>Amount</label>
-              <input type="number" id="instantAmount" placeholder="0.0" />
+              <input type="number" id="instantAmount" placeholder="0.0" step="0.000001" min="0" />
             </div>
           </div>
           <button class="btn-submit" onclick="sendInstant()">⚡ Send Direct Transfer</button>
@@ -391,7 +395,7 @@
         </div>
 
         <div class="info-box">
-          <div class="lbl">Network</div>
+          <div class="lbl">Network Status</div>
           <div class="val" style="color:var(--green-bright);">Polygon Mainnet (Chain ID 137)</div>
         </div>
       </div>
@@ -399,11 +403,78 @@
   </div>
 
   <script>
-    function setStatus(msg) {
+    const CONFIG = {
+      chainIdHex: "0x89",
+      contractAddress: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6b12"
+    };
+
+    const TOKENS = {
+      POL: { symbol: "POL", type: "native", address: "0x0000000000000000000000000000000000000000", decimals: 18 },
+      USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
+      USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
+      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
+    };
+
+    const ESCROW_ABI = [
+      "function createEscrow(address recipient, address token, uint256 amount, uint256 timelockHours) external payable",
+      "function releaseEscrow(uint256 vaultId) external",
+      "function refundEscrow(uint256 vaultId) external"
+    ];
+
+    const ERC20_ABI = [
+      "function balanceOf(address account) external view returns (uint256)",
+      "function allowance(address owner, address spender) external view returns (uint256)",
+      "function approve(address spender, uint256 amount) external returns (bool)",
+      "function transfer(address recipient, uint256 amount) external returns (bool)"
+    ];
+
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+
+    /* STATUS BANNER HELPER */
+    function setStatus(msg, isError = false) {
       const el = document.getElementById('statusBox');
-      if (el) el.innerHTML = msg;
+      if (!el) return;
+      el.innerHTML = msg;
+      if (isError) {
+        el.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        el.style.color = '#fca5a5';
+        el.style.background = 'rgba(239, 68, 68, 0.1)';
+      } else {
+        el.style.borderColor = 'var(--green-accent)';
+        el.style.color = 'var(--green-bright)';
+        el.style.background = 'rgba(16, 185, 129, 0.08)';
+      }
     }
 
+    /* SAFE PREVIEW SUMMARY */
+    function updatePreviewSummary() {
+      const grossEl = document.getElementById('grossAmount');
+      const feeEl = document.getElementById('summaryFee');
+      const netEl = document.getElementById('summaryNet');
+      const assetEl = document.getElementById('assetSelect');
+
+      if (!grossEl || !feeEl || !netEl) return;
+
+      const raw = parseFloat(grossEl.value || "0");
+      const assetKey = assetEl ? assetEl.value : 'POL';
+      const token = TOKENS[assetKey] || TOKENS.POL;
+
+      if (isNaN(raw) || raw <= 0) {
+        feeEl.textContent = "0.00 " + token.symbol;
+        netEl.textContent = "0.00 " + token.symbol;
+        return;
+      }
+
+      const fee = raw * 0.01;
+      const net = raw - fee;
+
+      feeEl.textContent = fee.toFixed(4) + " " + token.symbol;
+      netEl.textContent = net.toFixed(4) + " " + token.symbol;
+    }
+
+    /* TAB SWITCHING */
     function switchTab(tabName) {
       const panels = ['panelCreate', 'panelRelease', 'panelRefund', 'panelDash', 'panelInstant'];
       const tabs = ['tabCreate', 'tabRelease', 'tabRefund', 'tabDash'];
@@ -435,62 +506,165 @@
       }
     }
 
-    function updatePreviewSummary() {
-      const grossEl = document.getElementById('grossAmount');
-      const feeEl = document.getElementById('summaryFee');
-      const netEl = document.getElementById('summaryNet');
-      const assetEl = document.getElementById('assetSelect');
-
-      if (!grossEl || !feeEl || !netEl) return;
-
-      const raw = parseFloat(grossEl.value || "0");
-      const asset = assetEl ? assetEl.value : 'POL';
-
-      if (isNaN(raw) || raw <= 0) {
-        feeEl.textContent = "0.00 " + asset;
-        netEl.textContent = "0.00 " + asset;
-        return;
-      }
-
-      const fee = raw * 0.01;
-      const net = raw - fee;
-
-      feeEl.textContent = fee.toFixed(4) + " " + asset;
-      netEl.textContent = net.toFixed(4) + " " + asset;
-    }
-
     function toggleGuide() {
-      alert("SafeBridge Global Escrow User Guide:\n\n1. Connect your Web3 wallet (OKX, Rabby, MetaMask).\n2. Select asset and enter recipient address.\n3. Deposit funds to lock into the smart contract.\n4. Release or refund based on the timelock duration.");
+      alert("SafeBridge Global Escrow Guide:\n\n1. Connect your Web3 wallet.\n2. Select asset (POL, USDT, USDT.e, PAXG).\n3. Enter recipient wallet address and timelock duration.\n4. Deposit funds to create escrow.\n5. Funds can be released to recipient or refunded after timelock expiry.");
     }
 
+    /* WALLET CONNECTION */
     async function connectWallet() {
       if (!window.ethereum) {
-        return setStatus("No Web3 wallet detected. Please install OKX or MetaMask.");
+        return setStatus("No Web3 wallet detected. Please install Rabby, OKX, or MetaMask.", true);
       }
+
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (accounts.length > 0) {
-          const acc = accounts[0];
-          const short = acc.substring(0, 6) + "..." + acc.substring(acc.length - 4);
-          document.getElementById('connectBtn').textContent = short;
-          setStatus("OKX Wallet connected successfully.");
+        setStatus("Connecting wallet...");
+        
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (chainId !== CONFIG.chainIdHex) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: CONFIG.chainIdHex }]
+            });
+          } catch (switchErr) {
+            return setStatus("Please switch network to Polygon Mainnet in your wallet.", true);
+          }
         }
+
+        provider = new ethers.BrowserProvider(window.ethereum);
+        signer = await provider.getSigner();
+        userAddress = await signer.getAddress();
+
+        const short = userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4);
+        const btn = document.getElementById('connectBtn');
+        if (btn) btn.textContent = short;
+
+        setStatus("Wallet connected successfully: " + short);
       } catch (e) {
-        setStatus("Wallet connection failed: " + (e.reason || e.message));
+        setStatus(e.reason || e.message || "Wallet connection rejected.", true);
       }
     }
 
+    /* CONTRACT TRANSACTIONS */
+    async function createVault() {
+      if (!signer) return setStatus("Please connect your wallet first.", true);
+
+      const recipient = document.getElementById('recipient')?.value.trim();
+      const rawAmount = document.getElementById('grossAmount')?.value.trim();
+      const timelock = document.getElementById('timelockHours')?.value.trim() || "24";
+      const assetKey = document.getElementById('assetSelect')?.value || 'POL';
+      const token = TOKENS[assetKey];
+
+      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", true);
+      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid amount.", true);
+
+      try {
+        const amountWei = ethers.parseUnits(rawAmount, token.decimals);
+        const contract = new ethers.Contract(CONFIG.contractAddress, ESCROW_ABI, signer);
+
+        if (token.type === 'native') {
+          setStatus("Submitting Native POL Escrow transaction...");
+          const tx = await contract.createEscrow(recipient, token.address, amountWei, timelock, { value: amountWei });
+          setStatus("Transaction submitted! Waiting for confirmation... Hash: " + tx.hash.substring(0, 12) + "...");
+          await tx.wait();
+          setStatus("Escrow vault successfully created on Polygon Mainnet!", false);
+        } else {
+          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
+          setStatus(`Checking ${token.symbol} allowance...`);
+          const allowance = await tokenContract.allowance(userAddress, CONFIG.contractAddress);
+
+          if (allowance < amountWei) {
+            setStatus(`Approving ${token.symbol} token spending... Confirm in wallet.`);
+            const approveTx = await tokenContract.approve(CONFIG.contractAddress, amountWei);
+            await approveTx.wait();
+          }
+
+          setStatus(`Creating ${token.symbol} Escrow Vault... Confirm in wallet.`);
+          const tx = await contract.createEscrow(recipient, token.address, amountWei, timelock);
+          setStatus("Transaction submitted! Waiting for confirmation... Hash: " + tx.hash.substring(0, 12) + "...");
+          await tx.wait();
+          setStatus("Escrow vault successfully created!", false);
+        }
+      } catch (e) {
+        setStatus(e.reason || e.message || "Escrow transaction failed.", true);
+      }
+    }
+
+    async function releaseVault() {
+      if (!signer) return setStatus("Please connect your wallet first.", true);
+      const vaultId = document.getElementById('releaseVaultId')?.value.trim();
+      if (!vaultId) return setStatus("Please enter a valid Vault ID.", true);
+
+      try {
+        const contract = new ethers.Contract(CONFIG.contractAddress, ESCROW_ABI, signer);
+        setStatus(`Releasing Vault #${vaultId}... Confirm in wallet.`);
+        const tx = await contract.releaseEscrow(vaultId);
+        await tx.wait();
+        setStatus(`Vault #${vaultId} funds successfully released!`, false);
+      } catch (e) {
+        setStatus(e.reason || e.message || "Release transaction failed.", true);
+      }
+    }
+
+    async function refundVault() {
+      if (!signer) return setStatus("Please connect your wallet first.", true);
+      const vaultId = document.getElementById('refundVaultId')?.value.trim();
+      if (!vaultId) return setStatus("Please enter a valid Vault ID.", true);
+
+      try {
+        const contract = new ethers.Contract(CONFIG.contractAddress, ESCROW_ABI, signer);
+        setStatus(`Requesting refund for Vault #${vaultId}... Confirm in wallet.`);
+        const tx = await contract.refundEscrow(vaultId);
+        await tx.wait();
+        setStatus(`Vault #${vaultId} funds successfully reclaimed!`, false);
+      } catch (e) {
+        setStatus(e.reason || e.message || "Refund transaction failed.", true);
+      }
+    }
+
+    async function sendInstant() {
+      if (!signer) return setStatus("Please connect your wallet first.", true);
+      const recipient = document.getElementById('instantRecipient')?.value.trim();
+      const rawAmount = document.getElementById('instantAmount')?.value.trim();
+      const assetKey = document.getElementById('instantAsset')?.value || 'POL';
+      const token = TOKENS[assetKey];
+
+      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient address.", true);
+      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid amount.", true);
+
+      try {
+        const amountWei = ethers.parseUnits(rawAmount, token.decimals);
+        setStatus(`Initiating instant ${token.symbol} transfer...`);
+
+        let tx;
+        if (token.type === 'native') {
+          tx = await signer.sendTransaction({ to: recipient, value: amountWei });
+        } else {
+          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
+          tx = await tokenContract.transfer(recipient, amountWei);
+        }
+
+        setStatus("Transfer submitted! Waiting for network confirmation...");
+        await tx.wait();
+        setStatus(`Instant ${token.symbol} transfer completed successfully!`, false);
+      } catch (e) {
+        setStatus(e.reason || e.message || "Instant transfer failed.", true);
+      }
+    }
+
+    /* INITIALIZATION */
     window.addEventListener('DOMContentLoaded', () => {
       updatePreviewSummary();
+
       if (window.ethereum) {
         window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
-          if (accounts.length > 0) {
-            const acc = accounts[0];
-            const short = acc.substring(0, 6) + "..." + acc.substring(acc.length - 4);
-            document.getElementById('connectBtn').textContent = short;
-            setStatus("OKX Wallet connected successfully.");
+          if (accounts && accounts.length > 0) {
+            connectWallet();
           }
         }).catch(() => {});
+
+        window.ethereum.on('accountsChanged', () => window.location.reload());
+        window.ethereum.on('chainChanged', () => window.location.reload());
       }
     });
   </script>
