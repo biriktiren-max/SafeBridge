@@ -1,494 +1,498 @@
-<script>
-  const APP_CONFIG = {
-    escrowContract: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12",
-    feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D",
-    feeRatePercent: 1,
-    chainIdHex: "0x89",
-    chainIdDec: 137
-  };
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SafeBridge Global — Polygon Escrow Protocol</title>
 
-  const TOKENS = {
-    POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
-    USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
-    USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
-    PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
-  };
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-  const ESCROW_ABI = [
-    "function createEscrow(address payable _recipient, address _token, uint256 _grossAmount, bytes32 _passwordHash, uint256 _duration) external payable",
-    "function releaseEscrow(uint256 _txId, string memory _password) external",
-    "function refundEscrow(uint256 _txId) external",
-    "function getTransaction(uint256 _txId) external view returns (address sender, address recipient, address token, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)",
-    "event EscrowCreated(uint256 indexed txId, address indexed sender, address indexed recipient, address token, uint256 grossAmount, uint256 feeAmount, uint256 netAmount, uint256 timelock)",
-    "event EscrowReleased(uint256 indexed txId)",
-    "event EscrowRefunded(uint256 indexed txId)"
-  ];
+  <style>
+    :root {
+      --bg-main: #050913;
+      --card-bg: #0b1320;
+      --input-bg: #070d18;
+      --border: #1a273d;
+      --text-main: #f3f4f6;
+      --text-muted: #94a3b8;
+      --cyan-bright: #00f2fe;
+      --cyan-muted: #38bdf8;
+      --green-accent: #059669;
+      --green-bright: #10b981;
+      --warning-bg: rgba(180, 83, 9, 0.15);
+      --warning-border: rgba(245, 158, 11, 0.3);
+      --warning-text: #fef3c7;
+    }
 
-  const ERC20_ABI = [
-    "function approve(address spender, uint256 amount) external returns (bool)",
-    "function allowance(address owner, address spender) external view returns (uint256)"
-  ];
+    * { box-sizing: border-box; }
 
-  let provider = null;
-  let signer = null;
-  let connectedAccount = null;
-  let escrowContract = null;
-  let activeEthereumProvider = null; // Bağlanan aktif eklenti objesini tutar
-  const discoveredWallets = [];
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-  /* --- SİSTEM BAŞLATICI VE CANLI DİNLENME --- */
-  window.addEventListener('DOMContentLoaded', async () => {
-    updatePreviewSummary();
+    .container {
+      width: 100%;
+      max-width: 1150px;
+    }
 
-    // EIP-6963 Cüzdan duyurularını iste
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    /* HEADER */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
 
-    if (window.ethereum) {
+    .brand h1 {
+      margin: 0;
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--cyan-bright);
+      letter-spacing: -0.5px;
+    }
+
+    .brand p {
+      margin: 4px 0 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav-outline {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid var(--green-accent);
+      color: #6ee7b7;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-nav-outline:hover { background: rgba(16, 185, 129, 0.2); }
+
+    .btn-wallet {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-wallet:hover { background: #0369a1; }
+
+    /* NOTICE BANNER */
+    .banner-notice {
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      color: var(--warning-text);
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    /* STATUS MESSAGE BOX */
+    .status-banner {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid var(--green-accent);
+      color: var(--green-bright);
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 24px;
+      word-break: break-all;
+    }
+
+    /* GRID LAYOUT */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 880px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* TABS */
+    .tab-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      background: #070d18;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: #111e33;
+      border-color: var(--cyan-muted);
+      color: #ffffff;
+    }
+
+    /* FORMS & INPUTS */
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus, .form-group select:focus { border-color: var(--cyan-muted); }
+
+    .grid-2-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(90deg, #0284c7, #2563eb);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-submit:hover { opacity: 0.9; }
+
+    /* SYSTEM INFO SIDEBAR */
+    .sys-info-title {
+      margin: 0 0 20px 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .info-box {
+      background: #070d18;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .info-box .lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .info-box .val {
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--cyan-muted);
+      word-break: break-all;
+    }
+
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <h1>SafeBridge Global</h1>
+        <p>Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System</p>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn-nav-outline" onclick="toggleGuide()">User Guide</button>
+        <button class="btn-nav-outline" onclick="switchTab('instant')">Instant Transfer</button>
+        <button class="btn-wallet" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+    </div>
+
+    <div class="banner-notice">
+      This version supports POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 1% fee is deducted from the sender's total amount, and the remaining amount becomes the net escrow value.
+    </div>
+
+    <div class="status-banner" id="statusBox">
+      OKX Wallet connected successfully.
+    </div>
+
+    <div class="main-grid">
+      <div class="card">
+        <div class="tab-row">
+          <button class="tab-btn active" id="tabCreate" onclick="switchTab('create')">Create Escrow</button>
+          <button class="tab-btn" id="tabRelease" onclick="switchTab('release')">Release</button>
+          <button class="tab-btn" id="tabRefund" onclick="switchTab('refund')">Refund</button>
+          <button class="tab-btn" id="tabDash" onclick="switchTab('dash')">DashView</button>
+        </div>
+
+        <div id="panelCreate" class="view-panel active">
+          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Initialize Secure Vault</h2>
+          
+          <div class="form-group">
+            <label>Recipient Address</label>
+            <input type="text" id="recipient" placeholder="0x..." />
+          </div>
+
+          <div class="form-group">
+            <label>Asset</label>
+            <select id="assetSelect" onchange="updatePreviewSummary()">
+              <option value="POL">POL</option>
+              <option value="USDT">USDT</option>
+              <option value="USDTE">USDT.e</option>
+              <option value="PAXG">PAXG</option>
+            </select>
+          </div>
+
+          <div class="grid-2-col">
+            <div class="form-group">
+              <label>Gross Amount</label>
+              <input type="number" id="grossAmount" placeholder="0.0" step="0.0001" oninput="updatePreviewSummary()" />
+            </div>
+            <div class="form-group">
+              <label>Timelock (Hours)</label>
+              <input type="number" id="timelockHours" placeholder="24" value="24" />
+            </div>
+          </div>
+
+          <div class="info-box" style="margin-top: 8px;">
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+              <span>Protocol Fee (1%):</span>
+              <span id="summaryFee" style="color:var(--text-main);">0.00 POL</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+              <span>Net Escrow Value:</span>
+              <span id="summaryNet" style="color:var(--cyan-muted);">0.00 POL</span>
+            </div>
+          </div>
+
+          <button class="btn-submit" onclick="createVault()">🔒 Create Escrow Vault</button>
+        </div>
+
+        <div id="panelRelease" class="view-panel">
+          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Release Vault Funds</h2>
+          <div class="form-group">
+            <label>Vault ID</label>
+            <input type="number" id="releaseVaultId" placeholder="1" />
+          </div>
+          <button class="btn-submit" onclick="releaseVault()">🔓 Release Funds</button>
+        </div>
+
+        <div id="panelRefund" class="view-panel">
+          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Request Refund</h2>
+          <div class="form-group">
+            <label>Vault ID</label>
+            <input type="number" id="refundVaultId" placeholder="1" />
+          </div>
+          <button class="btn-submit" style="background:#dc2626;" onclick="refundVault()">↩ Reclaim Funds</button>
+        </div>
+
+        <div id="panelDash" class="view-panel">
+          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Active Vault Overview</h2>
+          <p style="font-size:13px; color:var(--text-muted);">Connect wallet to query existing vaults linked to your address.</p>
+        </div>
+
+        <div id="panelInstant" class="view-panel">
+          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Instant Direct Transfer</h2>
+          <div class="form-group">
+            <label>Recipient Address</label>
+            <input type="text" id="instantRecipient" placeholder="0x..." />
+          </div>
+          <div class="grid-2-col">
+            <div class="form-group">
+              <label>Asset</label>
+              <select id="instantAsset">
+                <option value="POL">POL</option>
+                <option value="USDT">USDT</option>
+                <option value="USDTE">USDT.e</option>
+                <option value="PAXG">PAXG</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Amount</label>
+              <input type="number" id="instantAmount" placeholder="0.0" />
+            </div>
+          </div>
+          <button class="btn-submit" onclick="sendInstant()">⚡ Send Direct Transfer</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="sys-info-title">System Information</h3>
+
+        <div class="info-box">
+          <div class="lbl">Contract Address</div>
+          <div class="val">0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6b12</div>
+        </div>
+
+        <div class="info-box">
+          <div class="lbl">Fee Recipient</div>
+          <div class="val">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
+        </div>
+
+        <div class="info-box">
+          <div class="lbl">Network</div>
+          <div class="val" style="color:var(--green-bright);">Polygon Mainnet (Chain ID 137)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setStatus(msg) {
+      const el = document.getElementById('statusBox');
+      if (el) el.innerHTML = msg;
+    }
+
+    function switchTab(tabName) {
+      const panels = ['panelCreate', 'panelRelease', 'panelRefund', 'panelDash', 'panelInstant'];
+      const tabs = ['tabCreate', 'tabRelease', 'tabRefund', 'tabDash'];
+
+      panels.forEach(id => {
+        const p = document.getElementById(id);
+        if (p) p.classList.remove('active');
+      });
+
+      tabs.forEach(id => {
+        const t = document.getElementById(id);
+        if (t) t.classList.remove('active');
+      });
+
+      if (tabName === 'create') {
+        document.getElementById('panelCreate')?.classList.add('active');
+        document.getElementById('tabCreate')?.classList.add('active');
+      } else if (tabName === 'release') {
+        document.getElementById('panelRelease')?.classList.add('active');
+        document.getElementById('tabRelease')?.classList.add('active');
+      } else if (tabName === 'refund') {
+        document.getElementById('panelRefund')?.classList.add('active');
+        document.getElementById('tabRefund')?.classList.add('active');
+      } else if (tabName === 'dash') {
+        document.getElementById('panelDash')?.classList.add('active');
+        document.getElementById('tabDash')?.classList.add('active');
+      } else if (tabName === 'instant') {
+        document.getElementById('panelInstant')?.classList.add('active');
+      }
+    }
+
+    function updatePreviewSummary() {
+      const grossEl = document.getElementById('grossAmount');
+      const feeEl = document.getElementById('summaryFee');
+      const netEl = document.getElementById('summaryNet');
+      const assetEl = document.getElementById('assetSelect');
+
+      if (!grossEl || !feeEl || !netEl) return;
+
+      const raw = parseFloat(grossEl.value || "0");
+      const asset = assetEl ? assetEl.value : 'POL';
+
+      if (isNaN(raw) || raw <= 0) {
+        feeEl.textContent = "0.00 " + asset;
+        netEl.textContent = "0.00 " + asset;
+        return;
+      }
+
+      const fee = raw * 0.01;
+      const net = raw - fee;
+
+      feeEl.textContent = fee.toFixed(4) + " " + asset;
+      netEl.textContent = net.toFixed(4) + " " + asset;
+    }
+
+    function toggleGuide() {
+      alert("SafeBridge Global Escrow User Guide:\n\n1. Connect your Web3 wallet (OKX, Rabby, MetaMask).\n2. Select asset and enter recipient address.\n3. Deposit funds to lock into the smart contract.\n4. Release or refund based on the timelock duration.");
+    }
+
+    async function connectWallet() {
+      if (!window.ethereum) {
+        return setStatus("No Web3 wallet detected. Please install OKX or MetaMask.");
+      }
       try {
-        // Sayfa açılışında sessiz kontrol (Popup açmaz)
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts && accounts.length > 0) {
-          await connectToWalletProvider(window.ethereum, accounts[0], 'Varsayılan Cüzdan');
-        } else {
-          setStatus('Sistem hazır. Lütfen cüzdanınızı bağlayın.');
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (accounts.length > 0) {
+          const acc = accounts[0];
+          const short = acc.substring(0, 6) + "..." + acc.substring(acc.length - 4);
+          document.getElementById('connectBtn').textContent = short;
+          setStatus("OKX Wallet connected successfully.");
         }
       } catch (e) {
-        setStatus('Sistem hazır. Lütfen cüzdanınızı bağlayın.');
+        setStatus("Wallet connection failed: " + (e.reason || e.message));
       }
-    } else {
-      setStatus('Web3 Provider bulunamadı. Lütfen bir cüzdan eklentisi kurun.', 'error');
-    }
-  });
-
-  /* Dinamik Cüzdan Dinleyicisi (Aşırı Kritik: Rabby/OKX/MetaMask geçişleri için) */
-  function setupProviderListeners(ethProvider) {
-    if (!ethProvider || typeof ethProvider.on !== 'function') return;
-
-    ethProvider.on('accountsChanged', async (accs) => {
-      if (accs && accs.length > 0) {
-        await connectToWalletProvider(ethProvider, accs[0], 'Cüzdan');
-      } else {
-        disconnectState();
-      }
-    });
-
-    ethProvider.on('chainChanged', () => {
-      window.location.reload();
-    });
-  }
-
-  async function connectToWalletProvider(ethProvider, targetAccount = null, walletName = 'Cüzdan') {
-    try {
-      await ensureEthersLoaded();
-    } catch (e) {
-      return setStatus('Ethers.js kütüphanesi yüklenemedi.', 'error');
     }
 
-    try {
-      setStatus(`${walletName} bağlantısı kuruluyor...`);
-      activeEthereumProvider = ethProvider;
-      setupProviderListeners(activeEthereumProvider);
-
-      provider = new ethers.BrowserProvider(ethProvider);
-
-      // Ağ Kontrolü (Polygon Mainnet - 137)
-      const chainId = await ethProvider.request({ method: 'eth_chainId' });
-      if (chainId !== APP_CONFIG.chainIdHex) {
-        try {
-          await ethProvider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: APP_CONFIG.chainIdHex }]
-          });
-        } catch (e) {
-          return setStatus('Lütfen Polygon Mainnet (137) ağına geçiş yapın.', 'error');
-        }
-      }
-
-      let accounts = targetAccount ? [targetAccount] : [];
-      if (!targetAccount) {
-        accounts = await provider.send('eth_requestAccounts', []);
-      }
-
-      connectedAccount = accounts[0];
-      signer = await provider.getSigner();
-      escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
-
-      const btn = document.getElementById('connectBtn');
-      if (btn) btn.textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-
-      setStatus(`Bağlandı: ${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`, 'success');
-      closeModal();
-    } catch (e) {
-      setStatus(parseWeb3Error(e), 'error');
-    }
-  }
-
-  function disconnectState() {
-    provider = null;
-    signer = null;
-    connectedAccount = null;
-    escrowContract = null;
-    activeEthereumProvider = null;
-    const btn = document.getElementById('connectBtn');
-    if (btn) btn.textContent = 'Connect Wallet';
-    setStatus('Cüzdan bağlantısı kesildi.', 'info');
-  }
-
-  /* --- MODAL VE EIP-6963 CÜZDAN ALGILAMA --- */
-  function openModal() {
-    const modal = document.getElementById('walletModal');
-    if (modal) modal.classList.add('active');
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
-    
-    // Eğer EIP-6963 ile cüzdan yakalanamadıysa varsayılan injected cüzdanı listelet
-    if (discoveredWallets.length === 0 && window.ethereum) {
-      renderDefaultInjectedCard();
-    }
-  }
-
-  function closeModal() {
-    const modal = document.getElementById('walletModal');
-    if (modal) modal.classList.remove('active');
-  }
-
-  window.addEventListener("eip6963:announceProvider", (event) => {
-    const providerDetail = event.detail;
-    if (!discoveredWallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
-      discoveredWallets.push(providerDetail);
-      renderWalletCard(providerDetail);
-    }
-  });
-
-  function renderWalletCard(walletDetail) {
-    const walletListContainer = document.getElementById('walletList');
-    if (!walletListContainer) return;
-
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'wallet-card';
-    card.innerHTML = `
-      <img src="${walletDetail.info.icon}" alt="${walletDetail.info.name}" />
-      <div class="wallet-info">
-        <span class="wallet-name">${walletDetail.info.name}</span>
-        <span class="wallet-desc">Tarayıcı Eklentisi</span>
-      </div>
-    `;
-
-    card.addEventListener('click', () => {
-      connectToWalletProvider(walletDetail.provider, null, walletDetail.info.name);
-    });
-
-    walletListContainer.appendChild(card);
-  }
-
-  function renderDefaultInjectedCard() {
-    const walletListContainer = document.getElementById('walletList');
-    if (!walletListContainer || walletListContainer.querySelector('.injected-card')) return;
-
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'wallet-card injected-card';
-    card.innerHTML = `
-      <div class="wallet-info">
-        <span class="wallet-name">Varsayılan Cüzdan</span>
-        <span class="wallet-desc">MetaMask / Rabby / Injected</span>
-      </div>
-    `;
-
-    card.addEventListener('click', () => {
-      connectToWalletProvider(window.ethereum, null, 'Tarayıcı Cüzdanı');
-    });
-
-    walletListContainer.appendChild(card);
-  }
-
-  function connectWallet() {
-    openModal();
-  }
-
-  /* --- HATA METNİ TEMİZLEYİCİ (UI/UX) --- */
-  function parseWeb3Error(error) {
-    if (!error) return 'Bilinmeyen bir hata oluştu.';
-    if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
-      return 'İşlem kullanıcı tarafından cüzdanda reddedildi.';
-    }
-    if (error.code === 'INSUFFICIENT_FUNDS' || error.message?.includes('insufficient funds')) {
-      return 'Hesabınızda işlem tutarı ve gas ücreti için yeterli POL bulunmuyor.';
-    }
-    return error.reason || error.shortMessage || error.message || 'İşlem sırasında hata oluştu.';
-  }
-
-  /* --- ARAYÜZ VE HESAPLAMA MANTIKLARI --- */
-  function switchTab(tabId, btn) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    const map = { create: 'panelCreate', release: 'panelRelease', refund: 'panelRefund', dash: 'panelDash' };
-    document.getElementById(map[tabId]).classList.add('active');
-    btn.classList.add('active');
-  }
-
-  function genPass() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-    const bytes = new Uint8Array(12);
-    crypto.getRandomValues(bytes);
-    let p = '';
-    for (let i = 0; i < bytes.length; i++) p += chars[bytes[i] % chars.length];
-    document.getElementById('pass').value = p;
-  }
-
-  function copyPass() {
-    const p = document.getElementById('pass').value.trim();
-    if (!p) return setStatus('Kopyalanacak şifre bulunamadı.', 'error');
-    navigator.clipboard.writeText(p);
-    setStatus('Şifre panoya kopyalandı!', 'success');
-  }
-
-  function setStatus(message, type = 'info') {
-    const box = document.getElementById('statusBox');
-    if (!box) return;
-    if (type === 'error') {
-      box.style.borderColor = 'var(--red)';
-      box.style.color = 'var(--red)';
-    } else if (type === 'success') {
-      box.style.borderColor = 'var(--emerald)';
-      box.style.color = 'var(--emerald)';
-    } else {
-      box.style.borderColor = 'var(--border)';
-      box.style.color = 'var(--text)';
-    }
-    box.textContent = message;
-  }
-
-  function getSelectedToken() {
-    return TOKENS[document.getElementById('assetSelect').value];
-  }
-
-  function getTokenMetaByAddress(tokenAddress) {
-    const normalized = String(tokenAddress || '').toLowerCase();
-    if (normalized === '0x0000000000000000000000000000000000000000') return TOKENS.POL;
-    for (const key of Object.keys(TOKENS)) {
-      const token = TOKENS[key];
-      if (token.address && token.address.toLowerCase() === normalized) return token;
-    }
-    return { symbol: 'UNKNOWN', decimals: 18, type: 'erc20', address: tokenAddress };
-  }
-
-  function calculatePreview(amountStr) {
-    const gross = Number(amountStr);
-    if (!Number.isFinite(gross) || gross <= 0) return { gross: 0, fee: 0, net: 0 };
-    const fee = gross * (APP_CONFIG.feeRatePercent / 100);
-    const net = gross - fee;
-    return { gross, fee, net };
-  }
-
-  function formatAmount(value) {
-    const num = Number(value);
-    if (!Number.isFinite(num)) return '0.00';
-    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-  }
-
-  function updateApprovalInfo() {
-    const token = getSelectedToken();
-    const box = document.getElementById('approvalFlowText');
-    if (!box) return;
-    if (token.type === 'native') {
-      box.textContent = 'POL tek adımda kilitlenir, Approve (onay) adımı gerektirmez.';
-    } else {
-      box.textContent = `${token.symbol} bir ERC-20 token'ıdır. 2 aşamalı işlem gerektirir: Önce Approve, sonra Create Escrow.`;
-    }
-  }
-
-  function updatePreviewSummary() {
-    const amountValue = document.getElementById('amount').value;
-    const preview = calculatePreview(amountValue);
-    const token = getSelectedToken();
-    document.getElementById('grossDisplay').textContent = `${formatAmount(preview.gross)} ${token.symbol}`;
-    document.getElementById('feeDisplay').textContent = `${formatAmount(preview.fee)} ${token.symbol}`;
-    document.getElementById('netDisplay').textContent = `${formatAmount(preview.net)} ${token.symbol}`;
-    document.getElementById('assetHint').textContent = `Varlık: ${token.symbol}`;
-    updateApprovalInfo();
-  }
-
-  /* --- SÖZLEŞME İŞLEMLERİ (CREATE, RELEASE, REFUND, DASHVIEW) --- */
-
-  // 1. ESCROW OLUŞTURMA
-  async function createEscrow() {
-    if (!signer || !escrowContract) return setStatus('Lütfen önce cüzdanınızı bağlayın.', 'error');
-
-    const recipient = document.getElementById('recipient').value.trim();
-    const rawAmount = document.getElementById('amount').value.trim();
-    const hours = document.getElementById('hours').value.trim();
-    const password = document.getElementById('pass').value.trim();
-    const token = getSelectedToken();
-
-    if (!ethers.isAddress(recipient)) return setStatus('Geçersiz alıcı adresi.', 'error');
-    if (!rawAmount || Number(rawAmount) <= 0) return setStatus('Tutar 0\'dan büyük olmalıdır.', 'error');
-    if (!password || password.length < 8) return setStatus('Şifre en az 8 karakter olmalıdır.', 'error');
-    if (hours === '' || Number(hours) < 0) return setStatus('Süre 0 veya daha fazla saat olmalıdır.', 'error');
-
-    try {
-      const grossAmountUnits = ethers.parseUnits(rawAmount, token.decimals);
-      const durationSeconds = BigInt(hours) * 3600n;
-      const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
-
-      // ERC-20 Yetkilendirme Kontrolü (Approve Step)
-      if (token.type === 'erc20') {
-        const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
-        setStatus('Harcama limiti kontrol ediliyor...');
-        const currentAllowance = await tokenContract.allowance(connectedAccount, APP_CONFIG.escrowContract);
-
-        if (currentAllowance < grossAmountUnits) {
-          setStatus('Token onay işlemi isteniyor (Approve)...');
-          const approveTx = await tokenContract.approve(APP_CONFIG.escrowContract, grossAmountUnits);
-          setStatus('Onay işlemi ağda doğrulanıyor...');
-          await approveTx.wait();
-          setStatus('Onay alındı. Escrow kilit işlemi başlatılıyor...', 'success');
-        }
-      }
-
-      setStatus('Escrow kilit işlemi cüzdana gönderildi...');
-      let tx;
-
-      if (token.type === 'native') {
-        tx = await escrowContract.createEscrow(
-          recipient,
-          ethers.ZeroAddress,
-          grossAmountUnits,
-          passwordHash,
-          durationSeconds,
-          { value: grossAmountUnits }
-        );
-      } else {
-        tx = await escrowContract.createEscrow(
-          recipient,
-          token.address,
-          grossAmountUnits,
-          passwordHash,
-          durationSeconds
-        );
-      }
-
-      setStatus('İşlem bloğa yazılıyor, lütfen bekleyin...');
-      const receipt = await tx.wait();
-
-      let txIdFound = null;
-      for (const log of receipt.logs) {
-        try {
-          const parsed = escrowContract.interface.parseLog(log);
-          if (parsed && parsed.name === 'EscrowCreated') {
-            txIdFound = parsed.args.txId.toString();
-            break;
-          }
-        } catch (_) {}
-      }
-
-      const resBox = document.getElementById('resultBox');
-      if (resBox) {
-        resBox.textContent = `İŞLEM BAŞARILI!\nTx Hash: ${receipt.hash}\nTransaction ID: ${txIdFound !== null ? txIdFound : 'Tespit Edilemedi'}\nBlok: ${receipt.blockNumber}`;
-      }
-
-      setStatus(`Escrow başarıyla oluşturuldu! ${txIdFound !== null ? 'İşlem ID: #' + txIdFound : ''}`, 'success');
-    } catch (e) {
-      console.error(e);
-      setStatus(parseWeb3Error(e), 'error');
-    }
-  }
-
-  // 2. KİLİT AÇMA (RELEASE)
-  async function releaseEscrow() {
-    if (!signer || !escrowContract) return setStatus('Lütfen önce cüzdanınızı bağlayın.', 'error');
-
-    const txId = document.getElementById('relTxId').value.trim();
-    const password = document.getElementById('relPass').value.trim();
-
-    if (txId === '' || Number(txId) < 0) return setStatus('Geçersiz İşlem ID.', 'error');
-    if (!password) return setStatus('Lütfen gizli şifreyi girin.', 'error');
-
-    try {
-      setStatus('Kilit açma işlemi başlatılıyor...');
-      const tx = await escrowContract.releaseEscrow(txId, password);
-      setStatus('İşlem ağda doğrulanıyor...');
-      const receipt = await tx.wait();
-
-      const resBox = document.getElementById('resultBox');
-      if (resBox) {
-        resBox.textContent = `KİLİT AÇILDI!\nTx Hash: ${receipt.hash}\nTransaction ID: ${txId}\nBlok: ${receipt.blockNumber}`;
-      }
-      setStatus(`İşlem #${txId} başarıyla çözüldü ve fonlar alıcıya aktarıldı!`, 'success');
-    } catch (e) {
-      console.error(e);
-      setStatus(parseWeb3Error(e), 'error');
-    }
-  }
-
-  // 3. ZAMAN AŞIMI İADESİ (REFUND)
-  async function refundEscrow() {
-    if (!signer || !escrowContract) return setStatus('Lütfen önce cüzdanınızı bağlayın.', 'error');
-
-    const txId = document.getElementById('refTxId').value.trim();
-    if (txId === '' || Number(txId) < 0) return setStatus('Geçersiz İşlem ID.', 'error');
-
-    try {
-      setStatus('İade talebi cüzdana gönderiliyor...');
-      const tx = await escrowContract.refundEscrow(txId);
-      setStatus('İşlem ağda doğrulanıyor...');
-      const receipt = await tx.wait();
-
-      const resBox = document.getElementById('resultBox');
-      if (resBox) {
-        resBox.textContent = `İADE EDİLDİ!\nTx Hash: ${receipt.hash}\nTransaction ID: ${txId}\nBlok: ${receipt.blockNumber}`;
-      }
-      setStatus(`İşlem #${txId} başarıyla iade edildi!`, 'success');
-    } catch (e) {
-      console.error(e);
-      setStatus(parseWeb3Error(e), 'error');
-    }
-  }
-
-  // 4. CANLI KASA SORGULAMA (DASHVIEW)
-  async function queryEscrow() {
-    let queryContract = escrowContract;
-
-    if (!queryContract) {
+    window.addEventListener('DOMContentLoaded', () => {
+      updatePreviewSummary();
       if (window.ethereum) {
-        const tempProvider = new ethers.BrowserProvider(window.ethereum);
-        queryContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, tempProvider);
-      } else {
-        return setStatus('Sorgulama yapmak için Web3 sağlayıcısı gerekli.', 'error');
+        window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
+          if (accounts.length > 0) {
+            const acc = accounts[0];
+            const short = acc.substring(0, 6) + "..." + acc.substring(acc.length - 4);
+            document.getElementById('connectBtn').textContent = short;
+            setStatus("OKX Wallet connected successfully.");
+          }
+        }).catch(() => {});
       }
-    }
-
-    const txId = document.getElementById('qTxId').value.trim();
-    if (txId === '' || Number(txId) < 0) return setStatus('Geçersiz İşlem ID.', 'error');
-
-    try {
-      setStatus(`İşlem ID #${txId} sorgulanıyor...`);
-      const txData = await queryContract.getTransaction(txId);
-
-      const statusMap = ["0 (Aktif / Kilitli)", "1 (Kilit Açıldı / Tamamlandı)", "2 (İade Edildi)"];
-      const tokenMeta = getTokenMetaByAddress(txData.token);
-      const amountFormatted = ethers.formatUnits(txData.amount, tokenMeta.decimals);
-      const timelockDate = new Date(Number(txData.timelock) * 1000).toLocaleString('tr-TR');
-      const createdDate = new Date(Number(txData.createdAt) * 1000).toLocaleString('tr-TR');
-
-      const resDiv = document.getElementById('dashResult');
-      if (resDiv) {
-        resDiv.style.display = 'block';
-        resDiv.innerHTML = `
-          <div class="dash-item"><strong>İşlem ID:</strong> #${txId}</div>
-          <div class="dash-item"><strong>Gönderen (Sender):</strong> ${txData.sender}</div>
-          <div class="dash-item"><strong>Alıcı (Recipient):</strong> ${txData.recipient}</div>
-          <div class="dash-item"><strong>Varlık (Asset):</strong> ${tokenMeta.symbol}</div>
-          <div class="dash-item"><strong>Net Escrow Tutarı:</strong> ${amountFormatted} ${tokenMeta.symbol}</div>
-          <div class="dash-item"><strong>Kilit Durumu:</strong> ${statusMap[txData.status] || txData.status}</div>
-          <div class="dash-item"><strong>Oluşturulma Tarihi:</strong> ${createdDate}</div>
-          <div class="dash-item"><strong>Kilit Açılma Zamanı (Timelock):</strong> ${timelockDate}</div>
-        `;
-      }
-      setStatus(`İşlem ID #${txId} bilgileri getirildi.`, 'success');
-    } catch (e) {
-      console.error(e);
-      setStatus(parseWeb3Error(e), 'error');
-    }
-  }
-</script>
+    });
+  </script>
+</body>
+</html>
