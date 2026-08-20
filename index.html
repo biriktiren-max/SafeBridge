@@ -3,675 +3,474 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge Global — Polygon Escrow Protocol</title>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+  <title>SafeBridge Global - Polygon Escrow</title>
+  <script src="[cdnjs.cloudflare.com](https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js)"></script>
   <style>
     :root {
-      --bg-main: #050913;
-      --card-bg: #0b1320;
-      --input-bg: #070d18;
-      --border: #1a273d;
-      --text-main: #f3f4f6;
-      --text-muted: #94a3b8;
-      --cyan-bright: #00f2fe;
-      --cyan-muted: #38bdf8;
-      --green-accent: #059669;
-      --green-bright: #10b981;
-      --warning-bg: rgba(180, 83, 9, 0.15);
-      --warning-border: rgba(245, 158, 11, 0.3);
-      --warning-text: #fef3c7;
+      --bg: #020617;
+      --bg-soft: #0f172a;
+      --panel: #111827;
+      --border: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --cyan: #22d3ee;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --white: #ffffff;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      padding: 24px;
-      background-color: var(--bg-main);
-      color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, var(--bg) 0%, #0b1120 100%);
+      color: var(--text);
+      line-height: 1.5;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
 
     .container {
-      width: 100%;
-      max-width: 1150px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
     }
 
-    /* HEADER */
     .header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
+      align-items: flex-start;
       gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
     }
 
-    .brand h1 {
+    .title {
       margin: 0;
-      font-size: 32px;
+      font-size: 42px;
       font-weight: 800;
-      color: var(--cyan-bright);
-      letter-spacing: -0.5px;
+      line-height: 1.1;
+      background: linear-gradient(90deg, var(--cyan), var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .brand p {
-      margin: 4px 0 0 0;
-      font-size: 13px;
-      color: var(--text-muted);
+    .subtitle {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 15px;
     }
 
-    .nav-buttons {
+    .wallet-box {
       display: flex;
+      gap: 10px;
       align-items: center;
-      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    .btn-nav-outline {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid var(--green-accent);
-      color: #6ee7b7;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s;
-    }
-
-    .btn-nav-outline:hover { background: rgba(16, 185, 129, 0.2); }
-
-    .btn-wallet {
-      background: #0284c7;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 13px;
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 18px;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .btn-wallet:hover { background: #0369a1; }
-
-    /* NOTICE BANNER */
-    .banner-notice {
-      background: var(--warning-bg);
-      border: 1px solid var(--warning-border);
-      color: var(--warning-text);
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 20px;
+    .btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
     }
 
-    /* STATUS MESSAGE BOX */
-    .status-banner {
-      background: rgba(16, 185, 129, 0.08);
-      border: 1px solid var(--green-accent);
-      color: var(--green-bright);
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 13px;
-      margin-bottom: 24px;
-      word-break: break-all;
+    .btn-primary {
+      background: linear-gradient(90deg, #0891b2, #0ea5e9);
+      color: white;
     }
 
-    /* GRID LAYOUT */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 24px;
+    .btn-success {
+      background: linear-gradient(90deg, #059669, #10b981);
+      color: white;
+      width: 100%;
+      margin-top: 10px;
     }
 
-    @media (max-width: 880px) {
-      .main-grid { grid-template-columns: 1fr; }
+    .btn-warning {
+      background: linear-gradient(90deg, #d97706, #f59e0b);
+      color: white;
+      width: 100%;
+      margin-top: 10px;
     }
 
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
-    /* TABS */
-    .tab-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      overflow-x: auto;
-    }
-
-    .tab-btn {
-      background: #070d18;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+    .btn-secondary {
+      background: #062f27;
+      color: #a7f3d0;
+      border: 1px solid #14532d;
       white-space: nowrap;
     }
 
-    .tab-btn.active {
-      background: #111e33;
-      border-color: var(--cyan-muted);
-      color: #ffffff;
-    }
-
-    /* FORMS & INPUTS */
-    .form-group { margin-bottom: 18px; }
-
-    .form-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-
-    .form-group input, .form-group select {
-      width: 100%;
-      background: var(--input-bg);
+    .status-box {
+      background: var(--bg-soft);
       border: 1px solid var(--border);
-      color: var(--text-main);
-      padding: 12px 14px;
-      border-radius: 8px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      margin-bottom: 18px;
+      display: block;
       font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
     }
 
-    .form-group input:focus, .form-group select:focus { border-color: var(--cyan-muted); }
+    .notice-box {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      color: #fde68a;
+      padding: 14px 16px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
 
-    .grid-2-col {
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      color: white;
+      border-color: var(--cyan);
+      background: rgba(14, 165, 233, 0.12);
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .field { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input, select {
+      width: 100%;
+      background: #020617;
+      color: var(--white);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--cyan);
+    }
+
+    .two-cols {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .three-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 14px;
     }
 
-    .btn-submit {
-      width: 100%;
-      background: linear-gradient(90deg, #0284c7, #2563eb);
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: opacity 0.2s;
+    .mono {
+      font-family: "Courier New", monospace;
+      word-break: break-all;
+      font-size: 13px;
+      color: var(--cyan);
     }
 
-    .btn-submit:hover { opacity: 0.9; }
-
-    /* SYSTEM INFO SIDEBAR */
-    .sys-info-title {
-      margin: 0 0 20px 0;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .info-box {
-      background: #070d18;
+    .dashboard-res {
+      margin-top: 15px;
+      background: #020617;
+      padding: 15px;
+      border-radius: 16px;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 16px;
     }
 
-    .info-box .lbl {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-muted);
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .meta-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .mini-card {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .mini-label {
+      color: var(--muted);
+      font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       margin-bottom: 6px;
     }
 
-    .info-box .val {
-      font-size: 12px;
-      font-family: monospace;
-      color: var(--cyan-muted);
-      word-break: break-all;
+    .big-number {
+      font-size: 28px;
+      font-weight: 800;
     }
 
-    .view-panel { display: none; }
-    .view-panel.active { display: block; }
+    .white { color: var(--white); }
+    .amber { color: var(--amber); }
+    .emerald { color: var(--emerald); }
+
+    .result-box {
+      min-height: 160px;
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      color: #cbd5e1;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+    }
+
+    .dash-item {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 13px;
+    }
+
+    @media (max-width: 960px) {
+      .top-grid, .two-cols, .three-cols {
+        grid-template-columns: 1fr;
+      }
+
+      .title {
+        font-size: 32px;
+      }
+    }
   </style>
 </head>
 <body>
-
   <div class="container">
-    <div class="header">
-      <div class="brand">
-        <h1>SafeBridge Global</h1>
-        <p>Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System</p>
+    <header class="header">
+      <div>
+        <h1 class="title">SafeBridge Global</h1>
+        <p class="subtitle">Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System</p>
       </div>
-      <div class="nav-buttons">
-        <button class="btn-nav-outline" onclick="toggleGuide()">User Guide</button>
-        <button class="btn-nav-outline" id="btnNavInstant" onclick="switchTab('instant')">Instant Transfer</button>
-        <button class="btn-wallet" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
-      </div>
-    </div>
 
-    <div class="banner-notice">
+      <div class="wallet-box">
+        <a href="user-guide.html" class="btn btn-secondary">User Guide</a>
+        <a href="instant.html" class="btn btn-secondary">Instant Transfer</a>
+        <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+    </header>
+
+    <div class="notice-box">
       This version supports POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 1% fee is deducted from the sender's total amount, and the remaining amount becomes the net escrow value.
     </div>
 
-    <div class="status-banner" id="statusBox">
-      System initializing... Please connect your wallet.
-    </div>
+    <div id="statusBox" class="status-box">System ready.</div>
 
-    <div class="main-grid">
+    <div class="top-grid">
       <div class="card">
-        <div class="tab-row">
-          <button class="tab-btn active" id="tabCreate" onclick="switchTab('create')">Create Escrow</button>
-          <button class="tab-btn" id="tabRelease" onclick="switchTab('release')">Release</button>
-          <button class="tab-btn" id="tabRefund" onclick="switchTab('refund')">Refund</button>
-          <button class="tab-btn" id="tabDash" onclick="switchTab('dash')">DashView</button>
-          <button class="tab-btn" id="tabInstant" onclick="switchTab('instant')">Instant Transfer</button>
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('create', this)">Create Escrow</button>
+          <button class="tab-btn" onclick="switchTab('release', this)">Release</button>
+          <button class="tab-btn" onclick="switchTab('refund', this)">Refund</button>
+          <button class="tab-btn" onclick="switchTab('dash', this)">DashView</button>
         </div>
 
-        <div id="panelCreate" class="view-panel active">
-          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Initialize Secure Vault</h2>
-          
-          <div class="form-group">
+        <div id="panelCreate" class="tab-panel active">
+          <h3>Initialize Secure Vault</h3>
+
+          <div class="field">
             <label>Recipient Address</label>
             <input type="text" id="recipient" placeholder="0x..." />
           </div>
 
-          <div class="form-group">
+          <div class="field">
             <label>Asset</label>
             <select id="assetSelect" onchange="updatePreviewSummary()">
-              <option value="POL">POL (Native)</option>
+              <option value="POL">POL</option>
               <option value="USDT">USDT</option>
               <option value="USDTE">USDT.e</option>
               <option value="PAXG">PAXG</option>
             </select>
           </div>
 
-          <div class="grid-2-col">
-            <div class="form-group">
+          <div class="two-cols">
+            <div class="field">
               <label>Gross Amount</label>
-              <input type="number" id="grossAmount" placeholder="0.0" step="0.000001" min="0" oninput="updatePreviewSummary()" />
+              <input type="number" id="amount" placeholder="0.01" step="0.000001" min="0.000001" />
             </div>
-            <div class="form-group">
+            <div class="field">
               <label>Timelock (Hours)</label>
-              <input type="number" id="timelockHours" placeholder="24" value="24" min="1" />
+              <input type="number" id="hours" value="1" min="0" max="8760" step="1" />
             </div>
           </div>
 
-          <div class="info-box" style="margin-top: 8px;">
-            <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
-              <span>Protocol Fee (1%):</span>
-              <span id="summaryFee" style="color:var(--text-main);">0.00 POL</span>
+          <div class="field">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+              <label style="margin-bottom:0;">Secret Password</label>
+              <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:8px 12px;">Generate</button>
             </div>
-            <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
-              <span>Net Escrow Value:</span>
-              <span id="summaryNet" style="color:var(--cyan-muted);">0.00 POL</span>
+            <input type="text" id="pass" placeholder="At least 8 characters" />
+            <div style="color:var(--muted); font-size:12px; margin-top:6px;">
+              This password will be used by the recipient during release.
             </div>
           </div>
 
-          <button class="btn-submit" onclick="createVault()">🔒 Deposit & Lock Escrow</button>
+          <div class="mini-card">
+            <div class="mini-label">Fee Preview</div>
+            <div class="three-cols">
+              <div>
+                <div class="mini-label">Gross</div>
+                <div id="grossDisplay" class="big-number white">0.00</div>
+              </div>
+              <div>
+                <div class="mini-label">Fee</div>
+                <div id="feeDisplay" class="big-number amber">0.00</div>
+              </div>
+              <div>
+                <div class="mini-label">Net</div>
+                <div id="netDisplay" class="big-number emerald">0.00</div>
+              </div>
+            </div>
+            <div id="assetHint" style="margin-top:10px; color:var(--muted); font-size:12px;">Asset: POL</div>
+          </div>
+
+          <div class="mini-card" style="margin-top:12px;">
+            <div class="mini-label">Approval Flow</div>
+            <div id="approvalFlowText" style="font-size:13px; color:var(--text);">
+              POL uses a single transaction only. ERC-20 assets such as USDT, USDT.e and PAXG require two steps: Approve first, then Create Escrow.
+            </div>
+          </div>
+
+          <button class="btn btn-success" onclick="createEscrow()">Create & Lock</button>
         </div>
 
-        <div id="panelRelease" class="view-panel">
-          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Release Vault Funds</h2>
-          <div class="form-group">
-            <label>Vault ID</label>
-            <input type="number" id="releaseVaultId" placeholder="e.g. 1" />
+        <div id="panelRelease" class="tab-panel">
+          <h3>Release Funds</h3>
+          <div class="field">
+            <label>Transaction ID</label>
+            <input type="number" id="relTxId" placeholder="0" min="0" step="1" />
           </div>
-          <button class="btn-submit" onclick="releaseVault()">🔓 Release Funds to Recipient</button>
+          <div class="field">
+            <label>Secret Password</label>
+            <input type="text" id="relPass" placeholder="Secret password" />
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="releaseEscrow()">Verify & Claim</button>
         </div>
 
-        <div id="panelRefund" class="view-panel">
-          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Request Refund</h2>
-          <div class="form-group">
-            <label>Vault ID</label>
-            <input type="number" id="refundVaultId" placeholder="e.g. 1" />
+        <div id="panelRefund" class="tab-panel">
+          <h3 style="color:var(--amber)">Timelock Refund</h3>
+          <div class="field">
+            <label>Transaction ID</label>
+            <input type="number" id="refTxId" placeholder="0" min="0" step="1" />
           </div>
-          <button class="btn-submit" style="background:#dc2626;" onclick="refundVault()">↩ Reclaim Escrowed Funds</button>
+          <button class="btn btn-warning" onclick="refundEscrow()">Request Refund</button>
         </div>
 
-        <div id="panelDash" class="view-panel">
-          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Active Vault Overview</h2>
-          <p style="font-size:13px; color:var(--text-muted);">Connect wallet to view active vaults and transaction statuses.</p>
-        </div>
-
-        <div id="panelInstant" class="view-panel">
-          <h2 style="margin: 0 0 16px 0; font-size: 20px;">Instant Direct Transfer</h2>
-          <div class="form-group">
-            <label>Recipient Address</label>
-            <input type="text" id="instantRecipient" placeholder="0x..." />
+        <div id="panelDash" class="tab-panel">
+          <h3>Live Vault Query</h3>
+          <div class="field">
+            <label>Transaction ID</label>
+            <input type="number" id="qTxId" placeholder="0" min="0" step="1" />
           </div>
-          <div class="grid-2-col">
-            <div class="form-group">
-              <label>Asset</label>
-              <select id="instantAsset">
-                <option value="POL">POL (Native)</option>
-                <option value="USDT">USDT</option>
-                <option value="USDTE">USDT.e</option>
-                <option value="PAXG">PAXG</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Amount</label>
-              <input type="number" id="instantAmount" placeholder="0.0" step="0.000001" min="0" />
-            </div>
-          </div>
-          <button class="btn-submit" onclick="sendInstant()">⚡ Send Direct Transfer</button>
+          <button class="btn btn-primary" style="width:100%;" onclick="queryEscrow()">Search</button>
+          <div id="dashResult" class="dashboard-res" style="display:none;"></div>
         </div>
       </div>
 
       <div class="card">
-        <h3 class="sys-info-title">System Information</h3>
-
-        <div class="info-box">
-          <div class="lbl">Contract Address</div>
-          <div class="val">0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6b12</div>
-        </div>
-
-        <div class="info-box">
-          <div class="lbl">Fee Recipient</div>
-          <div class="val">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
-        </div>
-
-        <div class="info-box">
-          <div class="lbl">Network Status</div>
-          <div class="val" style="color:var(--green-bright);">Polygon Mainnet (Chain ID 137)</div>
+        <h3>System Information</h3>
+        <div class="meta-grid">
+          <div class="mini-card">
+            <div class="mini-label">Contract Address</div>
+            <div class="mono">0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Fee Recipient</div>
+            <div class="mono">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Network</div>
+            <div>Polygon Mainnet (137)</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Token Configuration</div>
+            <div class="mono" id="tokenConfigBox"></div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Transaction Output</div>
+            <pre id="resultBox" class="result-box"></pre>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="footer">
+      SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol
     </div>
   </div>
 
   <script>
-    const CONFIG = {
+    const APP_CONFIG = {
+      escrowContract: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12",
+      feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D",
+      feeRatePercent: 1,
       chainIdHex: "0x89",
-      contractAddress: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6b12"
+      chainIdDec: 137
     };
 
     const TOKENS = {
-      POL: { symbol: "POL", type: "native", address: "0x0000000000000000000000000000000000000000", decimals: 18 },
-      USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
-      USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
-      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
-    };
-
-    const ESCROW_ABI = [
-      "function createEscrow(address recipient, address token, uint256 amount, uint256 timelockHours) external payable",
-      "function releaseEscrow(uint256 vaultId) external",
-      "function refundEscrow(uint256 vaultId) external"
-    ];
-
-    const ERC20_ABI = [
-      "function balanceOf(address account) external view returns (uint256)",
-      "function allowance(address owner, address spender) external view returns (uint256)",
-      "function approve(address spender, uint256 amount) external returns (bool)",
-      "function transfer(address recipient, uint256 amount) external returns (bool)"
-    ];
-
-    let provider = null;
-    let signer = null;
-    let userAddress = null;
-
-    /* STATUS BANNER HELPER */
-    function setStatus(msg, isError = false) {
-      const el = document.getElementById('statusBox');
-      if (!el) return;
-      el.innerHTML = msg;
-      if (isError) {
-        el.style.borderColor = 'rgba(239, 68, 68, 0.4)';
-        el.style.color = '#fca5a5';
-        el.style.background = 'rgba(239, 68, 68, 0.1)';
-      } else {
-        el.style.borderColor = 'var(--green-accent)';
-        el.style.color = 'var(--green-bright)';
-        el.style.background = 'rgba(16, 185, 129, 0.08)';
-      }
-    }
-
-    /* SAFE PREVIEW SUMMARY */
-    function updatePreviewSummary() {
-      const grossEl = document.getElementById('grossAmount');
-      const feeEl = document.getElementById('summaryFee');
-      const netEl = document.getElementById('summaryNet');
-      const assetEl = document.getElementById('assetSelect');
-
-      if (!grossEl || !feeEl || !netEl) return;
-
-      const raw = parseFloat(grossEl.value || "0");
-      const assetKey = assetEl ? assetEl.value : 'POL';
-      const token = TOKENS[assetKey] || TOKENS.POL;
-
-      if (isNaN(raw) || raw <= 0) {
-        feeEl.textContent = "0.00 " + token.symbol;
-        netEl.textContent = "0.00 " + token.symbol;
-        return;
-      }
-
-      const fee = raw * 0.01;
-      const net = raw - fee;
-
-      feeEl.textContent = fee.toFixed(4) + " " + token.symbol;
-      netEl.textContent = net.toFixed(4) + " " + token.symbol;
-    }
-
-    /* RELIABLE TAB SWITCHING */
-    function switchTab(tabName) {
-      const panels = ['panelCreate', 'panelRelease', 'panelRefund', 'panelDash', 'panelInstant'];
-      const tabs = ['tabCreate', 'tabRelease', 'tabRefund', 'tabDash', 'tabInstant'];
-
-      // Hide all panels
-      panels.forEach(id => {
-        const p = document.getElementById(id);
-        if (p) p.classList.remove('active');
-      });
-
-      // Deactivate all tab buttons
-      tabs.forEach(id => {
-        const t = document.getElementById(id);
-        if (t) t.classList.remove('active');
-      });
-
-      // Target ID formatting (e.g. 'instant' -> 'panelInstant' & 'tabInstant')
-      const formattedName = tabName.charAt(0).toUpperCase() + tabName.slice(1);
-      const targetPanel = document.getElementById('panel' + formattedName);
-      const targetTab = document.getElementById('tab' + formattedName);
-
-      if (targetPanel) targetPanel.classList.add('active');
-      if (targetTab) targetTab.classList.add('active');
-
-      // Highlight navigation button if Instant is selected
-      const navInstantBtn = document.getElementById('btnNavInstant');
-      if (navInstantBtn) {
-        if (tabName === 'instant') {
-          navInstantBtn.style.background = 'rgba(16, 185, 129, 0.3)';
-          navInstantBtn.style.borderColor = 'var(--cyan-bright)';
-        } else {
-          navInstantBtn.style.background = 'rgba(16, 185, 129, 0.1)';
-          navInstantBtn.style.borderColor = 'var(--green-accent)';
-        }
-      }
-    }
-
-    function toggleGuide() {
-      alert("SafeBridge Global Escrow Guide:\n\n1. Connect your Web3 wallet.\n2. Select asset (POL, USDT, USDT.e, PAXG).\n3. Enter recipient wallet address and timelock duration.\n4. Deposit funds to create escrow.\n5. Funds can be released to recipient or refunded after timelock expiry.");
-    }
-
-    /* WALLET CONNECTION */
-    async function connectWallet() {
-      if (!window.ethereum) {
-        return setStatus("No Web3 wallet detected. Please install Rabby, OKX, or MetaMask.", true);
-      }
-
-      try {
-        setStatus("Connecting wallet...");
-        
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== CONFIG.chainIdHex) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: CONFIG.chainIdHex }]
-            });
-          } catch (switchErr) {
-            return setStatus("Please switch network to Polygon Mainnet in your wallet.", true);
-          }
-        }
-
-        provider = new ethers.BrowserProvider(window.ethereum);
-        signer = await provider.getSigner();
-        userAddress = await signer.getAddress();
-
-        const short = userAddress.substring(0, 6) + "..." + userAddress.substring(userAddress.length - 4);
-        const btn = document.getElementById('connectBtn');
-        if (btn) btn.textContent = short;
-
-        setStatus("Wallet connected successfully: " + short);
-      } catch (e) {
-        setStatus(e.reason || e.message || "Wallet connection rejected.", true);
-      }
-    }
-
-    /* CONTRACT TRANSACTIONS */
-    async function createVault() {
-      if (!signer) return setStatus("Please connect your wallet first.", true);
-
-      const recipient = document.getElementById('recipient')?.value.trim();
-      const rawAmount = document.getElementById('grossAmount')?.value.trim();
-      const timelock = document.getElementById('timelockHours')?.value.trim() || "24";
-      const assetKey = document.getElementById('assetSelect')?.value || 'POL';
-      const token = TOKENS[assetKey];
-
-      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", true);
-      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid amount.", true);
-
-      try {
-        const amountWei = ethers.parseUnits(rawAmount, token.decimals);
-        const contract = new ethers.Contract(CONFIG.contractAddress, ESCROW_ABI, signer);
-
-        if (token.type === 'native') {
-          setStatus("Submitting Native POL Escrow transaction...");
-          const tx = await contract.createEscrow(recipient, token.address, amountWei, timelock, { value: amountWei });
-          setStatus("Transaction submitted! Waiting for confirmation...");
-          await tx.wait();
-          setStatus("Escrow vault successfully created on Polygon Mainnet!", false);
-        } else {
-          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
-          setStatus(`Checking ${token.symbol} allowance...`);
-          const allowance = await tokenContract.allowance(userAddress, CONFIG.contractAddress);
-
-          if (allowance < amountWei) {
-            setStatus(`Approving ${token.symbol} token spending... Confirm in wallet.`);
-            const approveTx = await tokenContract.approve(CONFIG.contractAddress, amountWei);
-            await approveTx.wait();
-          }
-
-          setStatus(`Creating ${token.symbol} Escrow Vault... Confirm in wallet.`);
-          const tx = await contract.createEscrow(recipient, token.address, amountWei, timelock);
-          setStatus("Transaction submitted! Waiting for confirmation...");
-          await tx.wait();
-          setStatus("Escrow vault successfully created!", false);
-        }
-      } catch (e) {
-        setStatus(e.reason || e.message || "Escrow transaction failed.", true);
-      }
-    }
-
-    async function releaseVault() {
-      if (!signer) return setStatus("Please connect your wallet first.", true);
-      const vaultId = document.getElementById('releaseVaultId')?.value.trim();
-      if (!vaultId) return setStatus("Please enter a valid Vault ID.", true);
-
-      try {
-        const contract = new ethers.Contract(CONFIG.contractAddress, ESCROW_ABI, signer);
-        setStatus(`Releasing Vault #${vaultId}... Confirm in wallet.`);
-        const tx = await contract.releaseEscrow(vaultId);
-        await tx.wait();
-        setStatus(`Vault #${vaultId} funds successfully released!`, false);
-      } catch (e) {
-        setStatus(e.reason || e.message || "Release transaction failed.", true);
-      }
-    }
-
-    async function refundVault() {
-      if (!signer) return setStatus("Please connect your wallet first.", true);
-      const vaultId = document.getElementById('refundVaultId')?.value.trim();
-      if (!vaultId) return setStatus("Please enter a valid Vault ID.", true);
-
-      try {
-        const contract = new ethers.Contract(CONFIG.contractAddress, ESCROW_ABI, signer);
-        setStatus(`Requesting refund for Vault #${vaultId}... Confirm in wallet.`);
-        const tx = await contract.refundEscrow(vaultId);
-        await tx.wait();
-        setStatus(`Vault #${vaultId} funds successfully reclaimed!`, false);
-      } catch (e) {
-        setStatus(e.reason || e.message || "Refund transaction failed.", true);
-      }
-    }
-
-    async function sendInstant() {
-      if (!signer) return setStatus("Please connect your wallet first.", true);
-      const recipient = document.getElementById('instantRecipient')?.value.trim();
-      const rawAmount = document.getElementById('instantAmount')?.value.trim();
-      const assetKey = document.getElementById('instantAsset')?.value || 'POL';
-      const token = TOKENS[assetKey];
-
-      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient address.", true);
-      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid amount.", true);
-
-      try {
-        const amountWei = ethers.parseUnits(rawAmount, token.decimals);
-        setStatus(`Initiating instant ${token.symbol} transfer...`);
-
-        let tx;
-        if (token.type === 'native') {
-          tx = await signer.sendTransaction({ to: recipient, value: amountWei });
-        } else {
-          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
-          tx = await tokenContract.transfer(recipient, amountWei);
-        }
-
-        setStatus("Transfer submitted! Waiting for network confirmation...");
-        await tx.wait();
-        setStatus(`Instant ${token.symbol} transfer completed successfully!`, false);
-      } catch (e) {
-        setStatus(e.reason || e.message || "Instant transfer failed.", true);
-      }
-    }
-
-    /* INITIALIZATION */
-    window.addEventListener('DOMContentLoaded', () => {
-      updatePreviewSummary();
-
-      if (window.ethereum) {
-        window.ethereum.request({ method: 'eth_accounts' }).then(accounts => {
-          if (accounts && accounts.length > 0) {
-            connectWallet();
-          }
-        }).catch(() => {});
-
-        window.ethereum.on('accountsChanged', () => window.location.reload());
-        window.ethereum.on('chainChanged', () => window.location.reload());
-      }
-    });
-  </script>
-</body>
-</html>
+      POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
+      USDT: { symbol: "USDT", type: "erc20
