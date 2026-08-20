@@ -19,7 +19,6 @@
       --cyan-muted: #38bdf8;
       --green-accent: #059669;
       --green-bright: #10b981;
-      --red-bright: #ef4444;
       --warning-bg: rgba(180, 83, 9, 0.15);
       --warning-border: rgba(245, 158, 11, 0.3);
       --warning-text: #fef3c7;
@@ -158,7 +157,7 @@
       background: #070d18;
       border: 1px solid var(--border);
       color: var(--text-muted);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 8px;
       font-size: 13px;
       font-weight: 600;
@@ -267,7 +266,7 @@
       </div>
       <div class="nav-buttons">
         <button class="btn-nav-outline" onclick="toggleGuide()">User Guide</button>
-        <button class="btn-nav-outline" onclick="switchTab('instant')">Instant Transfer</button>
+        <button class="btn-nav-outline" id="btnNavInstant" onclick="switchTab('instant')">Instant Transfer</button>
         <button class="btn-wallet" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
       </div>
     </div>
@@ -287,6 +286,7 @@
           <button class="tab-btn" id="tabRelease" onclick="switchTab('release')">Release</button>
           <button class="tab-btn" id="tabRefund" onclick="switchTab('refund')">Refund</button>
           <button class="tab-btn" id="tabDash" onclick="switchTab('dash')">DashView</button>
+          <button class="tab-btn" id="tabInstant" onclick="switchTab('instant')">Instant Transfer</button>
         </div>
 
         <div id="panelCreate" class="view-panel active">
@@ -353,7 +353,6 @@
         <div id="panelDash" class="view-panel">
           <h2 style="margin: 0 0 16px 0; font-size: 20px;">Active Vault Overview</h2>
           <p style="font-size:13px; color:var(--text-muted);">Connect wallet to view active vaults and transaction statuses.</p>
-          <div id="dashContent" style="font-size:13px; color:var(--cyan-muted);">-- No active query --</div>
         </div>
 
         <div id="panelInstant" class="view-panel">
@@ -474,35 +473,41 @@
       netEl.textContent = net.toFixed(4) + " " + token.symbol;
     }
 
-    /* TAB SWITCHING */
+    /* RELIABLE TAB SWITCHING */
     function switchTab(tabName) {
       const panels = ['panelCreate', 'panelRelease', 'panelRefund', 'panelDash', 'panelInstant'];
-      const tabs = ['tabCreate', 'tabRelease', 'tabRefund', 'tabDash'];
+      const tabs = ['tabCreate', 'tabRelease', 'tabRefund', 'tabDash', 'tabInstant'];
 
+      // Hide all panels
       panels.forEach(id => {
         const p = document.getElementById(id);
         if (p) p.classList.remove('active');
       });
 
+      // Deactivate all tab buttons
       tabs.forEach(id => {
         const t = document.getElementById(id);
         if (t) t.classList.remove('active');
       });
 
-      if (tabName === 'create') {
-        document.getElementById('panelCreate')?.classList.add('active');
-        document.getElementById('tabCreate')?.classList.add('active');
-      } else if (tabName === 'release') {
-        document.getElementById('panelRelease')?.classList.add('active');
-        document.getElementById('tabRelease')?.classList.add('active');
-      } else if (tabName === 'refund') {
-        document.getElementById('panelRefund')?.classList.add('active');
-        document.getElementById('tabRefund')?.classList.add('active');
-      } else if (tabName === 'dash') {
-        document.getElementById('panelDash')?.classList.add('active');
-        document.getElementById('tabDash')?.classList.add('active');
-      } else if (tabName === 'instant') {
-        document.getElementById('panelInstant')?.classList.add('active');
+      // Target ID formatting (e.g. 'instant' -> 'panelInstant' & 'tabInstant')
+      const formattedName = tabName.charAt(0).toUpperCase() + tabName.slice(1);
+      const targetPanel = document.getElementById('panel' + formattedName);
+      const targetTab = document.getElementById('tab' + formattedName);
+
+      if (targetPanel) targetPanel.classList.add('active');
+      if (targetTab) targetTab.classList.add('active');
+
+      // Highlight navigation button if Instant is selected
+      const navInstantBtn = document.getElementById('btnNavInstant');
+      if (navInstantBtn) {
+        if (tabName === 'instant') {
+          navInstantBtn.style.background = 'rgba(16, 185, 129, 0.3)';
+          navInstantBtn.style.borderColor = 'var(--cyan-bright)';
+        } else {
+          navInstantBtn.style.background = 'rgba(16, 185, 129, 0.1)';
+          navInstantBtn.style.borderColor = 'var(--green-accent)';
+        }
       }
     }
 
@@ -565,7 +570,7 @@
         if (token.type === 'native') {
           setStatus("Submitting Native POL Escrow transaction...");
           const tx = await contract.createEscrow(recipient, token.address, amountWei, timelock, { value: amountWei });
-          setStatus("Transaction submitted! Waiting for confirmation... Hash: " + tx.hash.substring(0, 12) + "...");
+          setStatus("Transaction submitted! Waiting for confirmation...");
           await tx.wait();
           setStatus("Escrow vault successfully created on Polygon Mainnet!", false);
         } else {
@@ -581,7 +586,7 @@
 
           setStatus(`Creating ${token.symbol} Escrow Vault... Confirm in wallet.`);
           const tx = await contract.createEscrow(recipient, token.address, amountWei, timelock);
-          setStatus("Transaction submitted! Waiting for confirmation... Hash: " + tx.hash.substring(0, 12) + "...");
+          setStatus("Transaction submitted! Waiting for confirmation...");
           await tx.wait();
           setStatus("Escrow vault successfully created!", false);
         }
