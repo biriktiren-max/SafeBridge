@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,7 +20,7 @@
 
         function loadNext() {
           if (index >= cdns.length) {
-            return reject(new Error("Ethers kütüphanesi CDN sunucularından yüklenemedi."));
+            return reject(new Error("Ethers library failed to load across all CDNs."));
           }
 
           const script = document.createElement('script');
@@ -288,29 +288,29 @@
   <div class="card">
     <div class="status-badge-box">
       <div>
-        <div style="color: var(--muted); font-size: 11px;">Bağlı Cüzdan</div>
-        <div id="addrDisplay" style="font-weight: 700; margin-top: 2px;">Bağlı Değil</div>
+        <div style="color: var(--muted); font-size: 11px;">Connected Wallet</div>
+        <div id="addrDisplay" style="font-weight: 700; margin-top: 2px;">Not Connected</div>
       </div>
       <div class="network-badge">
         <span class="dot"></span> Polygon Mainnet
       </div>
     </div>
 
-    <h2>Anında Transfer</h2>
+    <h2>Instant Transfer</h2>
     <p class="desc">
-      Polygon ağında POL, USDT, USDT.e ve PAXG varlıklarınızı cüzdandan cüzdana doğrudan ve komisyonsuz aktarın.
+      Direct wallet-to-wallet transfers for POL, USDT, USDT.e, and PAXG on Polygon Mainnet.
     </p>
 
     <div class="field">
-      <label for="recipient">Alıcı Cüzdan Adresi</label>
+      <label for="recipient">Recipient Wallet Address</label>
       <input type="text" id="recipient" placeholder="0x..." style="margin-top: 6px;" />
     </div>
 
     <div class="grid-2">
       <div class="field">
         <div class="label-wrapper">
-          <label for="amount">Miktar</label>
-          <span id="balDisplay" class="bal-text">Bakiye: --</span>
+          <label for="amount">Amount</label>
+          <span id="balDisplay" class="bal-text">Balance: --</span>
         </div>
         <div class="input-group">
           <input type="number" id="amount" placeholder="0.0" step="0.000001" min="0" />
@@ -319,7 +319,7 @@
       </div>
       <div class="field">
         <div class="label-wrapper">
-          <label for="assetSelect">Varlık</label>
+          <label for="assetSelect">Asset</label>
         </div>
         <select id="assetSelect" onchange="updateBalanceDisplay()">
           <option value="POL">POL (Native)</option>
@@ -330,9 +330,9 @@
       </div>
     </div>
 
-    <button class="btn-send" onclick="sendTransfer()">⚡ Anında Transferi Gönder</button>
+    <button class="btn-send" onclick="sendTransfer()">⚡ Send Instant Transfer</button>
 
-    <div id="statusBox" class="msg-box">Sistem başlatılıyor...</div>
+    <div id="statusBox" class="msg-box">System initializing...</div>
   </div>
 
   <div class="footer">
@@ -362,16 +362,16 @@
     let connectedAccount = null;
     let rawBalance = 0n;
 
-    /* --- UI HATA TEMİZLEYİCİ --- */
+    /* --- ERROR PARSER --- */
     function parseWeb3Error(error) {
-      if (!error) return "Bilinmeyen bir hata oluştu.";
+      if (!error) return "An unknown error occurred.";
       if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
-        return "İşlem cüzdanda kullanıcı tarafından reddedildi.";
+        return "Transaction rejected by user in wallet.";
       }
       if (error.code === 'INSUFFICIENT_FUNDS' || error.message?.includes('insufficient funds')) {
-        return "Hesabınızda bu transfer ve gas ücreti için yeterli bakiye yok.";
+        return "Insufficient funds in your account for this transfer and gas fee.";
       }
-      return error.reason || error.shortMessage || error.message || "Transfer işlemi başarısız oldu.";
+      return error.reason || error.shortMessage || error.message || "Transfer transaction failed.";
     }
 
     function setStatus(htmlMsg, type = 'info') {
@@ -392,11 +392,11 @@
       }
     }
 
-    /* --- CANLI BAKİYE VE MAX BUTONU MANTIĞI --- */
+    /* --- BALANCE DISPLAY & MAX BUTTON LOGIC --- */
     async function updateBalanceDisplay() {
       const balEl = document.getElementById('balDisplay');
       if (!signer || !connectedAccount) {
-        balEl.textContent = "Bakiye: --";
+        balEl.textContent = "Balance: --";
         return;
       }
 
@@ -404,7 +404,7 @@
       const token = TOKENS[selectedKey];
 
       try {
-        balEl.textContent = "Yükleniyor...";
+        balEl.textContent = "Loading...";
         if (token.type === 'native') {
           rawBalance = await provider.getBalance(connectedAccount);
         } else {
@@ -414,10 +414,10 @@
 
         const formatted = ethers.formatUnits(rawBalance, token.decimals);
         const displayVal = Number(formatted).toLocaleString('en-US', { maximumFractionDigits: 4 });
-        balEl.textContent = `Bakiye: ${displayVal} ${token.symbol}`;
+        balEl.textContent = `Balance: ${displayVal} ${token.symbol}`;
       } catch (e) {
-        console.error("Bakiye okuma hatası:", e);
-        balEl.textContent = "Bakiye okunamadı";
+        console.error("Failed to read balance:", e);
+        balEl.textContent = "Balance unavailable";
       }
     }
 
@@ -428,7 +428,7 @@
       
       let maxVal = ethers.formatUnits(rawBalance, token.decimals);
       
-      // POL Native transferlerinde Gas ücreti için küçük bir pay (0.01 POL) bırak
+      // Leave a small buffer for POL native transfers to cover gas (0.01 POL)
       if (token.type === 'native') {
         const gasBuffer = ethers.parseUnits("0.01", token.decimals);
         if (rawBalance > gasBuffer) {
@@ -438,7 +438,7 @@
       document.getElementById('amount').value = maxVal;
     }
 
-    /* --- CÜZDAN BAĞLANTISI --- */
+    /* --- WALLET CONNECTION --- */
     async function setupConnectedState(accountAddress) {
       try {
         await ensureEthersLoaded();
@@ -450,11 +450,11 @@
         document.getElementById('addrDisplay').textContent = shortAddr;
         document.getElementById('connectBtn').textContent = shortAddr;
 
-        setStatus("Cüzdan başarıyla bağlandı.", "success");
+        setStatus("Wallet connected successfully.", "success");
         await updateBalanceDisplay();
       } catch (e) {
         console.error("Setup error:", e);
-        setStatus("Cüzdan oturumu başlatılamadı.", "error");
+        setStatus("Failed to initialize wallet session.", "error");
       }
     }
 
@@ -463,25 +463,25 @@
       signer = null;
       provider = null;
       rawBalance = 0n;
-      document.getElementById('addrDisplay').textContent = "Bağlı Değil";
+      document.getElementById('addrDisplay').textContent = "Not Connected";
       document.getElementById('connectBtn').textContent = "Connect Wallet";
-      document.getElementById('balDisplay').textContent = "Bakiye: --";
-      setStatus("Cüzdan bağlantısı kesildi.");
+      document.getElementById('balDisplay').textContent = "Balance: --";
+      setStatus("Wallet disconnected.");
     }
 
     async function connectWallet() {
       try {
         await ensureEthersLoaded();
       } catch (e) {
-        return setStatus("Ethers.js kütüphanesi yüklenemedi.", "error");
+        return setStatus("Ethers.js library failed to load.", "error");
       }
 
       if (!window.ethereum) {
-        return setStatus("Web3 cüzdanı bulunamadı. Lütfen Rabby veya MetaMask yükleyin.", "error");
+        return setStatus("No Web3 wallet detected. Please install Rabby or MetaMask.", "error");
       }
 
       try {
-        setStatus("Cüzdana bağlanılıyor...");
+        setStatus("Connecting to wallet...");
 
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         if (chainId !== CONFIG.chainIdHex) {
@@ -491,7 +491,7 @@
               params: [{ chainId: CONFIG.chainIdHex }]
             });
           } catch (e) {
-            return setStatus("Lütfen cüzdanınızı Polygon Mainnet ağına geçirin.", "error");
+            return setStatus("Please switch your wallet to Polygon Mainnet.", "error");
           }
         }
 
@@ -504,26 +504,26 @@
       }
     }
 
-    /* --- TRANSFER İŞLEMİ --- */
+    /* --- TRANSFER TRANSACTION --- */
     async function sendTransfer() {
-      if (!signer || !connectedAccount) return setStatus("Lütfen önce cüzdanınızı bağlayın.", "error");
+      if (!signer || !connectedAccount) return setStatus("Please connect your wallet first.", "error");
 
       const recipient = document.getElementById('recipient').value.trim();
       const rawAmount = document.getElementById('amount').value.trim();
       const selectedKey = document.getElementById('assetSelect').value;
       const token = TOKENS[selectedKey];
 
-      if (!ethers.isAddress(recipient)) return setStatus("Geçersiz alıcı cüzdan adresi.", "error");
-      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Lütfen 0'dan büyük geçerli bir miktar girin.", "error");
+      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", "error");
+      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Please enter a valid amount greater than 0.", "error");
 
       try {
         const parsedAmount = ethers.parseUnits(rawAmount, token.decimals);
         
         if (parsedAmount > rawBalance) {
-          return setStatus(`Yetersiz bakiye. Hesabınızda yeterli ${token.symbol} bulunmuyor.`, "error");
+          return setStatus(`Insufficient balance. You do not have enough ${token.symbol}.`, "error");
         }
 
-        setStatus(`${token.symbol} transferi hazırlanıyor... Lütfen cüzdanınızdan onaylayın.`);
+        setStatus(`Preparing ${token.symbol} transfer... Please confirm in your wallet.`);
 
         let tx;
         if (token.type === 'native') {
@@ -536,36 +536,33 @@
           tx = await tokenContract.transfer(recipient, parsedAmount);
         }
 
-        setStatus(`İşlem cüzdandan gönderildi. Ağ onayı bekleniyor...<br>Tx Hash: <code>${tx.hash.substring(0, 10)}...${tx.hash.substring(58)}</code>`);
+        setStatus(`Transaction submitted. Awaiting network confirmation...<br>Tx Hash: <code>${tx.hash.substring(0, 10)}...${tx.hash.substring(58)}</code>`);
         const receipt = await tx.wait();
 
         const scanUrl = `https://polygonscan.com/tx/${receipt.hash}`;
         setStatus(`
-          ⚡ Transfer başarıyla tamamlandı!<br>
+          ⚡ Transfer completed successfully!<br>
           <strong>Tx Hash:</strong> <a href="${scanUrl}" target="_blank">${receipt.hash.substring(0, 16)}... ↗</a>
         `, "success");
 
-        // Transfer sonrası bakiyeyi anlık güncelle
         await updateBalanceDisplay();
       } catch (e) {
         setStatus(parseWeb3Error(e), "error");
       }
     }
 
-    /* --- OTOMATİK BAŞLATMA VE DİNLENME --- */
+    /* --- INITIALIZATION & EVENT LISTENERS --- */
     window.addEventListener('DOMContentLoaded', async () => {
       try {
         await ensureEthersLoaded();
-        setStatus("Sistem hazır. Lütfen cüzdanınızı bağlayın.");
+        setStatus("System ready. Please connect your wallet.");
 
         if (window.ethereum) {
-          // Sessiz cüzdan kontrolü
           const accounts = await window.ethereum.request({ method: 'eth_accounts' });
           if (accounts.length > 0) {
             await setupConnectedState(accounts[0]);
           }
 
-          // Cüzdan değişiklik dinleyicileri
           window.ethereum.on('accountsChanged', async (accs) => {
             if (accs.length > 0) {
               await setupConnectedState(accs[0]);
@@ -579,7 +576,7 @@
           });
         }
       } catch (err) {
-        setStatus("Ethers kütüphanesi yüklenemedi. İnternet bağlantınızı kontrol edin.", "error");
+        setStatus("Ethers library failed to load. Please check your internet connection.", "error");
       }
     });
   </script>
