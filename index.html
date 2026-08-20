@@ -1,941 +1,494 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SafeBridge Global - Polygon Escrow</title>
-  
-  <script>
-    function ensureEthersLoaded() {
-      return new Promise((resolve, reject) => {
-        if (window.ethers) return resolve(window.ethers);
+<script>
+  const APP_CONFIG = {
+    escrowContract: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12",
+    feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D",
+    feeRatePercent: 1,
+    chainIdHex: "0x89",
+    chainIdDec: 137
+  };
 
-        const cdns = [
-          "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
-          "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js",
-          "https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"
-        ];
+  const TOKENS = {
+    POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
+    USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
+    USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
+    PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
+  };
 
-        let index = 0;
+  const ESCROW_ABI = [
+    "function createEscrow(address payable _recipient, address _token, uint256 _grossAmount, bytes32 _passwordHash, uint256 _duration) external payable",
+    "function releaseEscrow(uint256 _txId, string memory _password) external",
+    "function refundEscrow(uint256 _txId) external",
+    "function getTransaction(uint256 _txId) external view returns (address sender, address recipient, address token, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)",
+    "event EscrowCreated(uint256 indexed txId, address indexed sender, address indexed recipient, address token, uint256 grossAmount, uint256 feeAmount, uint256 netAmount, uint256 timelock)",
+    "event EscrowReleased(uint256 indexed txId)",
+    "event EscrowRefunded(uint256 indexed txId)"
+  ];
 
-        function loadNext() {
-          if (index >= cdns.length) {
-            return reject(new Error("Ethers kütüphanesi hiçbir CDN üzerinden yüklenemedi."));
-          }
+  const ERC20_ABI = [
+    "function approve(address spender, uint256 amount) external returns (bool)",
+    "function allowance(address owner, address spender) external view returns (uint256)"
+  ];
 
-          const script = document.createElement('script');
-          script.src = cdns[index++];
-          script.onload = () => resolve(window.ethers);
-          script.onerror = () => loadNext();
-          document.head.appendChild(script);
-        }
+  let provider = null;
+  let signer = null;
+  let connectedAccount = null;
+  let escrowContract = null;
+  let activeEthereumProvider = null; // Bağlanan aktif eklenti objesini tutar
+  const discoveredWallets = [];
 
-        loadNext();
-      });
-    }
-  </script>
+  /* --- SİSTEM BAŞLATICI VE CANLI DİNLENME --- */
+  window.addEventListener('DOMContentLoaded', async () => {
+    updatePreviewSummary();
 
-  <style>
-    /* Modal Arka Plan Karartma */
-    .wallet-modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(5, 10, 20, 0.85);
-      backdrop-filter: blur(8px);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-      animation: fadeIn 0.25s ease-out;
-    }
+    // EIP-6963 Cüzdan duyurularını iste
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
 
-    .wallet-modal-overlay.active {
-      display: flex;
-    }
-
-    /* Modal Kutusu */
-    .wallet-modal-content {
-      background: #0d1527;
-      border: 1px solid rgba(0, 242, 254, 0.25);
-      box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
-      border-radius: 16px;
-      width: 90%;
-      max-width: 440px;
-      padding: 24px;
-      color: #ffffff;
-      font-family: system-ui, -apple-system, sans-serif;
-    }
-
-    .wallet-modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .wallet-modal-header h3 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #00f2fe;
-    }
-
-    .modal-close-btn {
-      background: transparent;
-      border: none;
-      color: #8a99ad;
-      font-size: 1.8rem;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .modal-close-btn:hover { color: #ffffff; }
-
-    .wallet-modal-subtitle {
-      font-size: 0.88rem;
-      color: #8a99ad;
-      margin-bottom: 20px;
-    }
-
-    /* Cüzdan Kartları Listesi */
-    .wallet-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 280px;
-      overflow-y: auto;
-    }
-
-    .wallet-card {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: #141f36;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 14px 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      width: 100%;
-      text-align: left;
-    }
-
-    .wallet-card:hover {
-      background: #1c2b4a;
-      border-color: #00f2fe;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 242, 254, 0.1);
-    }
-
-    .wallet-card img {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-    }
-
-    .wallet-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .wallet-name {
-      font-weight: 600;
-      font-size: 1rem;
-      color: #ffffff;
-    }
-
-    .wallet-desc {
-      font-size: 0.75rem;
-      color: #8a99ad;
-    }
-
-    /* Ayraç */
-    .wallet-divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      margin: 20px 0 14px 0;
-      color: #586980;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .wallet-divider::before, .wallet-divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .wallet-divider span { padding: 0 10px; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    :root {
-      --bg: #020617;
-      --bg-soft: #0f172a;
-      --panel: #111827;
-      --border: #1f2937;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --cyan: #22d3ee;
-      --emerald: #34d399;
-      --amber: #fbbf24;
-      --red: #f87171;
-      --white: #ffffff;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(180deg, var(--bg) 0%, #0b1120 100%);
-      color: var(--text);
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-    .container { max-width: 1180px; margin: 0 auto; padding: 24px 16px 40px; }
-    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-    .title {
-      margin: 0;
-      font-size: 42px;
-      font-weight: 800;
-      line-height: 1.1;
-      background: linear-gradient(90deg, var(--cyan), var(--emerald));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .subtitle { margin: 10px 0 0; color: var(--muted); font-size: 15px; }
-    .wallet-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .btn {
-      border: 0;
-      border-radius: 14px;
-      padding: 13px 18px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn:hover { transform: translateY(-1px); opacity: 0.92; }
-    .btn-primary { background: linear-gradient(90deg, #0891b2, #0ea5e9); color: white; }
-    .btn-success { background: linear-gradient(90deg, #059669, #10b981); color: white; width: 100%; margin-top: 10px; }
-    .btn-warning { background: linear-gradient(90deg, #d97706, #f59e0b); color: white; width: 100%; margin-top: 10px; }
-    .btn-secondary { background: #062f27; color: #a7f3d0; border: 1px solid #14532d; white-space: nowrap; }
-    .status-box { background: var(--bg-soft); border: 1px solid var(--border); padding: 14px 16px; border-radius: 16px; margin-bottom: 18px; display: block; font-size: 14px; word-break: break-word; }
-    .notice-box { background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.28); color: #fde68a; padding: 14px 16px; border-radius: 16px; margin-bottom: 24px; font-size: 14px; }
-    .top-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; margin-bottom: 24px; }
-    .card { background: rgba(15, 23, 42, 0.96); border: 1px solid var(--border); border-radius: 24px; padding: 22px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
-    .tab-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 12px; padding: 10px 16px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
-    .tab-btn.active { color: white; border-color: var(--cyan); background: rgba(14, 165, 233, 0.12); }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-    .field { margin-bottom: 16px; }
-    label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
-    input, select { width: 100%; background: #020617; color: var(--white); border: 1px solid #334155; border-radius: 14px; padding: 13px 14px; outline: none; }
-    input:focus, select:focus { border-color: var(--cyan); }
-    .two-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .three-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
-    .mono { font-family: "Courier New", monospace; word-break: break-all; font-size: 13px; color: var(--cyan); }
-    .dashboard-res { margin-top: 15px; background: #020617; padding: 15px; border-radius: 16px; border: 1px solid var(--border); }
-    .footer { text-align: center; margin-top: 40px; color: var(--muted); font-size: 13px; }
-    .meta-grid { display: grid; gap: 14px; }
-    .mini-card { background: #020617; border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
-    .mini-label { color: var(--muted); font-size: 12px; text-transform: uppercase; margin-bottom: 6px; }
-    .big-number { font-size: 28px; font-weight: 800; }
-    .white { color: var(--white); }
-    .amber { color: var(--amber); }
-    .emerald { color: var(--emerald); }
-    .result-box { min-height: 160px; background: #020617; border: 1px solid var(--border); border-radius: 16px; padding: 16px; color: #cbd5e1; overflow: auto; white-space: pre-wrap; font-family: Consolas, Monaco, monospace; font-size: 13px; }
-    .dash-item { background: #020617; border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 12px; white-space: pre-wrap; font-family: Consolas, Monaco, monospace; font-size: 13px; }
-    @media (max-width: 960px) {
-      .top-grid, .two-cols, .three-cols { grid-template-columns: 1fr; }
-      .title { font-size: 32px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header class="header">
-      <div>
-        <h1 class="title">SafeBridge Global</h1>
-        <p class="subtitle">Polygon Mainnet • POL / USDT / USDT.e / PAXG Escrow System</p>
-      </div>
-
-      <div class="wallet-box">
-        <a href="user-guide.html" class="btn btn-secondary">User Guide</a>
-        <a href="instant.html" class="btn btn-secondary">Instant Transfer</a>
-        <button id="connectBtn" class="btn btn-primary" onclick="connectWallet()">Connect Wallet</button>
-      </div>
-    </header>
-
-    <div class="notice-box">
-      This version supports POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 1% fee is deducted from the sender's total amount, and the remaining amount becomes the net escrow value.
-    </div>
-
-    <div id="statusBox" class="status-box">System initializing...</div>
-
-    <div class="top-grid">
-      <div class="card">
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('create', this)">Create Escrow</button>
-          <button class="tab-btn" onclick="switchTab('release', this)">Release</button>
-          <button class="tab-btn" onclick="switchTab('refund', this)">Refund</button>
-          <button class="tab-btn" onclick="switchTab('dash', this)">DashView</button>
-        </div>
-
-        <div id="panelCreate" class="tab-panel active">
-          <h3>Initialize Secure Vault</h3>
-
-          <div class="field">
-            <label>Recipient Address</label>
-            <input type="text" id="recipient" placeholder="0x..." />
-          </div>
-
-          <div class="field">
-            <label>Asset</label>
-            <select id="assetSelect" onchange="updatePreviewSummary()">
-              <option value="POL">POL</option>
-              <option value="USDT">USDT</option>
-              <option value="USDTE">USDT.e</option>
-              <option value="PAXG">PAXG</option>
-            </select>
-          </div>
-
-          <div class="two-cols">
-            <div class="field">
-              <label>Gross Amount</label>
-              <input type="number" id="amount" placeholder="0.01" step="0.000001" min="0.000001" oninput="updatePreviewSummary()" />
-            </div>
-            <div class="field">
-              <label>Timelock (Hours)</label>
-              <input type="number" id="hours" value="1" min="0" max="8760" step="1" />
-            </div>
-          </div>
-
-          <div class="field">
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px;">
-              <label style="margin-bottom:0;">Secret Password</label>
-              <div style="display:flex; gap:6px;">
-                <button type="button" onclick="genPass()" class="btn btn-secondary" style="padding:6px 10px; font-size:12px;">Generate</button>
-                <button type="button" onclick="copyPass()" class="btn btn-secondary" style="padding:6px 10px; font-size:12px;">Copy</button>
-              </div>
-            </div>
-            <input type="text" id="pass" placeholder="At least 8 characters" />
-            <div style="color:var(--muted); font-size:12px; margin-top:6px;">
-              This password will be used by the recipient during release.
-            </div>
-          </div>
-
-          <div class="mini-card">
-            <div class="mini-label">Fee Preview</div>
-            <div class="three-cols">
-              <div>
-                <div class="mini-label">Gross</div>
-                <div id="grossDisplay" class="big-number white">0.00</div>
-              </div>
-              <div>
-                <div class="mini-label">Fee</div>
-                <div id="feeDisplay" class="big-number amber">0.00</div>
-              </div>
-              <div>
-                <div class="mini-label">Net</div>
-                <div id="netDisplay" class="big-number emerald">0.00</div>
-              </div>
-            </div>
-            <div id="assetHint" style="margin-top:10px; color:var(--muted); font-size:12px;">Asset: POL</div>
-          </div>
-
-          <div class="mini-card" style="margin-top:12px;">
-            <div class="mini-label">Approval Flow</div>
-            <div id="approvalFlowText" style="font-size:13px; color:var(--text);">
-              POL uses a single transaction. ERC-20 assets such as USDT, USDT.e and PAXG require two steps: first Approve, then Create Escrow.
-            </div>
-          </div>
-
-          <button class="btn btn-success" onclick="createEscrow()">Create & Lock</button>
-        </div>
-
-        <div id="panelRelease" class="tab-panel">
-          <h3>Release Funds</h3>
-          <div class="field">
-            <label>Transaction ID</label>
-            <input type="number" id="relTxId" placeholder="0" min="0" step="1" />
-          </div>
-          <div class="field">
-            <label>Secret Password</label>
-            <input type="text" id="relPass" placeholder="Secret password" />
-          </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="releaseEscrow()">Verify & Claim</button>
-        </div>
-
-        <div id="panelRefund" class="tab-panel">
-          <h3 style="color:var(--amber)">Timelock Refund</h3>
-          <div class="field">
-            <label>Transaction ID</label>
-            <input type="number" id="refTxId" placeholder="0" min="0" step="1" />
-          </div>
-          <button class="btn btn-warning" onclick="refundEscrow()">Request Refund</button>
-        </div>
-
-        <div id="panelDash" class="tab-panel">
-          <h3>Live Vault Query</h3>
-          <div class="field">
-            <label>Transaction ID</label>
-            <input type="number" id="qTxId" placeholder="0" min="0" step="1" />
-          </div>
-          <button class="btn btn-primary" style="width:100%;" onclick="queryEscrow()">Search</button>
-          <div id="dashResult" class="dashboard-res" style="display:none;"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>System Information</h3>
-        <div class="meta-grid">
-          <div class="mini-card">
-            <div class="mini-label">Contract Address</div>
-            <div class="mono">0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">Fee Recipient</div>
-            <div class="mono">0x68E0c1948900699E23a5490fcE4e376EDe21588D</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">Network</div>
-            <div>Polygon Mainnet (137)</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">Token Configuration</div>
-            <div class="mono" id="tokenConfigBox">POL (Native) | USDT | USDT.e | PAXG</div>
-          </div>
-          <div class="mini-card">
-            <div class="mini-label">Transaction Output</div>
-            <pre id="resultBox" class="result-box"></pre>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer">
-      SafeBridge Global © 2026 • Secure On-Chain Escrow Protocol
-    </div>
-  </div>
-
-  <div id="walletModal" class="wallet-modal-overlay">
-    <div class="wallet-modal-content">
-      <div class="wallet-modal-header">
-        <h3>Cüzdan Bağla</h3>
-        <button id="closeWalletModal" class="modal-close-btn" onclick="closeModal()">&times;</button>
-      </div>
-      
-      <p class="wallet-modal-subtitle">Polygon ağında işlem yapmak için cüzdanınızı seçin:</p>
-      
-      <div id="walletList" class="wallet-grid"></div>
-
-      <div class="wallet-divider">
-        <span>veya Mobil İle Bağlan</span>
-      </div>
-
-      <button id="walletConnectBtn" class="wallet-card" onclick="connectWallet()">
-        <div class="wallet-info">
-          <span class="wallet-name">WalletConnect</span>
-          <span class="wallet-desc">Trust Wallet, Rainbow ve Mobil Cüzdanlar</span>
-        </div>
-      </button>
-    </div>
-  </div>
-
-  <script>
-    const APP_CONFIG = {
-      escrowContract: "0xfb7bC77748EA420e3568d7AB782b5C9AF4Da6B12",
-      feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D",
-      feeRatePercent: 1,
-      chainIdHex: "0x89",
-      chainIdDec: 137
-    };
-
-    const TOKENS = {
-      POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
-      USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
-      USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
-      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
-    };
-
-    const ESCROW_ABI = [
-      "function createEscrow(address payable _recipient, address _token, uint256 _grossAmount, bytes32 _passwordHash, uint256 _duration) external payable",
-      "function releaseEscrow(uint256 _txId, string memory _password) external",
-      "function refundEscrow(uint256 _txId) external",
-      "function getTransaction(uint256 _txId) external view returns (address sender, address recipient, address token, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)",
-      "event EscrowCreated(uint256 indexed txId, address indexed sender, address indexed recipient, address token, uint256 grossAmount, uint256 feeAmount, uint256 netAmount, uint256 timelock)",
-      "event EscrowReleased(uint256 indexed txId)",
-      "event EscrowRefunded(uint256 indexed txId)"
-    ];
-
-    const ERC20_ABI = [
-      "function approve(address spender, uint256 amount) external returns (bool)",
-      "function allowance(address owner, address spender) external view returns (uint256)"
-    ];
-
-    let provider = null;
-    let signer = null;
-    let connectedAccount = null;
-    let escrowContract = null;
-    const discoveredWallets = [];
-
-    /* --- OTOMATİK CÜZDAN SENKRONİZASYONU VE CANLI DİNLENME --- */
-    window.addEventListener('DOMContentLoaded', async () => {
-      updatePreviewSummary();
-
-      if (window.ethereum) {
-        try {
-          // Sayfa açıldığında sessiz oturum kontrolü (Popup açmaz)
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-          if (accounts && accounts.length > 0) {
-            await autoConnectWallet(window.ethereum, accounts[0]);
-          } else {
-            setStatus('Ready. Please connect wallet.');
-          }
-        } catch (e) {
-          console.warn('Auto-connect check failed:', e);
-          setStatus('Ready. Please connect wallet.');
-        }
-
-        // Cüzdan içi hesap değiştirildiğinde anında senkronize et
-        window.ethereum.on('accountsChanged', async (accs) => {
-          if (accs.length > 0) {
-            await autoConnectWallet(window.ethereum, accs[0]);
-          } else {
-            disconnectState();
-          }
-        });
-
-        // Ağ değiştirildiğinde sayfayı güvenle yenile
-        window.ethereum.on('chainChanged', () => {
-          window.location.reload();
-        });
-      } else {
-        setStatus('Web3 Provider missing. Install MetaMask or Rabby.', 'error');
-      }
-    });
-
-    async function autoConnectWallet(ethereumProvider, accountAddress) {
+    if (window.ethereum) {
       try {
-        await ensureEthersLoaded();
-        provider = new ethers.BrowserProvider(ethereumProvider);
-        signer = await provider.getSigner();
-        connectedAccount = accountAddress;
-        escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
-
-        const btn = document.getElementById('connectBtn');
-        if (btn) btn.textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-        setStatus(`Wallet connected: ${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`, 'success');
-      } catch (e) {
-        console.error("Auto connection failed:", e);
-      }
-    }
-
-    function disconnectState() {
-      provider = null;
-      signer = null;
-      connectedAccount = null;
-      escrowContract = null;
-      const btn = document.getElementById('connectBtn');
-      if (btn) btn.textContent = 'Connect Wallet';
-      setStatus('Wallet disconnected.', 'info');
-    }
-
-    /* --- Modal & Cüzdan Algılama (EIP-6963) --- */
-    function openModal() {
-      const modal = document.getElementById('walletModal');
-      if (modal) modal.classList.add('active');
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('walletModal');
-      if (modal) modal.classList.remove('active');
-    }
-
-    window.addEventListener("eip6963:announceProvider", (event) => {
-      const providerDetail = event.detail;
-      if (!discoveredWallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
-        discoveredWallets.push(providerDetail);
-        renderWalletCard(providerDetail);
-      }
-    });
-
-    function renderWalletCard(walletDetail) {
-      const walletListContainer = document.getElementById('walletList');
-      if (!walletListContainer) return;
-
-      const card = document.createElement('button');
-      card.type = 'button';
-      card.className = 'wallet-card';
-      card.innerHTML = `
-        <img src="${walletDetail.info.icon}" alt="${walletDetail.info.name}" />
-        <div class="wallet-info">
-          <span class="wallet-name">${walletDetail.info.name}</span>
-          <span class="wallet-desc">Tarayıcı Eklentisi</span>
-        </div>
-      `;
-
-      card.addEventListener('click', () => {
-        connectToDiscoveredWallet(walletDetail);
-      });
-
-      walletListContainer.appendChild(card);
-    }
-
-    async function connectToDiscoveredWallet(walletDetail) {
-      try {
-        await ensureEthersLoaded();
-      } catch (e) {
-        return setStatus('Ethers.js library failed to load.', 'error');
-      }
-
-      try {
-        setStatus(`${walletDetail.info.name} cüzdanına bağlanılıyor...`);
-        const eipProvider = walletDetail.provider;
-        provider = new ethers.BrowserProvider(eipProvider);
-
-        const chainId = await eipProvider.request({ method: 'eth_chainId' });
-        if (chainId !== APP_CONFIG.chainIdHex) {
-          try {
-            await eipProvider.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: APP_CONFIG.chainIdHex }]
-            });
-          } catch (e) {
-            return setStatus('Please switch to Polygon Mainnet (137).', 'error');
-          }
-        }
-
-        const accounts = await provider.send('eth_requestAccounts', []);
-        connectedAccount = accounts[0];
-        signer = await provider.getSigner();
-        escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
-
-        const btn = document.getElementById('connectBtn');
-        if (btn) btn.textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-        
-        setStatus(`${walletDetail.info.name} başarıyla bağlandı.`, 'success');
-        closeModal();
-      } catch (e) {
-        setStatus(e.reason || e.message || 'Cüzdan bağlantı hatası.', 'error');
-      }
-    }
-
-    async function connectWallet() {
-      openModal();
-      window.dispatchEvent(new Event("eip6963:requestProvider"));
-      
-      if (discoveredWallets.length === 0 && window.ethereum) {
-        try {
-          await ensureEthersLoaded();
-          provider = new ethers.BrowserProvider(window.ethereum);
-          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-          if (chainId !== APP_CONFIG.chainIdHex) {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: APP_CONFIG.chainIdHex }]
-            });
-          }
-          const accounts = await provider.send('eth_requestAccounts', []);
-          connectedAccount = accounts[0];
-          signer = await provider.getSigner();
-          escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
-
-          document.getElementById('connectBtn').textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-          setStatus('Wallet connected successfully.', 'success');
-          closeModal();
-        } catch (e) {
-          setStatus(e.reason || e.message || 'Wallet connection failed.', 'error');
-        }
-      }
-    }
-
-    /* --- Temel İşlevler --- */
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      const map = { create: 'panelCreate', release: 'panelRelease', refund: 'panelRefund', dash: 'panelDash' };
-      document.getElementById(map[tabId]).classList.add('active');
-      btn.classList.add('active');
-    }
-
-    function genPass() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-      const bytes = new Uint8Array(12);
-      crypto.getRandomValues(bytes);
-      let p = '';
-      for (let i = 0; i < bytes.length; i++) p += chars[bytes[i] % chars.length];
-      document.getElementById('pass').value = p;
-    }
-
-    function copyPass() {
-      const p = document.getElementById('pass').value.trim();
-      if (!p) return setStatus('No password to copy.', 'error');
-      navigator.clipboard.writeText(p);
-      setStatus('Password copied to clipboard!', 'success');
-    }
-
-    function setStatus(message, type = 'info') {
-      const box = document.getElementById('statusBox');
-      if (!box) return;
-      if (type === 'error') {
-        box.style.borderColor = 'var(--red)';
-        box.style.color = 'var(--red)';
-      } else if (type === 'success') {
-        box.style.borderColor = 'var(--emerald)';
-        box.style.color = 'var(--emerald)';
-      } else {
-        box.style.borderColor = 'var(--border)';
-        box.style.color = 'var(--text)';
-      }
-      box.textContent = message;
-    }
-
-    function getSelectedToken() {
-      return TOKENS[document.getElementById('assetSelect').value];
-    }
-
-    function getTokenMetaByAddress(tokenAddress) {
-      const normalized = String(tokenAddress || '').toLowerCase();
-      if (normalized === '0x0000000000000000000000000000000000000000') return TOKENS.POL;
-      for (const key of Object.keys(TOKENS)) {
-        const token = TOKENS[key];
-        if (token.address && token.address.toLowerCase() === normalized) return token;
-      }
-      return { symbol: 'UNKNOWN', decimals: 18, type: 'erc20', address: tokenAddress };
-    }
-
-    function calculatePreview(amountStr) {
-      const gross = Number(amountStr);
-      if (!Number.isFinite(gross) || gross <= 0) return { gross: 0, fee: 0, net: 0 };
-      const fee = gross * (APP_CONFIG.feeRatePercent / 100);
-      const net = gross - fee;
-      return { gross, fee, net };
-    }
-
-    function formatAmount(value) {
-      const num = Number(value);
-      if (!Number.isFinite(num)) return '0.00';
-      return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-    }
-
-    function updateApprovalInfo() {
-      const token = getSelectedToken();
-      const box = document.getElementById('approvalFlowText');
-      if (!box) return;
-      if (token.type === 'native') {
-        box.textContent = 'POL requires a single transaction only. No approve step is needed.';
-      } else {
-        box.textContent = `${token.symbol} is an ERC-20 asset. It requires two steps: Approve first, then Create Escrow.`;
-      }
-    }
-
-    function updatePreviewSummary() {
-      const amountValue = document.getElementById('amount').value;
-      const preview = calculatePreview(amountValue);
-      const token = getSelectedToken();
-      document.getElementById('grossDisplay').textContent = `${formatAmount(preview.gross)} ${token.symbol}`;
-      document.getElementById('feeDisplay').textContent = `${formatAmount(preview.fee)} ${token.symbol}`;
-      document.getElementById('netDisplay').textContent = `${formatAmount(preview.net)} ${token.symbol}`;
-      document.getElementById('assetHint').textContent = `Asset: ${token.symbol}`;
-      updateApprovalInfo();
-    }
-
-    async function createEscrow() {
-      if (!signer || !escrowContract) return setStatus('Connect wallet first.', 'error');
-
-      const recipient = document.getElementById('recipient').value.trim();
-      const rawAmount = document.getElementById('amount').value.trim();
-      const hours = document.getElementById('hours').value.trim();
-      const password = document.getElementById('pass').value.trim();
-      const token = getSelectedToken();
-
-      if (!ethers.isAddress(recipient)) return setStatus('Invalid recipient address.', 'error');
-      if (!rawAmount || Number(rawAmount) <= 0) return setStatus('Amount must be greater than 0.', 'error');
-      if (!password || password.length < 8) return setStatus('Password must be at least 8 characters.', 'error');
-      if (hours === '' || Number(hours) < 0) return setStatus('Timelock must be 0 or more hours.', 'error');
-
-      try {
-        const grossAmountUnits = ethers.parseUnits(rawAmount, token.decimals);
-        const durationSeconds = BigInt(hours) * 3600n;
-        const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
-
-        if (token.type === 'erc20') {
-          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
-          
-          setStatus('Checking allowance...');
-          const currentAllowance = await tokenContract.allowance(connectedAccount, APP_CONFIG.escrowContract);
-
-          if (currentAllowance < grossAmountUnits) {
-            setStatus('Approval transaction requested...');
-            const approveTx = await tokenContract.approve(APP_CONFIG.escrowContract, grossAmountUnits);
-            setStatus('Waiting for approval confirmation...');
-            await approveTx.wait();
-            setStatus('Approval completed.', 'success');
-          }
-        }
-
-        setStatus('Create transaction requested...');
-        let tx;
-
-        if (token.type === 'native') {
-          tx = await escrowContract.createEscrow(
-            recipient,
-            ethers.ZeroAddress,
-            grossAmountUnits,
-            passwordHash,
-            durationSeconds,
-            { value: grossAmountUnits }
-          );
+        // Sayfa açılışında sessiz kontrol (Popup açmaz)
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts && accounts.length > 0) {
+          await connectToWalletProvider(window.ethereum, accounts[0], 'Varsayılan Cüzdan');
         } else {
-          tx = await escrowContract.createEscrow(
-            recipient,
-            token.address,
-            grossAmountUnits,
-            passwordHash,
-            durationSeconds
-          );
+          setStatus('Sistem hazır. Lütfen cüzdanınızı bağlayın.');
         }
+      } catch (e) {
+        setStatus('Sistem hazır. Lütfen cüzdanınızı bağlayın.');
+      }
+    } else {
+      setStatus('Web3 Provider bulunamadı. Lütfen bir cüzdan eklentisi kurun.', 'error');
+    }
+  });
 
-        setStatus('Waiting for block confirmation...');
-        const receipt = await tx.wait();
+  /* Dinamik Cüzdan Dinleyicisi (Aşırı Kritik: Rabby/OKX/MetaMask geçişleri için) */
+  function setupProviderListeners(ethProvider) {
+    if (!ethProvider || typeof ethProvider.on !== 'function') return;
 
-        let createdEvent = null;
-        for (const log of receipt.logs) {
-          try {
-            const parsed = escrowContract.interface.parseLog(log);
-            if (parsed && parsed.name === 'EscrowCreated') {
-              createdEvent = parsed;
-              break;
-            }
-          } catch (_) {}
+    ethProvider.on('accountsChanged', async (accs) => {
+      if (accs && accs.length > 0) {
+        await connectToWalletProvider(ethProvider, accs[0], 'Cüzdan');
+      } else {
+        disconnectState();
+      }
+    });
+
+    ethProvider.on('chainChanged', () => {
+      window.location.reload();
+    });
+  }
+
+  async function connectToWalletProvider(ethProvider, targetAccount = null, walletName = 'Cüzdan') {
+    try {
+      await ensureEthersLoaded();
+    } catch (e) {
+      return setStatus('Ethers.js kütüphanesi yüklenemedi.', 'error');
+    }
+
+    try {
+      setStatus(`${walletName} bağlantısı kuruluyor...`);
+      activeEthereumProvider = ethProvider;
+      setupProviderListeners(activeEthereumProvider);
+
+      provider = new ethers.BrowserProvider(ethProvider);
+
+      // Ağ Kontrolü (Polygon Mainnet - 137)
+      const chainId = await ethProvider.request({ method: 'eth_chainId' });
+      if (chainId !== APP_CONFIG.chainIdHex) {
+        try {
+          await ethProvider.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: APP_CONFIG.chainIdHex }]
+          });
+        } catch (e) {
+          return setStatus('Lütfen Polygon Mainnet (137) ağına geçiş yapın.', 'error');
         }
+      }
 
-        const resultPayload = {
-          ok: true,
-          action: 'createEscrow',
-          txHash: receipt.hash,
-          asset: token.symbol,
+      let accounts = targetAccount ? [targetAccount] : [];
+      if (!targetAccount) {
+        accounts = await provider.send('eth_requestAccounts', []);
+      }
+
+      connectedAccount = accounts[0];
+      signer = await provider.getSigner();
+      escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
+
+      const btn = document.getElementById('connectBtn');
+      if (btn) btn.textContent = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
+
+      setStatus(`Bağlandı: ${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`, 'success');
+      closeModal();
+    } catch (e) {
+      setStatus(parseWeb3Error(e), 'error');
+    }
+  }
+
+  function disconnectState() {
+    provider = null;
+    signer = null;
+    connectedAccount = null;
+    escrowContract = null;
+    activeEthereumProvider = null;
+    const btn = document.getElementById('connectBtn');
+    if (btn) btn.textContent = 'Connect Wallet';
+    setStatus('Cüzdan bağlantısı kesildi.', 'info');
+  }
+
+  /* --- MODAL VE EIP-6963 CÜZDAN ALGILAMA --- */
+  function openModal() {
+    const modal = document.getElementById('walletModal');
+    if (modal) modal.classList.add('active');
+    window.dispatchEvent(new Event("eip6963:requestProvider"));
+    
+    // Eğer EIP-6963 ile cüzdan yakalanamadıysa varsayılan injected cüzdanı listelet
+    if (discoveredWallets.length === 0 && window.ethereum) {
+      renderDefaultInjectedCard();
+    }
+  }
+
+  function closeModal() {
+    const modal = document.getElementById('walletModal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  window.addEventListener("eip6963:announceProvider", (event) => {
+    const providerDetail = event.detail;
+    if (!discoveredWallets.some(w => w.info.uuid === providerDetail.info.uuid)) {
+      discoveredWallets.push(providerDetail);
+      renderWalletCard(providerDetail);
+    }
+  });
+
+  function renderWalletCard(walletDetail) {
+    const walletListContainer = document.getElementById('walletList');
+    if (!walletListContainer) return;
+
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'wallet-card';
+    card.innerHTML = `
+      <img src="${walletDetail.info.icon}" alt="${walletDetail.info.name}" />
+      <div class="wallet-info">
+        <span class="wallet-name">${walletDetail.info.name}</span>
+        <span class="wallet-desc">Tarayıcı Eklentisi</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      connectToWalletProvider(walletDetail.provider, null, walletDetail.info.name);
+    });
+
+    walletListContainer.appendChild(card);
+  }
+
+  function renderDefaultInjectedCard() {
+    const walletListContainer = document.getElementById('walletList');
+    if (!walletListContainer || walletListContainer.querySelector('.injected-card')) return;
+
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'wallet-card injected-card';
+    card.innerHTML = `
+      <div class="wallet-info">
+        <span class="wallet-name">Varsayılan Cüzdan</span>
+        <span class="wallet-desc">MetaMask / Rabby / Injected</span>
+      </div>
+    `;
+
+    card.addEventListener('click', () => {
+      connectToWalletProvider(window.ethereum, null, 'Tarayıcı Cüzdanı');
+    });
+
+    walletListContainer.appendChild(card);
+  }
+
+  function connectWallet() {
+    openModal();
+  }
+
+  /* --- HATA METNİ TEMİZLEYİCİ (UI/UX) --- */
+  function parseWeb3Error(error) {
+    if (!error) return 'Bilinmeyen bir hata oluştu.';
+    if (error.code === 4001 || error.code === 'ACTION_REJECTED') {
+      return 'İşlem kullanıcı tarafından cüzdanda reddedildi.';
+    }
+    if (error.code === 'INSUFFICIENT_FUNDS' || error.message?.includes('insufficient funds')) {
+      return 'Hesabınızda işlem tutarı ve gas ücreti için yeterli POL bulunmuyor.';
+    }
+    return error.reason || error.shortMessage || error.message || 'İşlem sırasında hata oluştu.';
+  }
+
+  /* --- ARAYÜZ VE HESAPLAMA MANTIKLARI --- */
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const map = { create: 'panelCreate', release: 'panelRelease', refund: 'panelRefund', dash: 'panelDash' };
+    document.getElementById(map[tabId]).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function genPass() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+    const bytes = new Uint8Array(12);
+    crypto.getRandomValues(bytes);
+    let p = '';
+    for (let i = 0; i < bytes.length; i++) p += chars[bytes[i] % chars.length];
+    document.getElementById('pass').value = p;
+  }
+
+  function copyPass() {
+    const p = document.getElementById('pass').value.trim();
+    if (!p) return setStatus('Kopyalanacak şifre bulunamadı.', 'error');
+    navigator.clipboard.writeText(p);
+    setStatus('Şifre panoya kopyalandı!', 'success');
+  }
+
+  function setStatus(message, type = 'info') {
+    const box = document.getElementById('statusBox');
+    if (!box) return;
+    if (type === 'error') {
+      box.style.borderColor = 'var(--red)';
+      box.style.color = 'var(--red)';
+    } else if (type === 'success') {
+      box.style.borderColor = 'var(--emerald)';
+      box.style.color = 'var(--emerald)';
+    } else {
+      box.style.borderColor = 'var(--border)';
+      box.style.color = 'var(--text)';
+    }
+    box.textContent = message;
+  }
+
+  function getSelectedToken() {
+    return TOKENS[document.getElementById('assetSelect').value];
+  }
+
+  function getTokenMetaByAddress(tokenAddress) {
+    const normalized = String(tokenAddress || '').toLowerCase();
+    if (normalized === '0x0000000000000000000000000000000000000000') return TOKENS.POL;
+    for (const key of Object.keys(TOKENS)) {
+      const token = TOKENS[key];
+      if (token.address && token.address.toLowerCase() === normalized) return token;
+    }
+    return { symbol: 'UNKNOWN', decimals: 18, type: 'erc20', address: tokenAddress };
+  }
+
+  function calculatePreview(amountStr) {
+    const gross = Number(amountStr);
+    if (!Number.isFinite(gross) || gross <= 0) return { gross: 0, fee: 0, net: 0 };
+    const fee = gross * (APP_CONFIG.feeRatePercent / 100);
+    const net = gross - fee;
+    return { gross, fee, net };
+  }
+
+  function formatAmount(value) {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '0.00';
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+  }
+
+  function updateApprovalInfo() {
+    const token = getSelectedToken();
+    const box = document.getElementById('approvalFlowText');
+    if (!box) return;
+    if (token.type === 'native') {
+      box.textContent = 'POL tek adımda kilitlenir, Approve (onay) adımı gerektirmez.';
+    } else {
+      box.textContent = `${token.symbol} bir ERC-20 token'ıdır. 2 aşamalı işlem gerektirir: Önce Approve, sonra Create Escrow.`;
+    }
+  }
+
+  function updatePreviewSummary() {
+    const amountValue = document.getElementById('amount').value;
+    const preview = calculatePreview(amountValue);
+    const token = getSelectedToken();
+    document.getElementById('grossDisplay').textContent = `${formatAmount(preview.gross)} ${token.symbol}`;
+    document.getElementById('feeDisplay').textContent = `${formatAmount(preview.fee)} ${token.symbol}`;
+    document.getElementById('netDisplay').textContent = `${formatAmount(preview.net)} ${token.symbol}`;
+    document.getElementById('assetHint').textContent = `Varlık: ${token.symbol}`;
+    updateApprovalInfo();
+  }
+
+  /* --- SÖZLEŞME İŞLEMLERİ (CREATE, RELEASE, REFUND, DASHVIEW) --- */
+
+  // 1. ESCROW OLUŞTURMA
+  async function createEscrow() {
+    if (!signer || !escrowContract) return setStatus('Lütfen önce cüzdanınızı bağlayın.', 'error');
+
+    const recipient = document.getElementById('recipient').value.trim();
+    const rawAmount = document.getElementById('amount').value.trim();
+    const hours = document.getElementById('hours').value.trim();
+    const password = document.getElementById('pass').value.trim();
+    const token = getSelectedToken();
+
+    if (!ethers.isAddress(recipient)) return setStatus('Geçersiz alıcı adresi.', 'error');
+    if (!rawAmount || Number(rawAmount) <= 0) return setStatus('Tutar 0\'dan büyük olmalıdır.', 'error');
+    if (!password || password.length < 8) return setStatus('Şifre en az 8 karakter olmalıdır.', 'error');
+    if (hours === '' || Number(hours) < 0) return setStatus('Süre 0 veya daha fazla saat olmalıdır.', 'error');
+
+    try {
+      const grossAmountUnits = ethers.parseUnits(rawAmount, token.decimals);
+      const durationSeconds = BigInt(hours) * 3600n;
+      const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
+
+      // ERC-20 Yetkilendirme Kontrolü (Approve Step)
+      if (token.type === 'erc20') {
+        const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
+        setStatus('Harcama limiti kontrol ediliyor...');
+        const currentAllowance = await tokenContract.allowance(connectedAccount, APP_CONFIG.escrowContract);
+
+        if (currentAllowance < grossAmountUnits) {
+          setStatus('Token onay işlemi isteniyor (Approve)...');
+          const approveTx = await tokenContract.approve(APP_CONFIG.escrowContract, grossAmountUnits);
+          setStatus('Onay işlemi ağda doğrulanıyor...');
+          await approveTx.wait();
+          setStatus('Onay alındı. Escrow kilit işlemi başlatılıyor...', 'success');
+        }
+      }
+
+      setStatus('Escrow kilit işlemi cüzdana gönderildi...');
+      let tx;
+
+      if (token.type === 'native') {
+        tx = await escrowContract.createEscrow(
           recipient,
-          grossAmountInput: rawAmount,
-          feeRecipient: APP_CONFIG.feeRecipient
-        };
+          ethers.ZeroAddress,
+          grossAmountUnits,
+          passwordHash,
+          durationSeconds,
+          { value: grossAmountUnits }
+        );
+      } else {
+        tx = await escrowContract.createEscrow(
+          recipient,
+          token.address,
+          grossAmountUnits,
+          passwordHash,
+          durationSeconds
+        );
+      }
 
-        if (createdEvent) {
-          const eventTokenMeta = getTokenMetaByAddress(createdEvent.args.token);
-          resultPayload.txId = createdEvent.args.txId.toString();
-          resultPayload.sender = createdEvent.args.sender;
-          resultPayload.recipient = createdEvent.args.recipient;
-          resultPayload.tokenAddress = createdEvent.args.token;
-          resultPayload.tokenSymbol = eventTokenMeta.symbol;
-          resultPayload.grossAmountUnits = createdEvent.args.grossAmount.toString();
-          resultPayload.feeAmountUnits = createdEvent.args.feeAmount.toString();
-          resultPayload.netAmountUnits = createdEvent.args.netAmount.toString();
-          resultPayload.grossAmountFormatted = ethers.formatUnits(createdEvent.args.grossAmount, eventTokenMeta.decimals) + ' ' + eventTokenMeta.symbol;
-          resultPayload.feeAmountFormatted = ethers.formatUnits(createdEvent.args.feeAmount, eventTokenMeta.decimals) + ' ' + eventTokenMeta.symbol;
-          resultPayload.netAmountFormatted = ethers.formatUnits(createdEvent.args.netAmount, eventTokenMeta.decimals) + ' ' + eventTokenMeta.symbol;
-          resultPayload.timelock = createdEvent.args.timelock.toString();
-        }
+      setStatus('İşlem bloğa yazılıyor, lütfen bekleyin...');
+      const receipt = await tx.wait();
 
-        document.getElementById('resultBox').textContent = JSON.stringify(resultPayload, null, 2);
-        setStatus('Escrow created successfully.', 'success');
-      } catch (e) {
-        setStatus(e.reason || e.message || 'Create failed.', 'error');
+      let txIdFound = null;
+      for (const log of receipt.logs) {
+        try {
+          const parsed = escrowContract.interface.parseLog(log);
+          if (parsed && parsed.name === 'EscrowCreated') {
+            txIdFound = parsed.args.txId.toString();
+            break;
+          }
+        } catch (_) {}
+      }
+
+      const resBox = document.getElementById('resultBox');
+      if (resBox) {
+        resBox.textContent = `İŞLEM BAŞARILI!\nTx Hash: ${receipt.hash}\nTransaction ID: ${txIdFound !== null ? txIdFound : 'Tespit Edilemedi'}\nBlok: ${receipt.blockNumber}`;
+      }
+
+      setStatus(`Escrow başarıyla oluşturuldu! ${txIdFound !== null ? 'İşlem ID: #' + txIdFound : ''}`, 'success');
+    } catch (e) {
+      console.error(e);
+      setStatus(parseWeb3Error(e), 'error');
+    }
+  }
+
+  // 2. KİLİT AÇMA (RELEASE)
+  async function releaseEscrow() {
+    if (!signer || !escrowContract) return setStatus('Lütfen önce cüzdanınızı bağlayın.', 'error');
+
+    const txId = document.getElementById('relTxId').value.trim();
+    const password = document.getElementById('relPass').value.trim();
+
+    if (txId === '' || Number(txId) < 0) return setStatus('Geçersiz İşlem ID.', 'error');
+    if (!password) return setStatus('Lütfen gizli şifreyi girin.', 'error');
+
+    try {
+      setStatus('Kilit açma işlemi başlatılıyor...');
+      const tx = await escrowContract.releaseEscrow(txId, password);
+      setStatus('İşlem ağda doğrulanıyor...');
+      const receipt = await tx.wait();
+
+      const resBox = document.getElementById('resultBox');
+      if (resBox) {
+        resBox.textContent = `KİLİT AÇILDI!\nTx Hash: ${receipt.hash}\nTransaction ID: ${txId}\nBlok: ${receipt.blockNumber}`;
+      }
+      setStatus(`İşlem #${txId} başarıyla çözüldü ve fonlar alıcıya aktarıldı!`, 'success');
+    } catch (e) {
+      console.error(e);
+      setStatus(parseWeb3Error(e), 'error');
+    }
+  }
+
+  // 3. ZAMAN AŞIMI İADESİ (REFUND)
+  async function refundEscrow() {
+    if (!signer || !escrowContract) return setStatus('Lütfen önce cüzdanınızı bağlayın.', 'error');
+
+    const txId = document.getElementById('refTxId').value.trim();
+    if (txId === '' || Number(txId) < 0) return setStatus('Geçersiz İşlem ID.', 'error');
+
+    try {
+      setStatus('İade talebi cüzdana gönderiliyor...');
+      const tx = await escrowContract.refundEscrow(txId);
+      setStatus('İşlem ağda doğrulanıyor...');
+      const receipt = await tx.wait();
+
+      const resBox = document.getElementById('resultBox');
+      if (resBox) {
+        resBox.textContent = `İADE EDİLDİ!\nTx Hash: ${receipt.hash}\nTransaction ID: ${txId}\nBlok: ${receipt.blockNumber}`;
+      }
+      setStatus(`İşlem #${txId} başarıyla iade edildi!`, 'success');
+    } catch (e) {
+      console.error(e);
+      setStatus(parseWeb3Error(e), 'error');
+    }
+  }
+
+  // 4. CANLI KASA SORGULAMA (DASHVIEW)
+  async function queryEscrow() {
+    let queryContract = escrowContract;
+
+    if (!queryContract) {
+      if (window.ethereum) {
+        const tempProvider = new ethers.BrowserProvider(window.ethereum);
+        queryContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, tempProvider);
+      } else {
+        return setStatus('Sorgulama yapmak için Web3 sağlayıcısı gerekli.', 'error');
       }
     }
 
-    async function releaseEscrow() {
-      if (!signer || !escrowContract) return setStatus('Connect wallet first.', 'error');
-      const txId = document.getElementById('relTxId').value.trim();
-      const password = document.getElementById('relPass').value.trim();
+    const txId = document.getElementById('qTxId').value.trim();
+    if (txId === '' || Number(txId) < 0) return setStatus('Geçersiz İşlem ID.', 'error');
 
-      if (txId === '') return setStatus('Transaction ID required.', 'error');
-      if (!password) return setStatus('Secret Password required.', 'error');
+    try {
+      setStatus(`İşlem ID #${txId} sorgulanıyor...`);
+      const txData = await queryContract.getTransaction(txId);
 
-      try {
-        setStatus('Waiting for blockchain confirmation...');
-        const tx = await escrowContract.releaseEscrow(txId, password);
-        const receipt = await tx.wait();
+      const statusMap = ["0 (Aktif / Kilitli)", "1 (Kilit Açıldı / Tamamlandı)", "2 (İade Edildi)"];
+      const tokenMeta = getTokenMetaByAddress(txData.token);
+      const amountFormatted = ethers.formatUnits(txData.amount, tokenMeta.decimals);
+      const timelockDate = new Date(Number(txData.timelock) * 1000).toLocaleString('tr-TR');
+      const createdDate = new Date(Number(txData.createdAt) * 1000).toLocaleString('tr-TR');
 
-        document.getElementById('resultBox').textContent = JSON.stringify({
-          ok: true,
-          action: 'releaseEscrow',
-          txId,
-          txHash: receipt.hash
-        }, null, 2);
-        setStatus('Escrow released successfully!', 'success');
-      } catch (e) {
-        setStatus(e.reason || e.message || 'Release failed.', 'error');
-      }
-    }
-
-    async function refundEscrow() {
-      if (!signer || !escrowContract) return setStatus('Connect wallet first.', 'error');
-      const txId = document.getElementById('refTxId').value.trim();
-      if (txId === '') return setStatus('Transaction ID required.', 'error');
-
-      try {
-        setStatus('Waiting for blockchain confirmation...');
-        const tx = await escrowContract.refundEscrow(txId);
-        const receipt = await tx.wait();
-
-        document.getElementById('resultBox').textContent = JSON.stringify({
-          ok: true,
-          action: 'refundEscrow',
-          txId,
-          txHash: receipt.hash
-        }, null, 2);
-        setStatus('Escrow refunded successfully!', 'success');
-      } catch (e) {
-        setStatus(e.reason || e.message || 'Refund failed.', 'error');
-      }
-    }
-
-    async function queryEscrow() {
-      const txId = document.getElementById('qTxId').value.trim();
-      if (txId === '') return setStatus('Transaction ID required.', 'error');
-
-      try {
-        setStatus('Querying escrow status...');
-        await ensureEthersLoaded();
-        
-        const readProvider = provider || new ethers.JsonRpcProvider("https://polygon-rpc.com");
-        const readContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, readProvider);
-
-        const txData = await readContract.getTransaction(txId);
-        
-        const statusMap = ["Active", "Released", "Refunded"];
-        const tokenMeta = getTokenMetaByAddress(txData.token);
-        
-        const formattedAmount = ethers.formatUnits(txData.amount, tokenMeta.decimals);
-        const createdDate = new Date(Number(txData.createdAt) * 1000).toLocaleString();
-        const timelockDate = new Date((Number(txData.createdAt) + Number(txData.timelock)) * 1000).toLocaleString();
-
-        const resDiv = document.getElementById('dashResult');
+      const resDiv = document.getElementById('dashResult');
+      if (resDiv) {
         resDiv.style.display = 'block';
         resDiv.innerHTML = `
-          <div><strong>Status:</strong> ${statusMap[Number(txData.status)] || "Unknown"}</div>
-          <div><strong>Sender:</strong> <span class="mono">${txData.sender}</span></div>
-          <div><strong>Recipient:</strong> <span class="mono">${txData.recipient}</span></div>
-          <div><strong>Asset:</strong> ${tokenMeta.symbol} (${txData.token})</div>
-          <div><strong>Amount:</strong> ${formattedAmount} ${tokenMeta.symbol}</div>
-          <div><strong>Created At:</strong> ${createdDate}</div>
-          <div><strong>Timelock Until:</strong> ${timelockDate}</div>
+          <div class="dash-item"><strong>İşlem ID:</strong> #${txId}</div>
+          <div class="dash-item"><strong>Gönderen (Sender):</strong> ${txData.sender}</div>
+          <div class="dash-item"><strong>Alıcı (Recipient):</strong> ${txData.recipient}</div>
+          <div class="dash-item"><strong>Varlık (Asset):</strong> ${tokenMeta.symbol}</div>
+          <div class="dash-item"><strong>Net Escrow Tutarı:</strong> ${amountFormatted} ${tokenMeta.symbol}</div>
+          <div class="dash-item"><strong>Kilit Durumu:</strong> ${statusMap[txData.status] || txData.status}</div>
+          <div class="dash-item"><strong>Oluşturulma Tarihi:</strong> ${createdDate}</div>
+          <div class="dash-item"><strong>Kilit Açılma Zamanı (Timelock):</strong> ${timelockDate}</div>
         `;
-        setStatus('Escrow details retrieved successfully.', 'success');
-      } catch (e) {
-        setStatus(e.reason || e.message || 'Query failed. Check Transaction ID.', 'error');
       }
+      setStatus(`İşlem ID #${txId} bilgileri getirildi.`, 'success');
+    } catch (e) {
+      console.error(e);
+      setStatus(parseWeb3Error(e), 'error');
     }
-  </script>
-</body>
-</html>
+  }
+</script>
