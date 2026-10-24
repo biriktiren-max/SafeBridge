@@ -238,7 +238,7 @@
       <span>⚡ SafeBridge Transfer</span>
     </div>
     <div>
-      <a href="index.html" class="btn-nav">← Escrow App</a>
+      <a href="escrow.html" class="btn-nav">Escrow App</a>
       <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
     </div>
   </div>
@@ -311,6 +311,39 @@
     let signer = null;
     let connectedAccount = null;
 
+    function shortAddress(address) {
+      if (!address) return '';
+      return `${address.substring(0, 6)}...${address.substring(38)}`;
+    }
+
+    function showConnectedWallet(address) {
+      connectedAccount = address;
+      const shortAddr = shortAddress(address);
+      const addrDisplay = document.getElementById('addrDisplay');
+      const connectBtn = document.getElementById('connectBtn');
+      if (addrDisplay) addrDisplay.textContent = shortAddr;
+      if (connectBtn) connectBtn.textContent = shortAddr;
+    }
+
+    function disconnectState() {
+      provider = null;
+      signer = null;
+      connectedAccount = null;
+      const addrDisplay = document.getElementById('addrDisplay');
+      const connectBtn = document.getElementById('connectBtn');
+      if (addrDisplay) addrDisplay.textContent = 'Not connected';
+      if (connectBtn) connectBtn.textContent = 'Connect Wallet';
+      setStatus('Wallet disconnected.');
+    }
+
+    async function autoConnectWallet(ethereumProvider, accountAddress) {
+      await ensureEthersLoaded();
+      provider = new ethers.BrowserProvider(ethereumProvider);
+      signer = await provider.getSigner();
+      showConnectedWallet(accountAddress);
+      setStatus('Wallet connected successfully.', 'success');
+    }
+
     function setStatus(msg, type = 'info') {
       const box = document.getElementById('statusBox');
       box.textContent = msg;
@@ -357,13 +390,8 @@
         }
 
         const accounts = await provider.send("eth_requestAccounts", []);
-        connectedAccount = accounts[0];
         signer = await provider.getSigner();
-
-        const shortAddr = `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}`;
-        document.getElementById('addrDisplay').textContent = shortAddr;
-        document.getElementById('connectBtn').textContent = shortAddr;
-        
+        showConnectedWallet(accounts[0]);
         setStatus("Wallet connected successfully.", "success");
       } catch (e) {
         setStatus(e.reason || e.message || "Failed to connect wallet.", "error");
@@ -407,36 +435,41 @@
       }
     }
 
-    // Sayfa Yüklendiğinde
-    window.addEventListener('load', async () => {
+    window.addEventListener('DOMContentLoaded', async () => {
       try {
         await ensureEthersLoaded();
-        setStatus("System ready.");
       } catch (err) {
-        setStatus("Ethers.js library failed to load. Please check your connection or AdBlocker.", "error");
+        return setStatus("Ethers.js library failed to load. Please check your connection or AdBlocker.", "error");
       }
+
+      if (!window.ethereum) {
+        return setStatus("No Web3 wallet detected. Please install MetaMask.", "error");
+      }
+
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts && accounts.length > 0) {
+          await autoConnectWallet(window.ethereum, accounts[0]);
+        } else {
+          setStatus("System ready.");
+        }
+      } catch (error) {
+        console.error("Otomatik cüzdan kontrolü hatası:", error);
+        setStatus("System ready.");
+      }
+
+      window.ethereum.on('accountsChanged', async (accs) => {
+        if (accs.length > 0) {
+          await autoConnectWallet(window.ethereum, accs[0]);
+        } else {
+          disconnectState();
+        }
+      });
+
+      window.ethereum.on('chainChanged', () => {
+        window.location.reload();
+      });
     });
   </script>
-  <script>
-  window.addEventListener('DOMContentLoaded', async () => {
-      if (window.ethereum) {
-          try {
-              // Ekrana cüzdan bağlama popup'ı AÇMADAN bağlı adresi sorgular
-              const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-              
-              if (accounts.length > 0) {
-                  const userAddress = accounts[0];
-                  
-                  // BURAYA DİKKAT: instant.html üzerinde cüzdan adresini 
-                  // ekranda gösteren kendi fonksiyonunuzun adını yazın.
-                  // Örneğin:
-                  showConnectedWallet(userAddress); 
-              }
-          } catch (error) {
-              console.error("Otomatik cüzdan kontrolü hatası:", error);
-          }
-      }
-  });
-</script>
 </body>
 </html>
