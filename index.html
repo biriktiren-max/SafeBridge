@@ -52,6 +52,10 @@
 
     * { box-sizing: border-box; }
 
+    html[dir="rtl"] body {
+      font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
     body {
       margin: 0;
       font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -71,7 +75,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
       margin-bottom: 20px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .lang-select {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
     }
 
     .logo {
@@ -218,9 +243,112 @@
       border-radius: 12px;
       font-size: 13px;
       word-break: break-all;
+      white-space: pre-wrap;
       background: rgba(31, 41, 55, 0.5);
       border: 1px solid var(--border);
       color: var(--muted);
+    }
+
+    .wallet-guide {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 22px;
+    }
+
+    .wallet-guide h3 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .wallet-lead,
+    .wallet-guide li,
+    .wallet-row-hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .wallet-lead { margin: 0 0 8px; }
+
+    .wallet-guide ol {
+      margin: 0 0 12px;
+      padding-left: 18px;
+    }
+
+    .wallet-guide li { margin-bottom: 4px; }
+
+    .wallet-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .wallet-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--input-bg);
+    }
+
+    .wallet-row-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .wallet-row-name {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .wallet-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .wallet-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .wallet-btn-primary {
+      background: var(--primary);
+      border-color: transparent;
+      color: white;
+    }
+
+    .wallet-btn:disabled {
+      opacity: 0.7;
+      cursor: default;
+    }
+
+    @media (max-width: 420px) {
+      .wallet-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .wallet-actions { justify-content: flex-end; }
     }
 
     .footer {
@@ -237,8 +365,9 @@
     <div class="logo">
       <span>⚡ SafeBridge Transfer</span>
     </div>
-    <div>
-      <a href="escrow.html" class="btn-nav">Escrow App</a>
+    <div class="nav-actions">
+      <select id="langSelect" class="lang-select"></select>
+      <a href="escrow.html" class="btn-nav" data-i18n="escrowLink">Escrow App</a>
       <button id="connectBtn" class="btn-connect" onclick="connectWallet()">Connect Wallet</button>
     </div>
   </div>
@@ -246,33 +375,48 @@
   <div class="card">
     <div class="status-badge-box">
       <div>
-        <div style="color: var(--muted); font-size: 11px;">Connected Address</div>
+        <div style="color: var(--muted); font-size: 11px;" data-i18n="connectedLabel">Connected Address</div>
         <div id="addrDisplay" style="font-weight: 700; margin-top: 2px;">Not connected</div>
       </div>
       <div class="network-badge">
-        <span class="dot"></span> Polygon Mainnet
+        <span class="dot"></span>
+        <span data-i18n="network">Polygon Mainnet</span>
       </div>
     </div>
 
-    <h2>Instant Transfer</h2>
-    <p class="desc">
+    <h2 data-i18n="title">Instant Transfer</h2>
+    <p class="desc" data-i18n="desc">
       Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet.
     </p>
 
+    <div class="wallet-guide" id="walletGuide">
+      <h3 data-i18n="guideTitle">How to connect</h3>
+      <p class="wallet-lead" data-i18n="guideLead">
+        Use your own wallet. SafeBridge never asks for your secret recovery phrase. You approve the connection and each transfer inside the wallet.
+      </p>
+      <ol>
+        <li data-i18n="step1" data-i18n-html="1">Install a wallet below, or on mobile tap <strong>Open</strong> so this page loads inside that wallet.</li>
+        <li data-i18n="step2" data-i18n-html="1">Unlock the wallet and switch the network to <strong>Polygon Mainnet</strong>.</li>
+        <li data-i18n="step3" data-i18n-html="1">Tap <strong>Connect</strong> and approve the request. Your address shows at the top.</li>
+        <li data-i18n="step4" data-i18n-html="1">Enter the recipient, amount, and asset, then tap <strong>Send Instant Transfer</strong> and confirm in the wallet.</li>
+      </ol>
+      <div class="wallet-links" id="walletLinks"></div>
+    </div>
+
     <div class="field">
-      <label>Recipient Wallet Address</label>
+      <label data-i18n="recipientLabel">Recipient Wallet Address</label>
       <input type="text" id="recipient" placeholder="0x..." />
     </div>
 
     <div class="grid-2">
       <div class="field">
-        <label>Amount</label>
+        <label data-i18n="amountLabel">Amount</label>
         <input type="number" id="amount" placeholder="0.0" step="0.000001" min="0" />
       </div>
       <div class="field">
-        <label>Asset</label>
+        <label data-i18n="assetLabel">Asset</label>
         <select id="assetSelect">
-          <option value="POL">POL (Native)</option>
+          <option value="POL" data-i18n="polNative">POL (Native)</option>
           <option value="USDT">USDT</option>
           <option value="USDTE">USDT.e</option>
           <option value="PAXG">PAXG</option>
@@ -280,13 +424,13 @@
       </div>
     </div>
 
-    <button class="btn-send" onclick="sendTransfer()">⚡ Send Instant Transfer</button>
+    <button class="btn-send" onclick="sendTransfer()" data-i18n="sendBtn">⚡ Send Instant Transfer</button>
 
     <div id="statusBox" class="msg-box">System initializing...</div>
   </div>
 
   <div class="footer">
-    SafeBridge Global © 2026 — Polygon Mainnet Instant Transfer Module
+    <span data-i18n="footer">SafeBridge Global © 2026 — Polygon Mainnet Instant Transfer Module</span>
   </div>
 
   <script>
@@ -307,46 +451,704 @@
       "function balanceOf(address account) external view returns (uint256)"
     ];
 
+    const LANGS = [
+      { id: "en", label: "English", html: "en" },
+      { id: "ru", label: "Русский", html: "ru" },
+      { id: "zh", label: "中文", html: "zh-CN" },
+      { id: "es", label: "Español", html: "es" },
+      { id: "ja", label: "日本語", html: "ja" },
+      { id: "ko", label: "한국어", html: "ko" },
+      { id: "ar", label: "العربية", html: "ar" },
+      { id: "tr", label: "Türkçe", html: "tr" }
+    ];
+
+    const I18N = {
+      en: {
+        pageTitle: "SafeBridge Global — Instant Transfer",
+        langLabel: "Language",
+        escrowLink: "Escrow App",
+        connectBtn: "Connect Wallet",
+        connectedLabel: "Connected Address",
+        notConnected: "Not connected",
+        network: "Polygon Mainnet",
+        title: "Instant Transfer",
+        desc: "Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet.",
+        guideTitle: "How to connect",
+        guideLead: "Use your own wallet. SafeBridge never asks for your secret recovery phrase. You approve the connection and each transfer inside the wallet.",
+        step1: "Install a wallet below, or on mobile tap <strong>Open</strong> so this page loads inside that wallet.",
+        step2: "Unlock the wallet and switch the network to <strong>Polygon Mainnet</strong>.",
+        step3: "Tap <strong>Connect</strong> and approve the request. Your address shows at the top.",
+        step4: "Enter the recipient, amount, and asset, then tap <strong>Send Instant Transfer</strong> and confirm in the wallet.",
+        recipientLabel: "Recipient Wallet Address",
+        amountLabel: "Amount",
+        assetLabel: "Asset",
+        polNative: "POL (Native)",
+        sendBtn: "⚡ Send Instant Transfer",
+        footer: "SafeBridge Global © 2026 — Polygon Mainnet Instant Transfer Module",
+        hintMetaMask: "Desktop browser extension. On mobile, Open loads this page in the MetaMask app.",
+        hintTrust: "Mobile app. Open loads this page in the Trust Wallet browser.",
+        hintCoinbase: "Browser extension, or the Coinbase Wallet app on mobile.",
+        hintRabby: "Desktop browser extension. Set the network to Polygon before you send.",
+        open: "Open",
+        install: "Install",
+        connect: "Connect",
+        connected: "Connected",
+        walletGeneric: "Wallet",
+        statusInit: "System initializing...",
+        statusEthersFail: "Ethers.js library failed to load.",
+        statusEthersAdblock: "Ethers.js library failed to load. Please check your connection or AdBlocker.",
+        statusNoWalletYet: "No wallet in this browser yet. Use a link below to install one or open this page in the wallet app.",
+        statusNoWallet: "No wallet detected in this browser. Install one below, or open this page in the wallet app.",
+        statusReady: "System ready. Choose a wallet below to connect.",
+        statusDisconnected: "Wallet disconnected.",
+        statusConnectedNamed: "{name} connected. You can send a transfer.",
+        statusConnected: "Wallet connected successfully.",
+        statusConnecting: "Connecting {name}...",
+        statusSwitchNetwork: "Please switch your wallet to Polygon Mainnet.",
+        statusConnectFail: "Failed to connect wallet.",
+        statusConnectFirst: "Please connect your wallet first.",
+        statusBadAddress: "Invalid recipient wallet address.",
+        statusBadAmount: "Enter a valid amount greater than 0.",
+        statusPreparing: "Preparing {symbol} transfer...",
+        statusSubmitted: "Transaction submitted. Waiting for confirmation...\nHash: {hash}",
+        statusDone: "Transfer completed successfully!\nTx Hash: {hash}",
+        statusTransferFail: "Transfer failed."
+      },
+      ru: {
+        pageTitle: "SafeBridge Global — Мгновенный перевод",
+        langLabel: "Язык",
+        escrowLink: "Эскроу",
+        connectBtn: "Подключить кошелёк",
+        connectedLabel: "Подключённый адрес",
+        notConnected: "Не подключён",
+        network: "Polygon Mainnet",
+        title: "Мгновенный перевод",
+        desc: "Прямой перевод POL, USDT, USDT.e и PAXG с кошелька на кошелёк в сети Polygon.",
+        guideTitle: "Как подключить",
+        guideLead: "Используйте свой кошелёк. SafeBridge никогда не запрашивает секретную фразу. Подключение и каждый перевод вы подтверждаете в кошельке.",
+        step1: "Установите кошелёк ниже или на телефоне нажмите <strong>Открыть</strong>, чтобы эта страница открылась в приложении кошелька.",
+        step2: "Разблокируйте кошелёк и переключите сеть на <strong>Polygon Mainnet</strong>.",
+        step3: "Нажмите <strong>Подключить</strong> и подтвердите запрос. Адрес появится сверху.",
+        step4: "Введите получателя, сумму и актив, затем нажмите <strong>Отправить перевод</strong> и подтвердите в кошельке.",
+        recipientLabel: "Адрес кошелька получателя",
+        amountLabel: "Сумма",
+        assetLabel: "Актив",
+        polNative: "POL (нативный)",
+        sendBtn: "⚡ Отправить перевод",
+        footer: "SafeBridge Global © 2026 — мгновенный перевод в сети Polygon",
+        hintMetaMask: "Расширение для компьютера. На телефоне «Открыть» загружает эту страницу в приложении MetaMask.",
+        hintTrust: "Мобильное приложение. «Открыть» загружает эту страницу в браузере Trust Wallet.",
+        hintCoinbase: "Расширение браузера или приложение Coinbase Wallet на телефоне.",
+        hintRabby: "Расширение для компьютера. Перед отправкой выберите сеть Polygon.",
+        open: "Открыть",
+        install: "Установить",
+        connect: "Подключить",
+        connected: "Подключён",
+        walletGeneric: "Кошелёк",
+        statusInit: "Система запускается...",
+        statusEthersFail: "Не удалось загрузить библиотеку Ethers.js.",
+        statusEthersAdblock: "Не удалось загрузить Ethers.js. Проверьте соединение или блокировщик рекламы.",
+        statusNoWalletYet: "В этом браузере пока нет кошелька. Установите его по ссылке ниже или откройте страницу в приложении кошелька.",
+        statusNoWallet: "Кошелёк в этом браузере не найден. Установите его ниже или откройте страницу в приложении кошелька.",
+        statusReady: "Система готова. Выберите кошелёк ниже.",
+        statusDisconnected: "Кошелёк отключён.",
+        statusConnectedNamed: "{name} подключён. Можно отправлять перевод.",
+        statusConnected: "Кошелёк успешно подключён.",
+        statusConnecting: "Подключение {name}...",
+        statusSwitchNetwork: "Переключите кошелёк на Polygon Mainnet.",
+        statusConnectFail: "Не удалось подключить кошелёк.",
+        statusConnectFirst: "Сначала подключите кошелёк.",
+        statusBadAddress: "Неверный адрес кошелька получателя.",
+        statusBadAmount: "Введите сумму больше 0.",
+        statusPreparing: "Подготовка перевода {symbol}...",
+        statusSubmitted: "Транзакция отправлена. Ожидание подтверждения...\nHash: {hash}",
+        statusDone: "Перевод выполнен.\nHash транзакции: {hash}",
+        statusTransferFail: "Перевод не выполнен."
+      },
+      zh: {
+        pageTitle: "SafeBridge Global — 即时转账",
+        langLabel: "语言",
+        escrowLink: "托管",
+        connectBtn: "连接钱包",
+        connectedLabel: "已连接地址",
+        notConnected: "未连接",
+        network: "Polygon 主网",
+        title: "即时转账",
+        desc: "在 Polygon 主网上直接进行 POL、USDT、USDT.e 和 PAXG 的钱包到钱包转账。",
+        guideTitle: "如何连接",
+        guideLead: "请使用你自己的钱包。SafeBridge 绝不会索取你的密钥助记词。连接和每一笔转账都在钱包内确认。",
+        step1: "安装下方的钱包，或在手机上点<strong>打开</strong>，让本页在该钱包中打开。",
+        step2: "解锁钱包，并将网络切换到 <strong>Polygon 主网</strong>。",
+        step3: "点<strong>连接</strong>并批准请求。你的地址会显示在上方。",
+        step4: "填写收款地址、金额和资产，然后点<strong>发送即时转账</strong>，并在钱包中确认。",
+        recipientLabel: "收款钱包地址",
+        amountLabel: "金额",
+        assetLabel: "资产",
+        polNative: "POL（原生）",
+        sendBtn: "⚡ 发送即时转账",
+        footer: "SafeBridge Global © 2026 — Polygon 主网即时转账",
+        hintMetaMask: "电脑浏览器扩展。在手机上，打开会在 MetaMask 应用中加载本页。",
+        hintTrust: "手机应用。打开会在 Trust Wallet 浏览器中加载本页。",
+        hintCoinbase: "浏览器扩展，或手机上的 Coinbase Wallet 应用。",
+        hintRabby: "电脑浏览器扩展。发送前请将网络设为 Polygon。",
+        open: "打开",
+        install: "安装",
+        connect: "连接",
+        connected: "已连接",
+        walletGeneric: "钱包",
+        statusInit: "系统正在启动...",
+        statusEthersFail: "Ethers.js 库加载失败。",
+        statusEthersAdblock: "Ethers.js 库加载失败。请检查网络或广告拦截器。",
+        statusNoWalletYet: "此浏览器中还没有钱包。请使用下方链接安装，或在钱包应用中打开本页。",
+        statusNoWallet: "未检测到钱包。请在下方安装，或在钱包应用中打开本页。",
+        statusReady: "系统已就绪。请在下方选择钱包并连接。",
+        statusDisconnected: "钱包已断开。",
+        statusConnectedNamed: "{name} 已连接。可以发送转账。",
+        statusConnected: "钱包连接成功。",
+        statusConnecting: "正在连接 {name}...",
+        statusSwitchNetwork: "请将钱包切换到 Polygon 主网。",
+        statusConnectFail: "钱包连接失败。",
+        statusConnectFirst: "请先连接钱包。",
+        statusBadAddress: "收款钱包地址无效。",
+        statusBadAmount: "请输入大于 0 的金额。",
+        statusPreparing: "正在准备 {symbol} 转账...",
+        statusSubmitted: "交易已提交，等待确认...\n哈希：{hash}",
+        statusDone: "转账已完成。\n交易哈希：{hash}",
+        statusTransferFail: "转账失败。"
+      },
+      es: {
+        pageTitle: "SafeBridge Global — Transferencia instantánea",
+        langLabel: "Idioma",
+        escrowLink: "Custodia",
+        connectBtn: "Conectar billetera",
+        connectedLabel: "Dirección conectada",
+        notConnected: "Sin conexión",
+        network: "Polygon Mainnet",
+        title: "Transferencia instantánea",
+        desc: "Transferencia directa de billetera a billetera de POL, USDT, USDT.e y PAXG en Polygon Mainnet.",
+        guideTitle: "Cómo conectar",
+        guideLead: "Usa tu propia billetera. SafeBridge nunca pide tu frase secreta de recuperación. Apruebas la conexión y cada transferencia dentro de la billetera.",
+        step1: "Instala una billetera de abajo o, en el móvil, pulsa <strong>Abrir</strong> para cargar esta página dentro de esa billetera.",
+        step2: "Desbloquea la billetera y cambia la red a <strong>Polygon Mainnet</strong>.",
+        step3: "Pulsa <strong>Conectar</strong> y aprueba la solicitud. Tu dirección aparece arriba.",
+        step4: "Escribe el destinatario, el importe y el activo, luego pulsa <strong>Enviar transferencia</strong> y confírmala en la billetera.",
+        recipientLabel: "Dirección de la billetera destinataria",
+        amountLabel: "Importe",
+        assetLabel: "Activo",
+        polNative: "POL (nativo)",
+        sendBtn: "⚡ Enviar transferencia",
+        footer: "SafeBridge Global © 2026 — transferencia instantánea en Polygon Mainnet",
+        hintMetaMask: "Extensión de navegador en el ordenador. En el móvil, Abrir carga esta página en la app de MetaMask.",
+        hintTrust: "App móvil. Abrir carga esta página en el navegador de Trust Wallet.",
+        hintCoinbase: "Extensión del navegador o la app Coinbase Wallet en el móvil.",
+        hintRabby: "Extensión de navegador en el ordenador. Pon la red en Polygon antes de enviar.",
+        open: "Abrir",
+        install: "Instalar",
+        connect: "Conectar",
+        connected: "Conectada",
+        walletGeneric: "Billetera",
+        statusInit: "Iniciando el sistema...",
+        statusEthersFail: "No se pudo cargar la biblioteca Ethers.js.",
+        statusEthersAdblock: "No se pudo cargar Ethers.js. Revisa tu conexión o el bloqueador de anuncios.",
+        statusNoWalletYet: "Aún no hay una billetera en este navegador. Instálala con un enlace de abajo o abre esta página en la app de la billetera.",
+        statusNoWallet: "No se detectó una billetera. Instala una abajo o abre esta página en la app de la billetera.",
+        statusReady: "Sistema listo. Elige una billetera abajo para conectar.",
+        statusDisconnected: "Billetera desconectada.",
+        statusConnectedNamed: "{name} conectada. Ya puedes enviar una transferencia.",
+        statusConnected: "Billetera conectada correctamente.",
+        statusConnecting: "Conectando {name}...",
+        statusSwitchNetwork: "Cambia tu billetera a Polygon Mainnet.",
+        statusConnectFail: "No se pudo conectar la billetera.",
+        statusConnectFirst: "Primero conecta tu billetera.",
+        statusBadAddress: "La dirección del destinatario no es válida.",
+        statusBadAmount: "Introduce un importe mayor que 0.",
+        statusPreparing: "Preparando la transferencia de {symbol}...",
+        statusSubmitted: "Transacción enviada. Esperando confirmación...\nHash: {hash}",
+        statusDone: "Transferencia completada.\nHash de la transacción: {hash}",
+        statusTransferFail: "La transferencia falló."
+      },
+      ja: {
+        pageTitle: "SafeBridge Global — 即時送金",
+        langLabel: "言語",
+        escrowLink: "エスクロー",
+        connectBtn: "ウォレット接続",
+        connectedLabel: "接続中のアドレス",
+        notConnected: "未接続",
+        network: "Polygon メインネット",
+        title: "即時送金",
+        desc: "Polygon メインネットで POL、USDT、USDT.e、PAXG をウォレット間で直接送金します。",
+        guideTitle: "接続方法",
+        guideLead: "ご自身のウォレットを使ってください。SafeBridge がシークレットリカバリーフレーズを求めることはありません。接続と送金はウォレット内で承認します。",
+        step1: "下のウォレットをインストールするか、スマホでは<strong>開く</strong>を押して、このページをそのウォレット内で開きます。",
+        step2: "ウォレットのロックを解除し、ネットワークを <strong>Polygon メインネット</strong> に切り替えます。",
+        step3: "<strong>接続</strong>を押し、リクエストを承認します。アドレスが上部に表示されます。",
+        step4: "受取先、金額、資産を入力し、<strong>即時送金する</strong>を押してウォレットで確定します。",
+        recipientLabel: "受取ウォレットアドレス",
+        amountLabel: "金額",
+        assetLabel: "資産",
+        polNative: "POL（ネイティブ）",
+        sendBtn: "⚡ 即時送金する",
+        footer: "SafeBridge Global © 2026 — Polygon メインネット即時送金",
+        hintMetaMask: "パソコン用のブラウザー拡張機能です。スマホでは「開く」で MetaMask アプリ内にこのページを開きます。",
+        hintTrust: "スマホアプリです。「開く」で Trust Wallet のブラウザーにこのページを開きます。",
+        hintCoinbase: "ブラウザー拡張機能、またはスマホの Coinbase Wallet アプリです。",
+        hintRabby: "パソコン用のブラウザー拡張機能です。送金前にネットワークを Polygon にしてください。",
+        open: "開く",
+        install: "インストール",
+        connect: "接続",
+        connected: "接続済み",
+        walletGeneric: "ウォレット",
+        statusInit: "システムを起動しています...",
+        statusEthersFail: "Ethers.js ライブラリを読み込めませんでした。",
+        statusEthersAdblock: "Ethers.js を読み込めませんでした。接続または広告ブロッカーを確認してください。",
+        statusNoWalletYet: "このブラウザーにはまだウォレットがありません。下のリンクからインストールするか、ウォレットアプリでこのページを開いてください。",
+        statusNoWallet: "ウォレットが見つかりません。下からインストールするか、ウォレットアプリでこのページを開いてください。",
+        statusReady: "準備できました。下からウォレットを選んで接続してください。",
+        statusDisconnected: "ウォレットを切断しました。",
+        statusConnectedNamed: "{name} を接続しました。送金できます。",
+        statusConnected: "ウォレットを接続しました。",
+        statusConnecting: "{name} に接続しています...",
+        statusSwitchNetwork: "ウォレットを Polygon メインネットに切り替えてください。",
+        statusConnectFail: "ウォレットに接続できませんでした。",
+        statusConnectFirst: "先にウォレットを接続してください。",
+        statusBadAddress: "受取ウォレットアドレスが正しくありません。",
+        statusBadAmount: "0 より大きい金額を入力してください。",
+        statusPreparing: "{symbol} の送金を準備しています...",
+        statusSubmitted: "トランザクションを送信しました。承認を待っています...\nハッシュ: {hash}",
+        statusDone: "送金が完了しました。\nトランザクションハッシュ: {hash}",
+        statusTransferFail: "送金に失敗しました。"
+      },
+      ko: {
+        pageTitle: "SafeBridge Global — 즉시 전송",
+        langLabel: "언어",
+        escrowLink: "에스크로",
+        connectBtn: "지갑 연결",
+        connectedLabel: "연결된 주소",
+        notConnected: "연결 안 됨",
+        network: "Polygon 메인넷",
+        title: "즉시 전송",
+        desc: "Polygon 메인넷에서 POL, USDT, USDT.e, PAXG를 지갑에서 지갑으로 직접 전송합니다.",
+        guideTitle: "연결 방법",
+        guideLead: "본인 지갑을 사용하세요. SafeBridge는 시크릿 복구 구문을 절대 요청하지 않습니다. 연결과 각 전송은 지갑 안에서 승인합니다.",
+        step1: "아래 지갑을 설치하거나, 모바일에서는 <strong>열기</strong>를 눌러 이 페이지를 해당 지갑 안에서 여세요.",
+        step2: "지갑 잠금을 해제하고 네트워크를 <strong>Polygon 메인넷</strong>으로 바꾸세요.",
+        step3: "<strong>연결</strong>을 누르고 요청을 승인하세요. 주소가 위에 표시됩니다.",
+        step4: "받는 주소, 금액, 자산을 입력한 뒤 <strong>즉시 전송</strong>을 누르고 지갑에서 확인하세요.",
+        recipientLabel: "받는 지갑 주소",
+        amountLabel: "금액",
+        assetLabel: "자산",
+        polNative: "POL (네이티브)",
+        sendBtn: "⚡ 즉시 전송",
+        footer: "SafeBridge Global © 2026 — Polygon 메인넷 즉시 전송",
+        hintMetaMask: "데스크톱 브라우저 확장 프로그램입니다. 모바일에서 열기는 이 페이지를 MetaMask 앱에서 엽니다.",
+        hintTrust: "모바일 앱입니다. 열기는 이 페이지를 Trust Wallet 브라우저에서 엽니다.",
+        hintCoinbase: "브라우저 확장 프로그램 또는 모바일 Coinbase Wallet 앱입니다.",
+        hintRabby: "데스크톱 브라우저 확장 프로그램입니다. 보내기 전에 네트워크를 Polygon으로 설정하세요.",
+        open: "열기",
+        install: "설치",
+        connect: "연결",
+        connected: "연결됨",
+        walletGeneric: "지갑",
+        statusInit: "시스템을 시작하는 중...",
+        statusEthersFail: "Ethers.js 라이브러리를 불러오지 못했습니다.",
+        statusEthersAdblock: "Ethers.js를 불러오지 못했습니다. 연결 또는 광고 차단기를 확인하세요.",
+        statusNoWalletYet: "이 브라우저에는 아직 지갑이 없습니다. 아래 링크로 설치하거나 지갑 앱에서 이 페이지를 여세요.",
+        statusNoWallet: "지갑이 감지되지 않았습니다. 아래에서 설치하거나 지갑 앱에서 이 페이지를 여세요.",
+        statusReady: "준비되었습니다. 아래에서 지갑을 선택해 연결하세요.",
+        statusDisconnected: "지갑 연결이 끊어졌습니다.",
+        statusConnectedNamed: "{name}에 연결되었습니다. 전송할 수 있습니다.",
+        statusConnected: "지갑이 연결되었습니다.",
+        statusConnecting: "{name}에 연결하는 중...",
+        statusSwitchNetwork: "지갑을 Polygon 메인넷으로 전환하세요.",
+        statusConnectFail: "지갑 연결에 실패했습니다.",
+        statusConnectFirst: "먼저 지갑을 연결하세요.",
+        statusBadAddress: "받는 지갑 주소가 올바르지 않습니다.",
+        statusBadAmount: "0보다 큰 금액을 입력하세요.",
+        statusPreparing: "{symbol} 전송을 준비하는 중...",
+        statusSubmitted: "거래가 제출되었습니다. 확인을 기다리는 중...\n해시: {hash}",
+        statusDone: "전송이 완료되었습니다.\n거래 해시: {hash}",
+        statusTransferFail: "전송에 실패했습니다."
+      },
+      tr: {
+        pageTitle: "SafeBridge Global — Anında Transfer",
+        langLabel: "Dil",
+        escrowLink: "Emanet",
+        connectBtn: "Cüzdan Bağla",
+        connectedLabel: "Bağlı Adres",
+        notConnected: "Bağlı değil",
+        network: "Polygon Ana Ağ",
+        title: "Anında Transfer",
+        desc: "Polygon ana ağında POL, USDT, USDT.e ve PAXG için cüzdandan cüzdana doğrudan transfer.",
+        guideTitle: "Nasıl bağlanır",
+        guideLead: "Kendi cüzdanını kullan. SafeBridge gizli kurtarma ifadeni asla istemez. Bağlantıyı ve her transferi cüzdanın içinde onaylarsın.",
+        step1: "Aşağıdan bir cüzdan kur veya mobilde <strong>Aç</strong> düğmesine basarak bu sayfayı o cüzdanın içinde aç.",
+        step2: "Cüzdanın kilidini aç ve ağı <strong>Polygon Ana Ağ</strong> yap.",
+        step3: "<strong>Bağlan</strong> düğmesine bas ve isteği onayla. Adresin üstte görünür.",
+        step4: "Alıcıyı, tutarı ve varlığı gir, ardından <strong>Anında Transfer Gönder</strong> düğmesine basıp işlemi cüzdanda onayla.",
+        recipientLabel: "Alıcı Cüzdan Adresi",
+        amountLabel: "Tutar",
+        assetLabel: "Varlık",
+        polNative: "POL (Yerel)",
+        sendBtn: "⚡ Anında Transfer Gönder",
+        footer: "SafeBridge Global © 2026 — Polygon Ana Ağ Anında Transfer",
+        hintMetaMask: "Masaüstü tarayıcı eklentisi. Mobilde Aç, bu sayfayı MetaMask uygulamasında açar.",
+        hintTrust: "Mobil uygulama. Aç, bu sayfayı Trust Wallet tarayıcısında açar.",
+        hintCoinbase: "Tarayıcı eklentisi veya mobil Coinbase Wallet uygulaması.",
+        hintRabby: "Masaüstü tarayıcı eklentisi. Göndermeden önce ağı Polygon yap.",
+        open: "Aç",
+        install: "Kur",
+        connect: "Bağlan",
+        connected: "Bağlandı",
+        walletGeneric: "Cüzdan",
+        statusInit: "Sistem hazırlanıyor...",
+        statusEthersFail: "Ethers.js kütüphanesi yüklenemedi.",
+        statusEthersAdblock: "Ethers.js kütüphanesi yüklenemedi. Bağlantını veya reklam engelleyicini kontrol et.",
+        statusNoWalletYet: "Bu tarayıcıda henüz cüzdan yok. Kurmak veya sayfayı cüzdan uygulamasında açmak için aşağıdaki bağlantıyı kullan.",
+        statusNoWallet: "Bu tarayıcıda cüzdan algılanmadı. Aşağıdan birini kur veya bu sayfayı cüzdan uygulamasında aç.",
+        statusReady: "Sistem hazır. Bağlanmak için aşağıdan bir cüzdan seç.",
+        statusDisconnected: "Cüzdan bağlantısı kesildi.",
+        statusConnectedNamed: "{name} bağlandı. Transfer gönderebilirsin.",
+        statusConnected: "Cüzdan başarıyla bağlandı.",
+        statusConnecting: "{name} bağlanıyor...",
+        statusSwitchNetwork: "Cüzdanını Polygon ana ağına al.",
+        statusConnectFail: "Cüzdan bağlanamadı.",
+        statusConnectFirst: "Önce cüzdanını bağla.",
+        statusBadAddress: "Alıcı cüzdan adresi geçersiz.",
+        statusBadAmount: "0’dan büyük geçerli bir tutar gir.",
+        statusPreparing: "{symbol} transferi hazırlanıyor...",
+        statusSubmitted: "İşlem gönderildi. Onay bekleniyor...\nHash: {hash}",
+        statusDone: "Transfer tamamlandı.\nİşlem hash: {hash}",
+        statusTransferFail: "Transfer başarısız."
+      },
+      ar: {
+        pageTitle: "SafeBridge Global — تحويل فوري",
+        langLabel: "اللغة",
+        escrowLink: "الضمان",
+        connectBtn: "ربط المحفظة",
+        connectedLabel: "العنوان المتصل",
+        notConnected: "غير متصل",
+        network: "شبكة Polygon الرئيسية",
+        title: "تحويل فوري",
+        desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDT.e وPAXG على شبكة Polygon الرئيسية.",
+        guideTitle: "كيفية الربط",
+        guideLead: "استخدم محفظتك الخاصة. لا يطلب SafeBridge عبارة الاسترداد السرية أبدًا. توافق على الربط وعلى كل تحويل داخل المحفظة.",
+        step1: "ثبّت محفظة من الأسفل، أو على الهاتف اضغط <strong>فتح</strong> ليُفتح هذه الصفحة داخل تلك المحفظة.",
+        step2: "افتح قفل المحفظة وبدّل الشبكة إلى <strong>شبكة Polygon الرئيسية</strong>.",
+        step3: "اضغط <strong>ربط</strong> ووافق على الطلب. يظهر عنوانك في الأعلى.",
+        step4: "أدخل المستلم والمبلغ والأصل، ثم اضغط <strong>إرسال التحويل الفوري</strong> وأكّد في المحفظة.",
+        recipientLabel: "عنوان محفظة المستلم",
+        amountLabel: "المبلغ",
+        assetLabel: "الأصل",
+        polNative: "POL (أصلي)",
+        sendBtn: "⚡ إرسال التحويل الفوري",
+        footer: "SafeBridge Global © 2026 — وحدة التحويل الفوري على شبكة Polygon الرئيسية",
+        hintMetaMask: "إضافة متصفح للحاسوب. على الهاتف، فتح يحمّل هذه الصفحة في تطبيق MetaMask.",
+        hintTrust: "تطبيق هاتف. فتح يحمّل هذه الصفحة في متصفح Trust Wallet.",
+        hintCoinbase: "إضافة متصفح، أو تطبيق Coinbase Wallet على الهاتف.",
+        hintRabby: "إضافة متصفح للحاسوب. اجعل الشبكة Polygon قبل الإرسال.",
+        open: "فتح",
+        install: "تثبيت",
+        connect: "ربط",
+        connected: "متصل",
+        walletGeneric: "المحفظة",
+        statusInit: "جارٍ تشغيل النظام...",
+        statusEthersFail: "تعذر تحميل مكتبة Ethers.js.",
+        statusEthersAdblock: "تعذر تحميل Ethers.js. تحقق من الاتصال أو مانع الإعلانات.",
+        statusNoWalletYet: "لا توجد محفظة في هذا المتصفح بعد. استخدم رابطًا بالأسفل للتثبيت أو افتح هذه الصفحة في تطبيق المحفظة.",
+        statusNoWallet: "لم يُعثر على محفظة. ثبّت واحدة بالأسفل أو افتح هذه الصفحة في تطبيق المحفظة.",
+        statusReady: "النظام جاهز. اختر محفظة بالأسفل للربط.",
+        statusDisconnected: "قُطع اتصال المحفظة.",
+        statusConnectedNamed: "تم ربط {name}. يمكنك إرسال تحويل.",
+        statusConnected: "تم ربط المحفظة بنجاح.",
+        statusConnecting: "جارٍ ربط {name}...",
+        statusSwitchNetwork: "بدّل محفظتك إلى شبكة Polygon الرئيسية.",
+        statusConnectFail: "فشل ربط المحفظة.",
+        statusConnectFirst: "اربط محفظتك أولًا.",
+        statusBadAddress: "عنوان محفظة المستلم غير صالح.",
+        statusBadAmount: "أدخل مبلغًا أكبر من 0.",
+        statusPreparing: "جارٍ تجهيز تحويل {symbol}...",
+        statusSubmitted: "أُرسلت المعاملة. بانتظار التأكيد...\nالتجزئة: {hash}",
+        statusDone: "اكتمل التحويل.\nتجزئة المعاملة: {hash}",
+        statusTransferFail: "فشل التحويل."
+      }
+    };
+
+    let uiLang = "en";
+    let lastStatus = { key: "statusInit", type: "info", vars: {}, raw: null };
+
+    function t(key, vars = {}) {
+      const pack = I18N[uiLang] || I18N.en;
+      let text = pack[key] || I18N.en[key] || key;
+      for (const [name, value] of Object.entries(vars)) {
+        text = text.replaceAll(`{${name}}`, String(value));
+      }
+      return text;
+    }
+
+    function initLanguageSelect() {
+      const select = document.getElementById("langSelect");
+      if (!select || select.dataset.ready === "1") return;
+      select.dataset.ready = "1";
+      for (const lang of LANGS) {
+        const option = document.createElement("option");
+        option.value = lang.id;
+        option.textContent = lang.label;
+        select.append(option);
+      }
+      select.addEventListener("change", () => applyLanguage(select.value));
+    }
+
+    function applyLanguage(lang) {
+      if (!I18N[lang]) lang = "en";
+      uiLang = lang;
+      const meta = LANGS.find((item) => item.id === lang);
+      document.documentElement.lang = meta ? meta.html : "en";
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+      try { localStorage.setItem("safebridge-lang", lang); } catch (e) {}
+      initLanguageSelect();
+      const select = document.getElementById("langSelect");
+      if (select) {
+        select.value = lang;
+        select.setAttribute("aria-label", t("langLabel"));
+      }
+      document.title = t("pageTitle");
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.dataset.i18n;
+        if (el.dataset.i18nHtml === "1") el.innerHTML = t(key);
+        else el.textContent = t(key);
+      });
+      refreshConnectionLabels();
+      renderWalletLinks();
+      paintStatus();
+    }
+
+    const WALLETS = [
+      {
+        id: "metamask",
+        name: "MetaMask",
+        rdns: "io.metamask",
+        hintKey: "hintMetaMask",
+        installUrl: "https://metamask.io/download/",
+        openUrl: () => `https://metamask.app.link/dapp/${location.host}${location.pathname}${location.search}`,
+        detect: (eth) => Boolean(eth?.isMetaMask) && !eth?.isRabby && !eth?.isBraveWallet && !eth?.isCoinbaseWallet && !eth?.isTrust && !eth?.isTrustWallet
+      },
+      {
+        id: "trust",
+        name: "Trust Wallet",
+        rdns: "com.trustwallet.app",
+        hintKey: "hintTrust",
+        installUrl: "https://trustwallet.com/download",
+        openUrl: () => `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(location.href)}`,
+        detect: (eth) => Boolean(eth?.isTrust || eth?.isTrustWallet)
+      },
+      {
+        id: "coinbase",
+        name: "Coinbase Wallet",
+        rdns: "com.coinbase.wallet",
+        hintKey: "hintCoinbase",
+        installUrl: "https://www.coinbase.com/wallet/downloads",
+        openUrl: () => `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(location.href)}`,
+        detect: (eth) => Boolean(eth?.isCoinbaseWallet || eth?.isCoinbaseBrowser)
+      },
+      {
+        id: "rabby",
+        name: "Rabby",
+        rdns: "io.rabby",
+        hintKey: "hintRabby",
+        installUrl: "https://rabby.io/",
+        openUrl: null,
+        detect: (eth) => Boolean(eth?.isRabby)
+      }
+    ];
+
     let provider = null;
     let signer = null;
     let connectedAccount = null;
+    let activeEthereum = null;
+    let activeWalletName = null;
+    const discoveredWallets = [];
+    const boundProviders = new WeakSet();
+
+    window.addEventListener("eip6963:announceProvider", (event) => {
+      const detail = event.detail;
+      if (!detail?.info?.uuid) return;
+      if (discoveredWallets.some((wallet) => wallet.info.uuid === detail.info.uuid)) return;
+      discoveredWallets.push(detail);
+      renderWalletLinks();
+    });
 
     function shortAddress(address) {
       if (!address) return '';
       return `${address.substring(0, 6)}...${address.substring(38)}`;
     }
 
-    function showConnectedWallet(address) {
-      connectedAccount = address;
-      const shortAddr = shortAddress(address);
+    function providerForWallet(wallet) {
+      const announced = discoveredWallets.find((item) => item.info.rdns === wallet.rdns);
+      if (announced) return announced.provider;
+
+      const ethereum = window.ethereum;
+      if (!ethereum) return null;
+      const list = Array.isArray(ethereum.providers) && ethereum.providers.length ? ethereum.providers : [ethereum];
+      return list.find((item) => {
+        try { return wallet.detect(item); } catch { return false; }
+      }) || null;
+    }
+
+    function makeWalletLink(href, label, primary) {
+      const link = document.createElement("a");
+      link.href = href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.className = primary ? "wallet-btn wallet-btn-primary" : "wallet-btn";
+      link.textContent = label;
+      return link;
+    }
+
+    function renderWalletLinks() {
+      const root = document.getElementById("walletLinks");
+      if (!root) return;
+      root.replaceChildren();
+
+      for (const wallet of WALLETS) {
+        const row = document.createElement("div");
+        row.className = "wallet-row";
+
+        const text = document.createElement("div");
+        text.className = "wallet-row-text";
+        const name = document.createElement("span");
+        name.className = "wallet-row-name";
+        name.textContent = wallet.name;
+        const hint = document.createElement("span");
+        hint.className = "wallet-row-hint";
+        hint.textContent = t(wallet.hintKey);
+        text.append(name, hint);
+
+        const actions = document.createElement("div");
+        actions.className = "wallet-actions";
+        const injected = providerForWallet(wallet);
+
+        if (injected) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "wallet-btn wallet-btn-primary";
+          const isActive = connectedAccount && activeEthereum === injected;
+          button.textContent = isActive ? t("connected") : t("connect");
+          button.disabled = isActive;
+          button.addEventListener("click", () => connectWithProvider(injected, wallet.name));
+          actions.append(button);
+        } else {
+          if (wallet.openUrl) actions.append(makeWalletLink(wallet.openUrl(), t("open"), true));
+          actions.append(makeWalletLink(wallet.installUrl, t("install"), !wallet.openUrl));
+        }
+
+        row.append(text, actions);
+        root.append(row);
+      }
+    }
+
+    function bindProviderEvents(ethereumProvider) {
+      if (!ethereumProvider || boundProviders.has(ethereumProvider) || typeof ethereumProvider.on !== "function") return;
+      boundProviders.add(ethereumProvider);
+
+      ethereumProvider.on("accountsChanged", async (accounts) => {
+        if (activeEthereum !== ethereumProvider) return;
+        if (accounts.length > 0) {
+          await autoConnectWallet(ethereumProvider, accounts[0]);
+        } else {
+          disconnectState();
+        }
+      });
+
+      ethereumProvider.on("chainChanged", () => {
+        if (activeEthereum === ethereumProvider) window.location.reload();
+      });
+    }
+
+    function refreshConnectionLabels() {
       const addrDisplay = document.getElementById('addrDisplay');
       const connectBtn = document.getElementById('connectBtn');
-      if (addrDisplay) addrDisplay.textContent = shortAddr;
-      if (connectBtn) connectBtn.textContent = shortAddr;
+      if (connectedAccount) {
+        const shortAddr = shortAddress(connectedAccount);
+        if (addrDisplay) addrDisplay.textContent = shortAddr;
+        if (connectBtn) connectBtn.textContent = shortAddr;
+      } else {
+        if (addrDisplay) addrDisplay.textContent = t("notConnected");
+        if (connectBtn) connectBtn.textContent = t("connectBtn");
+      }
+    }
+
+    function showConnectedWallet(address) {
+      connectedAccount = address;
+      refreshConnectionLabels();
+      renderWalletLinks();
     }
 
     function disconnectState() {
       provider = null;
       signer = null;
       connectedAccount = null;
-      const addrDisplay = document.getElementById('addrDisplay');
-      const connectBtn = document.getElementById('connectBtn');
-      if (addrDisplay) addrDisplay.textContent = 'Not connected';
-      if (connectBtn) connectBtn.textContent = 'Connect Wallet';
-      setStatus('Wallet disconnected.');
+      activeEthereum = null;
+      activeWalletName = null;
+      refreshConnectionLabels();
+      renderWalletLinks();
+      setStatus("statusDisconnected");
     }
 
     async function autoConnectWallet(ethereumProvider, accountAddress) {
       await ensureEthersLoaded();
+      activeEthereum = ethereumProvider;
+      bindProviderEvents(ethereumProvider);
       provider = new ethers.BrowserProvider(ethereumProvider);
       signer = await provider.getSigner();
       showConnectedWallet(accountAddress);
-      setStatus('Wallet connected successfully.', 'success');
+      setStatus(activeWalletName ? "statusConnectedNamed" : "statusConnected", "success", { name: activeWalletName || "" });
     }
 
-    function setStatus(msg, type = 'info') {
+    async function connectWithProvider(ethereumProvider, walletName) {
+      try {
+        await ensureEthersLoaded();
+      } catch (e) {
+        return setStatus("statusEthersFail", "error");
+      }
+
+      if (!ethereumProvider) {
+        document.getElementById("walletGuide")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return setStatus("statusNoWallet", "error");
+      }
+
+      try {
+        setStatus("statusConnecting", "info", { name: walletName });
+        activeEthereum = ethereumProvider;
+        activeWalletName = walletName;
+        bindProviderEvents(ethereumProvider);
+        provider = new ethers.BrowserProvider(ethereumProvider);
+
+        const chainId = await ethereumProvider.request({ method: 'eth_chainId' });
+        if (chainId !== CONFIG.chainIdHex) {
+          try {
+            await ethereumProvider.request({
+              method: 'wallet_switchEthereumChain',
+              params: [{ chainId: CONFIG.chainIdHex }]
+            });
+          } catch (e) {
+            return setStatus("statusSwitchNetwork", "error");
+          }
+        }
+
+        const accounts = await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        showConnectedWallet(accounts[0]);
+        setStatus("statusConnectedNamed", "success", { name: walletName });
+      } catch (e) {
+        setStatus(e.reason || e.message || "statusConnectFail", "error");
+      }
+    }
+
+    function paintStatus() {
       const box = document.getElementById('statusBox');
-      box.textContent = msg;
+      if (!box) return;
+      box.textContent = lastStatus.raw != null ? lastStatus.raw : t(lastStatus.key, lastStatus.vars || {});
+      const type = lastStatus.type;
       if (type === 'error') {
         box.style.borderColor = 'rgba(239, 68, 68, 0.4)';
         box.style.color = '#fca5a5';
@@ -362,56 +1164,39 @@
       }
     }
 
+    function setStatus(msg, type = 'info', vars) {
+      if (vars || Object.prototype.hasOwnProperty.call(I18N.en, msg)) {
+        lastStatus = { key: msg, type, vars: vars || {}, raw: null };
+      } else {
+        lastStatus = { key: null, type, vars: {}, raw: msg };
+      }
+      paintStatus();
+    }
+
     async function connectWallet() {
-      try {
-        await ensureEthersLoaded();
-      } catch (e) {
-        return setStatus("Ethers.js library failed to load.", "error");
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+      const fallback = window.ethereum || discoveredWallets[0]?.provider;
+      const name = discoveredWallets[0]?.info?.name || t("walletGeneric");
+      if (!fallback) {
+        document.getElementById("walletGuide")?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
-
-      if (!window.ethereum) {
-        return setStatus("No Web3 wallet detected. Please install MetaMask.", "error");
-      }
-
-      try {
-        setStatus("Connecting wallet...");
-        provider = new ethers.BrowserProvider(window.ethereum);
-
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-        if (chainId !== CONFIG.chainIdHex) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: CONFIG.chainIdHex }]
-            });
-          } catch (e) {
-            return setStatus("Please switch your wallet to Polygon Mainnet.", "error");
-          }
-        }
-
-        const accounts = await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        showConnectedWallet(accounts[0]);
-        setStatus("Wallet connected successfully.", "success");
-      } catch (e) {
-        setStatus(e.reason || e.message || "Failed to connect wallet.", "error");
-      }
+      await connectWithProvider(fallback, name);
     }
 
     async function sendTransfer() {
-      if (!signer) return setStatus("Please connect your wallet first.", "error");
+      if (!signer) return setStatus("statusConnectFirst", "error");
 
       const recipient = document.getElementById('recipient').value.trim();
       const rawAmount = document.getElementById('amount').value.trim();
       const selectedKey = document.getElementById('assetSelect').value;
       const token = TOKENS[selectedKey];
 
-      if (!ethers.isAddress(recipient)) return setStatus("Invalid recipient wallet address.", "error");
-      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("Enter a valid amount greater than 0.", "error");
+      if (!ethers.isAddress(recipient)) return setStatus("statusBadAddress", "error");
+      if (!rawAmount || Number(rawAmount) <= 0) return setStatus("statusBadAmount", "error");
 
       try {
         const parsedAmount = ethers.parseUnits(rawAmount, token.decimals);
-        setStatus(`Preparing ${token.symbol} transfer...`);
+        setStatus("statusPreparing", "info", { symbol: token.symbol });
 
         let tx;
         if (token.type === 'native') {
@@ -426,49 +1211,44 @@
           tx = await tokenContract.transfer(recipient, parsedAmount);
         }
 
-        setStatus(`Transaction submitted. Waiting for confirmation...\nHash: ${tx.hash}`);
+        setStatus("statusSubmitted", "info", { hash: tx.hash });
         const receipt = await tx.wait();
 
-        setStatus(`Transfer completed successfully!\nTx Hash: ${receipt.hash}`, "success");
+        setStatus("statusDone", "success", { hash: receipt.hash });
       } catch (e) {
-        setStatus(e.reason || e.message || "Transfer failed.", "error");
+        setStatus(e.reason || e.message || "statusTransferFail", "error");
       }
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
+      let saved = "en";
+      try { saved = localStorage.getItem("safebridge-lang") || "en"; } catch (e) { saved = "en"; }
+      applyLanguage(saved);
+      window.dispatchEvent(new Event("eip6963:requestProvider"));
+
       try {
         await ensureEthersLoaded();
       } catch (err) {
-        return setStatus("Ethers.js library failed to load. Please check your connection or AdBlocker.", "error");
+        return setStatus("statusEthersAdblock", "error");
       }
 
       if (!window.ethereum) {
-        return setStatus("No Web3 wallet detected. Please install MetaMask.", "error");
+        return setStatus("statusNoWalletYet");
       }
+
+      bindProviderEvents(window.ethereum);
 
       try {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         if (accounts && accounts.length > 0) {
           await autoConnectWallet(window.ethereum, accounts[0]);
         } else {
-          setStatus("System ready.");
+          setStatus("statusReady");
         }
       } catch (error) {
         console.error("Otomatik cüzdan kontrolü hatası:", error);
-        setStatus("System ready.");
+        setStatus("statusReady");
       }
-
-      window.ethereum.on('accountsChanged', async (accs) => {
-        if (accs.length > 0) {
-          await autoConnectWallet(window.ethereum, accs[0]);
-        } else {
-          disconnectState();
-        }
-      });
-
-      window.ethereum.on('chainChanged', () => {
-        window.location.reload();
-      });
     });
   </script>
 </body>

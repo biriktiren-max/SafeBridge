@@ -14,8 +14,17 @@
       max-width: 800px;
       margin: 0 auto;
     }
+    html[dir="rtl"] body { font-family: "Segoe UI", Tahoma, Arial, sans-serif; }
     h1, h2, h3 { color: #00f2fe; }
     h1 { border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
     .card {
       background: #111827;
       border: 1px solid #1f2937;
@@ -38,57 +47,337 @@
       border-radius: 4px;
     }
     a.btn-back {
-      display: inline-block;
-      margin-bottom: 20px;
       color: #00f2fe;
       text-decoration: none;
       font-weight: bold;
+    }
+    a.btn-back::before { content: "← "; }
+    html[dir="rtl"] a.btn-back::before { content: "→ "; }
+    .lang-select {
+      background: #111827;
+      color: #e2e8f0;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-weight: 700;
+      font-family: inherit;
     }
   </style>
 </head>
 <body>
 
-  <a href="escrow.html" class="btn-back">← Back to Escrow App</a>
+  <div class="topbar">
+    <a href="escrow.html" class="btn-back"><span data-i18n="back">Back to Escrow App</span></a>
+    <select id="langSelect" class="lang-select"></select>
+  </div>
 
-  <h1>SafeBridge Global — User Guide</h1>
-  <p>Non-custodial, structured escrow protocol operating on <strong>Polygon Mainnet</strong>.</p>
+  <h1 data-i18n="title">SafeBridge Global — User Guide</h1>
+  <p data-i18n="intro" data-i18n-html="1">Non-custodial, structured escrow protocol operating on <strong>Polygon Mainnet</strong>.</p>
 
   <div class="card">
-    <h2>🚀 Key Features</h2>
+    <h2 data-i18n="featuresTitle">Key Features</h2>
     <ul>
-      <li><strong>Supported Tokens:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code>, and <code>PAXG</code></li>
-      <li><strong>Security Mechanics:</strong> Password-protected release & time-locked refund triggers</li>
-      <li><strong>Transparent Fee:</strong> 1% sender fee deducted before net amount lock</li>
-      <li><strong>DashView:</strong> Real-time on-chain verification & event tracking</li>
+      <li data-i18n="featTokens" data-i18n-html="1"><strong>Supported Tokens:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code>, and <code>PAXG</code></li>
+      <li data-i18n="featSecurity" data-i18n-html="1"><strong>Security Mechanics:</strong> Password-protected release and time-locked refund triggers</li>
+      <li data-i18n="featFee" data-i18n-html="1"><strong>Transparent Fee:</strong> 1% sender fee deducted before the net amount is locked</li>
+      <li data-i18n="featDash" data-i18n-html="1"><strong>DashView:</strong> Real-time on-chain verification and event tracking</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2>📖 Step-by-Step Instructions</h2>
-    
-    <h3>1. Connect Wallet</h3>
-    <p>Ensure your Web3 wallet (MetaMask, Coinbase Wallet, etc.) is connected and switched to <strong>Polygon Mainnet</strong>.</p>
+    <h2 data-i18n="stepsTitle">Step-by-Step Instructions</h2>
 
-    <h3>2. Create Escrow Vault</h3>
+    <h3 data-i18n="stepConnectTitle">1. Connect Wallet</h3>
+    <p data-i18n="stepConnect" data-i18n-html="1">Ensure your Web3 wallet (MetaMask, Coinbase Wallet, etc.) is connected and switched to <strong>Polygon Mainnet</strong>.</p>
+
+    <h3 data-i18n="stepCreateTitle">2. Create Escrow Vault</h3>
     <ul>
-      <li>Select the asset (POL, USDT, USDT.e, or PAXG) and enter the amount.</li>
-      <li>Review the <strong>1% Sender Fee</strong> preview.</li>
-      <li>Set a <strong>Time Lock</strong> duration (determines when refund logic becomes active).</li>
-      <li>Set a <strong>Secret Password</strong>. <i>(Share this password with the recipient off-chain)</i>.</li>
-      <li>Confirm and submit the transaction.</li>
+      <li data-i18n="create1">Select the asset (POL, USDT, USDT.e, or PAXG) and enter the amount.</li>
+      <li data-i18n="create2" data-i18n-html="1">Review the <strong>1% sender fee</strong> preview.</li>
+      <li data-i18n="create3" data-i18n-html="1">Set a <strong>time lock</strong> duration. Refund becomes available when it expires.</li>
+      <li data-i18n="create4" data-i18n-html="1">Set a <strong>secret password</strong>. <i>(Share this password with the recipient off-chain.)</i></li>
+      <li data-i18n="create5">Confirm and submit the transaction.</li>
     </ul>
 
-    <h3>3. Release or Refund</h3>
+    <h3 data-i18n="stepReleaseTitle">3. Release or Refund</h3>
     <ul>
-      <li><span class="badge">Recipient</span> Enter Vault ID + Secret Password to claim the locked net amount.</li>
-      <li><span class="badge">Sender</span> If the Time Lock expires without release, trigger the Refund action to reclaim funds.</li>
+      <li data-i18n="releaseRecipient" data-i18n-html="1"><span class="badge">Recipient</span> Enter the vault ID and secret password to claim the locked net amount.</li>
+      <li data-i18n="releaseSender" data-i18n-html="1"><span class="badge">Sender</span> If the time lock expires without a release, use Refund to reclaim the funds.</li>
     </ul>
   </div>
 
   <div class="card">
-    <h2>🔒 Security Notice</h2>
-    <p>SafeBridge Global operates entirely via non-custodial smart contracts. Protocol administrators never have access to your locked assets or secret passwords.</p>
+    <h2 data-i18n="securityTitle">Security Notice</h2>
+    <p data-i18n="security">SafeBridge Global operates entirely through non-custodial smart contracts. Protocol administrators never have access to your locked assets or secret passwords.</p>
   </div>
 
+  <script>
+    const LANGS = [
+      { id: "en", label: "English", html: "en" },
+      { id: "ru", label: "Русский", html: "ru" },
+      { id: "zh", label: "中文", html: "zh-CN" },
+      { id: "es", label: "Español", html: "es" },
+      { id: "ja", label: "日本語", html: "ja" },
+      { id: "ko", label: "한국어", html: "ko" },
+      { id: "ar", label: "العربية", html: "ar" },
+      { id: "tr", label: "Türkçe", html: "tr" }
+    ];
+
+    const I18N = {
+      en: {
+        pageTitle: "User Guide — SafeBridge Global",
+        langLabel: "Language",
+        back: "Back to Escrow App",
+        title: "SafeBridge Global — User Guide",
+        intro: "Non-custodial, structured escrow protocol operating on <strong>Polygon Mainnet</strong>.",
+        featuresTitle: "Key Features",
+        featTokens: "<strong>Supported Tokens:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code>, and <code>PAXG</code>",
+        featSecurity: "<strong>Security Mechanics:</strong> Password-protected release and time-locked refund triggers",
+        featFee: "<strong>Transparent Fee:</strong> 1% sender fee deducted before the net amount is locked",
+        featDash: "<strong>DashView:</strong> Real-time on-chain verification and event tracking",
+        stepsTitle: "Step-by-Step Instructions",
+        stepConnectTitle: "1. Connect Wallet",
+        stepConnect: "Ensure your Web3 wallet (MetaMask, Coinbase Wallet, etc.) is connected and switched to <strong>Polygon Mainnet</strong>.",
+        stepCreateTitle: "2. Create Escrow Vault",
+        create1: "Select the asset (POL, USDT, USDT.e, or PAXG) and enter the amount.",
+        create2: "Review the <strong>1% sender fee</strong> preview.",
+        create3: "Set a <strong>time lock</strong> duration. Refund becomes available when it expires.",
+        create4: "Set a <strong>secret password</strong>. <i>(Share this password with the recipient off-chain.)</i>",
+        create5: "Confirm and submit the transaction.",
+        stepReleaseTitle: "3. Release or Refund",
+        releaseRecipient: "<span class=\"badge\">Recipient</span> Enter the vault ID and secret password to claim the locked net amount.",
+        releaseSender: "<span class=\"badge\">Sender</span> If the time lock expires without a release, use Refund to reclaim the funds.",
+        securityTitle: "Security Notice",
+        security: "SafeBridge Global operates entirely through non-custodial smart contracts. Protocol administrators never have access to your locked assets or secret passwords."
+      },
+      ru: {
+        pageTitle: "Руководство — SafeBridge Global",
+        langLabel: "Язык",
+        back: "Назад к эскроу",
+        title: "SafeBridge Global — Руководство",
+        intro: "Некастодиальный структурированный протокол эскроу в сети <strong>Polygon Mainnet</strong>.",
+        featuresTitle: "Основные возможности",
+        featTokens: "<strong>Поддерживаемые токены:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code> и <code>PAXG</code>",
+        featSecurity: "<strong>Защита:</strong> выплата по паролю и возврат по таймлоку",
+        featFee: "<strong>Прозрачная комиссия:</strong> 1% удерживается с отправителя до блокировки чистой суммы",
+        featDash: "<strong>Запрос:</strong> проверка в сети и отслеживание событий в реальном времени",
+        stepsTitle: "Инструкция по шагам",
+        stepConnectTitle: "1. Подключите кошелёк",
+        stepConnect: "Убедитесь, что Web3-кошелёк (MetaMask, Coinbase Wallet и т. п.) подключён и переключён на <strong>Polygon Mainnet</strong>.",
+        stepCreateTitle: "2. Создайте хранилище эскроу",
+        create1: "Выберите актив (POL, USDT, USDT.e или PAXG) и введите сумму.",
+        create2: "Проверьте предпросмотр <strong>комиссии отправителя 1%</strong>.",
+        create3: "Задайте длительность <strong>таймлока</strong>. Возврат станет доступен после его окончания.",
+        create4: "Задайте <strong>секретный пароль</strong>. <i>(Передайте его получателю вне сети.)</i>",
+        create5: "Подтвердите и отправьте транзакцию.",
+        stepReleaseTitle: "3. Выплата или возврат",
+        releaseRecipient: "<span class=\"badge\">Получатель</span> Введите номер хранилища и секретный пароль, чтобы получить заблокированную чистую сумму.",
+        releaseSender: "<span class=\"badge\">Отправитель</span> Если таймлок истёк без выплаты, используйте возврат, чтобы вернуть средства.",
+        securityTitle: "Примечание о безопасности",
+        security: "SafeBridge Global работает только через некастодиальные смарт-контракты. Администраторы протокола не имеют доступа к заблокированным активам или секретным паролям."
+      },
+      zh: {
+        pageTitle: "使用指南 — SafeBridge Global",
+        langLabel: "语言",
+        back: "返回托管应用",
+        title: "SafeBridge Global — 使用指南",
+        intro: "运行在 <strong>Polygon 主网</strong> 上的非托管、结构化托管协议。",
+        featuresTitle: "主要功能",
+        featTokens: "<strong>支持的代币：</strong> <code>POL</code>、<code>USDT</code>、<code>USDT.e</code> 和 <code>PAXG</code>",
+        featSecurity: "<strong>安全机制：</strong> 密语保护的释放，以及时间锁触发的退款",
+        featFee: "<strong>透明费用：</strong> 在锁定净额之前，从发送方扣除 1% 费用",
+        featDash: "<strong>查询：</strong> 实时链上核验与事件跟踪",
+        stepsTitle: "分步说明",
+        stepConnectTitle: "1. 连接钱包",
+        stepConnect: "请确认你的 Web3 钱包（MetaMask、Coinbase Wallet 等）已连接，并切换到 <strong>Polygon 主网</strong>。",
+        stepCreateTitle: "2. 创建托管金库",
+        create1: "选择资产（POL、USDT、USDT.e 或 PAXG）并输入金额。",
+        create2: "查看 <strong>1% 发送方费用</strong> 预览。",
+        create3: "设置 <strong>时间锁</strong> 时长。到期后才能退款。",
+        create4: "设置 <strong>密语</strong>。<i>（请在链下把密语告诉收款方。）</i>",
+        create5: "确认并提交交易。",
+        stepReleaseTitle: "3. 释放或退款",
+        releaseRecipient: "<span class=\"badge\">收款方</span> 输入金库编号和密语，领取已锁定的净额。",
+        releaseSender: "<span class=\"badge\">发送方</span> 如果时间锁到期仍未释放，使用退款取回资金。",
+        securityTitle: "安全说明",
+        security: "SafeBridge Global 完全通过非托管智能合约运行。协议管理员无法接触你锁定的资产或密语。"
+      },
+      es: {
+        pageTitle: "Guía de uso — SafeBridge Global",
+        langLabel: "Idioma",
+        back: "Volver a la custodia",
+        title: "SafeBridge Global — Guía de uso",
+        intro: "Protocolo de custodia estructurado y sin custodia, en <strong>Polygon Mainnet</strong>.",
+        featuresTitle: "Funciones principales",
+        featTokens: "<strong>Tokens admitidos:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code> y <code>PAXG</code>",
+        featSecurity: "<strong>Seguridad:</strong> liberación protegida por contraseña y reembolso con bloqueo temporal",
+        featFee: "<strong>Comisión transparente:</strong> se descuenta un 1% al emisor antes de bloquear el importe neto",
+        featDash: "<strong>Consulta:</strong> verificación en cadena y seguimiento de eventos en tiempo real",
+        stepsTitle: "Instrucciones paso a paso",
+        stepConnectTitle: "1. Conecta la billetera",
+        stepConnect: "Asegúrate de que tu billetera Web3 (MetaMask, Coinbase Wallet, etc.) esté conectada y en <strong>Polygon Mainnet</strong>.",
+        stepCreateTitle: "2. Crea la bóveda de custodia",
+        create1: "Elige el activo (POL, USDT, USDT.e o PAXG) e introduce el importe.",
+        create2: "Revisa la vista previa de la <strong>comisión del 1% del emisor</strong>.",
+        create3: "Define la duración del <strong>bloqueo temporal</strong>. El reembolso se activa cuando vence.",
+        create4: "Define una <strong>contraseña secreta</strong>. <i>(Compártela con el destinatario fuera de la cadena.)</i>",
+        create5: "Confirma y envía la transacción.",
+        stepReleaseTitle: "3. Liberar o reembolsar",
+        releaseRecipient: "<span class=\"badge\">Destinatario</span> Introduce el ID de la bóveda y la contraseña secreta para cobrar el importe neto bloqueado.",
+        releaseSender: "<span class=\"badge\">Emisor</span> Si el bloqueo vence sin liberación, usa Reembolso para recuperar los fondos.",
+        securityTitle: "Aviso de seguridad",
+        security: "SafeBridge Global funciona solo mediante contratos inteligentes sin custodia. Los administradores del protocolo nunca tienen acceso a tus activos bloqueados ni a tus contraseñas secretas."
+      },
+      ja: {
+        pageTitle: "使い方 — SafeBridge Global",
+        langLabel: "言語",
+        back: "エスクローに戻る",
+        title: "SafeBridge Global — 使い方",
+        intro: "<strong>Polygon メインネット</strong>で動く、非カストディ型の構造化エスクローです。",
+        featuresTitle: "主な機能",
+        featTokens: "<strong>対応トークン:</strong> <code>POL</code>、<code>USDT</code>、<code>USDT.e</code>、<code>PAXG</code>",
+        featSecurity: "<strong>安全性:</strong> パスワードで解放し、タイムロックで返金します",
+        featFee: "<strong>明確な手数料:</strong> 正味額をロックする前に、送信者から 1% を差し引きます",
+        featDash: "<strong>照会:</strong> オンチェーンの確認とイベント追跡をリアルタイムで行います",
+        stepsTitle: "手順",
+        stepConnectTitle: "1. ウォレットを接続",
+        stepConnect: "Web3 ウォレット（MetaMask、Coinbase Wallet など）を接続し、<strong>Polygon メインネット</strong>に切り替えてください。",
+        stepCreateTitle: "2. エスクロー保管庫を作成",
+        create1: "資産（POL、USDT、USDT.e、PAXG）を選び、金額を入力します。",
+        create2: "<strong>送信者手数料 1%</strong> のプレビューを確認します。",
+        create3: "<strong>タイムロック</strong>の期間を設定します。期限が切れると返金できます。",
+        create4: "<strong>秘密のパスワード</strong>を設定します。<i>（受取人にはチェーンの外で伝えてください。）</i>",
+        create5: "内容を確認してトランザクションを送信します。",
+        stepReleaseTitle: "3. 解放または返金",
+        releaseRecipient: "<span class=\"badge\">受取人</span> 保管庫番号と秘密のパスワードを入力し、ロックされた正味額を受け取ります。",
+        releaseSender: "<span class=\"badge\">送信者</span> 期限が切れても解放されない場合は、返金で資金を取り戻します。",
+        securityTitle: "安全上の注意",
+        security: "SafeBridge Global は非カストディのスマートコントラクトだけで動きます。プロトコル管理者は、ロックされた資産や秘密のパスワードにアクセスできません。"
+      },
+      ko: {
+        pageTitle: "사용 안내 — SafeBridge Global",
+        langLabel: "언어",
+        back: "에스크로로 돌아가기",
+        title: "SafeBridge Global — 사용 안내",
+        intro: "<strong>Polygon 메인넷</strong>에서 작동하는 비수탁형 구조화 에스크로 프로토콜입니다.",
+        featuresTitle: "주요 기능",
+        featTokens: "<strong>지원 토큰:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code>, <code>PAXG</code>",
+        featSecurity: "<strong>보안:</strong> 비밀번호로 출금하고, 타임락으로 환불을 엽니다",
+        featFee: "<strong>투명한 수수료:</strong> 순액을 잠그기 전에 보낸 사람에게서 1%를 뺍니다",
+        featDash: "<strong>조회:</strong> 실시간 온체인 확인과 이벤트 추적",
+        stepsTitle: "단계별 안내",
+        stepConnectTitle: "1. 지갑 연결",
+        stepConnect: "Web3 지갑(MetaMask, Coinbase Wallet 등)이 연결되고 <strong>Polygon 메인넷</strong>으로 전환되었는지 확인하세요.",
+        stepCreateTitle: "2. 에스크로 금고 만들기",
+        create1: "자산(POL, USDT, USDT.e 또는 PAXG)을 고르고 금액을 입력합니다.",
+        create2: "<strong>보낸 사람 수수료 1%</strong> 미리보기를 확인합니다.",
+        create3: "<strong>타임락</strong> 기간을 정합니다. 기간이 끝나면 환불할 수 있습니다.",
+        create4: "<strong>비밀 비밀번호</strong>를 정합니다. <i>(받는 사람에게는 체인 밖에서 전달하세요.)</i>",
+        create5: "확인하고 거래를 제출합니다.",
+        stepReleaseTitle: "3. 출금 또는 환불",
+        releaseRecipient: "<span class=\"badge\">받는 사람</span> 금고 번호와 비밀 비밀번호를 입력해 잠긴 순액을 받습니다.",
+        releaseSender: "<span class=\"badge\">보낸 사람</span> 타임락이 끝나도 출금되지 않으면 환불로 자금을 돌려받습니다.",
+        securityTitle: "보안 안내",
+        security: "SafeBridge Global은 비수탁 스마트 계약으로만 작동합니다. 프로토콜 관리자는 잠긴 자산이나 비밀 비밀번호에 접근할 수 없습니다."
+      },
+      ar: {
+        pageTitle: "دليل الاستخدام — SafeBridge Global",
+        langLabel: "اللغة",
+        back: "العودة إلى الضمان",
+        title: "SafeBridge Global — دليل الاستخدام",
+        intro: "بروتوكول ضمان منظّم وغير وصائي يعمل على <strong>شبكة Polygon الرئيسية</strong>.",
+        featuresTitle: "المزايا الرئيسية",
+        featTokens: "<strong>الرموز المدعومة:</strong> <code>POL</code> و<code>USDT</code> و<code>USDT.e</code> و<code>PAXG</code>",
+        featSecurity: "<strong>آلية الأمان:</strong> تحرير محمي بكلمة سر، واسترداد يُفتح بعد القفل الزمني",
+        featFee: "<strong>رسوم واضحة:</strong> تُخصم 1% من المرسل قبل قفل المبلغ الصافي",
+        featDash: "<strong>الاستعلام:</strong> تحقق على السلسلة وتتبع للأحداث في الوقت الفعلي",
+        stepsTitle: "التعليمات خطوة بخطوة",
+        stepConnectTitle: "1. ربط المحفظة",
+        stepConnect: "تأكد أن محفظة Web3 (مثل MetaMask أو Coinbase Wallet) متصلة ومبدّلة إلى <strong>شبكة Polygon الرئيسية</strong>.",
+        stepCreateTitle: "2. إنشاء خزنة الضمان",
+        create1: "اختر الأصل (POL أو USDT أو USDT.e أو PAXG) وأدخل المبلغ.",
+        create2: "راجع معاينة <strong>رسوم المرسل 1%</strong>.",
+        create3: "حدّد مدة <strong>القفل الزمني</strong>. يصبح الاسترداد متاحًا عند انتهائها.",
+        create4: "حدّد <strong>كلمة سر</strong>. <i>(شاركها مع المستلم خارج السلسلة.)</i>",
+        create5: "أكّد المعاملة وأرسلها.",
+        stepReleaseTitle: "3. التحرير أو الاسترداد",
+        releaseRecipient: "<span class=\"badge\">المستلم</span> أدخل رقم الخزنة وكلمة السر لاستلام المبلغ الصافي المقفل.",
+        releaseSender: "<span class=\"badge\">المرسل</span> إذا انتهى القفل الزمني دون تحرير، استخدم الاسترداد لاستعادة الأموال.",
+        securityTitle: "تنبيه أمني",
+        security: "يعمل SafeBridge Global بالكامل عبر عقود ذكية غير وصائية. لا يستطيع مسؤولو البروتوكول الوصول إلى أصولك المقفلة أو كلمات السر."
+      },
+      tr: {
+        pageTitle: "Kullanım Kılavuzu — SafeBridge Global",
+        langLabel: "Dil",
+        back: "Emanet uygulamasına dön",
+        title: "SafeBridge Global — Kullanım Kılavuzu",
+        intro: "<strong>Polygon Ana Ağ</strong> üzerinde çalışan, saklama hizmeti olmayan yapılandırılmış emanet protokolü.",
+        featuresTitle: "Temel özellikler",
+        featTokens: "<strong>Desteklenen tokenlar:</strong> <code>POL</code>, <code>USDT</code>, <code>USDT.e</code> ve <code>PAXG</code>",
+        featSecurity: "<strong>Güvenlik:</strong> Parola korumalı serbest bırakma ve zaman kilitli iade",
+        featFee: "<strong>Şeffaf ücret:</strong> Net tutar kilitlenmeden önce gönderenden %1 kesilir",
+        featDash: "<strong>Sorgu:</strong> Zincir üstü anlık doğrulama ve olay takibi",
+        stepsTitle: "Adım adım",
+        stepConnectTitle: "1. Cüzdanı bağla",
+        stepConnect: "Web3 cüzdanının (MetaMask, Coinbase Wallet vb.) bağlı olduğundan ve <strong>Polygon Ana Ağ</strong> seçili olduğundan emin ol.",
+        stepCreateTitle: "2. Emanet kasası oluştur",
+        create1: "Varlığı seç (POL, USDT, USDT.e veya PAXG) ve tutarı gir.",
+        create2: "<strong>%1 gönderen ücreti</strong> önizlemesini kontrol et.",
+        create3: "<strong>Zaman kilidi</strong> süresini ayarla. Süre dolunca iade açılır.",
+        create4: "<strong>Gizli parola</strong> belirle. <i>(Bu parolayı alıcıya zincir dışında ilet.)</i>",
+        create5: "İşlemi onayla ve gönder.",
+        stepReleaseTitle: "3. Serbest bırak veya iade et",
+        releaseRecipient: "<span class=\"badge\">Alıcı</span> Kilitli net tutarı almak için kasa numarası ve gizli parolayı gir.",
+        releaseSender: "<span class=\"badge\">Gönderen</span> Süre dolup serbest bırakılmazsa İade ile fonları geri al.",
+        securityTitle: "Güvenlik notu",
+        security: "SafeBridge Global tamamen saklama hizmeti olmayan akıllı sözleşmelerle çalışır. Protokol yöneticilerinin kilitli varlıklarına veya gizli parolana erişimi yoktur."
+      }
+    };
+
+    let uiLang = "en";
+
+    function t(key) {
+      const pack = I18N[uiLang] || I18N.en;
+      return pack[key] || I18N.en[key] || key;
+    }
+
+    function initLanguageSelect() {
+      const select = document.getElementById("langSelect");
+      if (!select || select.dataset.ready === "1") return;
+      select.dataset.ready = "1";
+      for (const lang of LANGS) {
+        const option = document.createElement("option");
+        option.value = lang.id;
+        option.textContent = lang.label;
+        select.append(option);
+      }
+      select.addEventListener("change", () => applyLanguage(select.value));
+    }
+
+    function applyLanguage(lang) {
+      if (!I18N[lang]) lang = "en";
+      uiLang = lang;
+      const meta = LANGS.find((item) => item.id === lang);
+      document.documentElement.lang = meta ? meta.html : "en";
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+      try { localStorage.setItem("safebridge-lang", lang); } catch (e) {}
+      initLanguageSelect();
+      const select = document.getElementById("langSelect");
+      if (select) {
+        select.value = lang;
+        select.setAttribute("aria-label", t("langLabel"));
+      }
+      document.title = t("pageTitle");
+      document.querySelectorAll("[data-i18n]").forEach((el) => {
+        const key = el.dataset.i18n;
+        if (el.dataset.i18nHtml === "1") el.innerHTML = t(key);
+        else el.textContent = t(key);
+      });
+    }
+
+    let saved = "en";
+    try { saved = localStorage.getItem("safebridge-lang") || "en"; } catch (e) {}
+    applyLanguage(saved);
+  </script>
 </body>
 </html>
