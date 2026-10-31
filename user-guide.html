@@ -94,8 +94,8 @@
     <ul>
       <li data-i18n="create1">Select the asset (POL, USDT, USDT.e, or PAXG) and enter the amount.</li>
       <li data-i18n="create2" data-i18n-html="1">Review the <strong>0.25% sender fee</strong> preview.</li>
-      <li data-i18n="create3" data-i18n-html="1">Set a <strong>time lock</strong> duration. Refund becomes available when it expires.</li>
-      <li data-i18n="create4" data-i18n-html="1">Set a <strong>secret password</strong>. <i>(Share this password with the recipient off-chain.)</i></li>
+      <li data-i18n="create3" data-i18n-html="1">Set a <strong>time lock</strong> of at least 1 hour. Refund becomes available when it expires.</li>
+      <li data-i18n="create4" data-i18n-html="1">Set a <strong>secret password</strong>. <i>(Share it off-chain. The chain stores a hash, not the password.)</i></li>
       <li data-i18n="create5">Confirm and submit the transaction.</li>
     </ul>
 
@@ -108,7 +108,7 @@
 
   <div class="card">
     <h2 data-i18n="securityTitle">Security Notice</h2>
-    <p data-i18n="security">SafeBridge Global operates entirely through non-custodial smart contracts. Protocol administrators never have access to your locked assets or secret passwords.</p>
+    <p data-i18n="security">SafeBridge Global operates entirely through non-custodial smart contracts. Only listed tokens are accepted, the lock cannot be shorter than one hour, and the password itself is never written to the chain.</p>
   </div>
 
   <script>
@@ -141,14 +141,14 @@
         stepCreateTitle: "2. Create Escrow Vault",
         create1: "Select the asset (POL, USDT, USDT.e, or PAXG) and enter the amount.",
         create2: "Review the <strong>0.25% sender fee</strong> preview.",
-        create3: "Set a <strong>time lock</strong> duration. Refund becomes available when it expires.",
-        create4: "Set a <strong>secret password</strong>. <i>(Share this password with the recipient off-chain.)</i>",
+        create3: "Set a <strong>time lock</strong> of at least 1 hour. Refund becomes available when it expires.",
+        create4: "Set a <strong>secret password</strong>. <i>(Share it off-chain. The chain stores a hash, not the password.)</i>",
         create5: "Confirm and submit the transaction.",
         stepReleaseTitle: "3. Release or Refund",
         releaseRecipient: "<span class=\"badge\">Recipient</span> Enter the vault ID and secret password to claim the locked net amount.",
         releaseSender: "<span class=\"badge\">Sender</span> If the time lock expires without a release, use Refund to reclaim the funds.",
         securityTitle: "Security Notice",
-        security: "SafeBridge Global operates entirely through non-custodial smart contracts. Protocol administrators never have access to your locked assets or secret passwords."
+        security: "SafeBridge Global operates entirely through non-custodial smart contracts. Only listed tokens are accepted, the lock cannot be shorter than one hour, and the password itself is never written to the chain."
       },
       ru: {
         pageTitle: "Руководство — SafeBridge Global",
@@ -323,14 +323,14 @@
         stepCreateTitle: "2. Emanet kasası oluştur",
         create1: "Varlığı seç (POL, USDT, USDT.e veya PAXG) ve tutarı gir.",
         create2: "<strong>%0.25 gönderen ücreti</strong> önizlemesini kontrol et.",
-        create3: "<strong>Zaman kilidi</strong> süresini ayarla. Süre dolunca iade açılır.",
-        create4: "<strong>Gizli parola</strong> belirle. <i>(Bu parolayı alıcıya zincir dışında ilet.)</i>",
+        create3: "<strong>Zaman kilidini</strong> en az 1 saat yap. Süre dolunca iade açılır.",
+        create4: "<strong>Gizli parola</strong> belirle. <i>(Zincir dışında ilet. Zincirde parolanın kendisi değil özeti durur.)</i>",
         create5: "İşlemi onayla ve gönder.",
         stepReleaseTitle: "3. Serbest bırak veya iade et",
         releaseRecipient: "<span class=\"badge\">Alıcı</span> Kilitli net tutarı almak için kasa numarası ve gizli parolayı gir.",
         releaseSender: "<span class=\"badge\">Gönderen</span> Süre dolup serbest bırakılmazsa İade ile fonları geri al.",
         securityTitle: "Güvenlik notu",
-        security: "SafeBridge Global tamamen saklama hizmeti olmayan akıllı sözleşmelerle çalışır. Protokol yöneticilerinin kilitli varlıklarına veya gizli parolana erişimi yoktur."
+        security: "SafeBridge Global tamamen saklama hizmeti olmayan akıllı sözleşmelerle çalışır. Yalnızca listelenen tokenlar kabul edilir, kilit 1 saatten kısa olamaz ve parola zincire düz yazılmaz."
       }
     };
 

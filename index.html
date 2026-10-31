@@ -10,21 +10,28 @@
       return new Promise((resolve, reject) => {
         if (window.ethers) return resolve(window.ethers);
 
-        const cdns = [
-          "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
-          "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js",
-          "https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"
+        const sources = [
+          { src: "vendor/ethers-6.11.1.umd.min.js" },
+          {
+            src: "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
+            integrity: "sha384-POWgdAoUVoSKkKYCBiE8vhaiaawRSqMLmzJK50pZmRICRfkn2pYEHFRmn7Bogvej"
+          }
         ];
 
         let index = 0;
 
         function loadNext() {
-          if (index >= cdns.length) {
+          if (index >= sources.length) {
             return reject(new Error("Ethers kütüphanesi hiçbir CDN üzerinden yüklenemedi."));
           }
 
+          const item = sources[index++];
           const script = document.createElement('script');
-          script.src = cdns[index++];
+          script.src = item.src;
+          if (item.integrity) {
+            script.integrity = item.integrity;
+            script.crossOrigin = "anonymous";
+          }
           script.onload = () => resolve(window.ethers);
           script.onerror = () => loadNext();
           document.head.appendChild(script);
@@ -560,7 +567,7 @@
     const CONFIG = {
       chainIdHex: "0x89",
       chainIdDec: 137,
-      instantContract: "0xdbB4B793b7852023171bB0B9f4B86d2904E7E215",
+      instantContract: "0x1119eADB98A205fd4237bc258d46eA15261D50bC",
       feeBps: 25,
       feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D"
     };
@@ -569,7 +576,7 @@
       POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
       USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
       USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
-      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
+      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714DB550b574b3e927Fb3d93E26127d15721d4c2", decimals: 18 }
     };
 
     const INSTANT_ABI = [
@@ -1552,6 +1559,14 @@
       });
     }
 
+    function isSafeAddress(value) {
+      if (!ethers.isAddress(value)) return false;
+      const lower = value.toLowerCase();
+      const upper = value.toUpperCase();
+      if (value === lower || value === upper) return true;
+      try { return ethers.getAddress(value) === value; } catch (e) { return false; }
+    }
+
     async function sendTransfer() {
       if (!signer) {
         openWalletPicker();
@@ -1563,7 +1578,7 @@
       const selectedKey = document.getElementById('assetSelect').value;
       const token = TOKENS[selectedKey];
 
-      if (!ethers.isAddress(recipient)) return setStatus("statusBadAddress", "error");
+      if (!isSafeAddress(recipient)) return setStatus("statusBadAddress", "error");
       if (!rawAmount || Number(rawAmount) <= 0) return setStatus("statusBadAmount", "error");
 
       try {

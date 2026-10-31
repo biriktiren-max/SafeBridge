@@ -10,21 +10,28 @@
       return new Promise((resolve, reject) => {
         if (window.ethers) return resolve(window.ethers);
 
-        const cdns = [
-          "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
-          "https://cdn.jsdelivr.net/npm/ethers@6.11.1/dist/ethers.umd.min.js",
-          "https://unpkg.com/ethers@6.11.1/dist/ethers.umd.min.js"
+        const sources = [
+          { src: "vendor/ethers-6.11.1.umd.min.js" },
+          {
+            src: "https://cdnjs.cloudflare.com/ajax/libs/ethers/6.11.1/ethers.umd.min.js",
+            integrity: "sha384-POWgdAoUVoSKkKYCBiE8vhaiaawRSqMLmzJK50pZmRICRfkn2pYEHFRmn7Bogvej"
+          }
         ];
 
         let index = 0;
 
         function loadNext() {
-          if (index >= cdns.length) {
+          if (index >= sources.length) {
             return reject(new Error("Ethers kütüphanesi hiçbir CDN üzerinden yüklenemedi."));
           }
 
+          const item = sources[index++];
           const script = document.createElement('script');
-          script.src = cdns[index++];
+          script.src = item.src;
+          if (item.integrity) {
+            script.integrity = item.integrity;
+            script.crossOrigin = "anonymous";
+          }
           script.onload = () => resolve(window.ethers);
           script.onerror = () => loadNext();
           document.head.appendChild(script);
@@ -329,7 +336,7 @@
             </div>
             <div class="field">
               <label data-i18n="timelockLabel">Timelock (Hours)</label>
-              <input type="number" id="hours" value="1" min="0" max="8760" step="1" />
+              <input type="number" id="hours" value="1" min="1" max="8760" step="1" />
             </div>
           </div>
 
@@ -343,7 +350,7 @@
             </div>
             <input type="text" id="pass" data-i18n-placeholder="passPlaceholder" placeholder="At least 8 characters" />
             <div style="color:var(--muted); font-size:12px; margin-top:6px;" data-i18n="passHint">
-              This password will be used by the recipient during release.
+              Share this password off-chain. The chain stores only a hash, not the password itself.
             </div>
           </div>
 
@@ -414,7 +421,7 @@
         <div class="meta-grid">
           <div class="mini-card">
             <div class="mini-label" data-i18n="contractLabel">Contract Address</div>
-            <div class="mono">0x494FA90cdF2E3ce2B2c07E50773185449F4DD7aF</div>
+            <div class="mono">0x5230E2Ffa810d04eF2d6add04c47B1a4eE179f38</div>
           </div>
           <div class="mini-card">
             <div class="mini-label" data-i18n="feeRecipientLabel">Fee Recipient</div>
@@ -451,24 +458,13 @@
       <p class="wallet-modal-subtitle" data-i18n="modalSubtitle">Choose your wallet to transact on Polygon:</p>
       
       <div id="walletList" class="wallet-grid"></div>
-
-      <div class="wallet-divider">
-        <span data-i18n="mobileDivider">or connect on mobile</span>
-      </div>
-
-      <button id="walletConnectBtn" class="wallet-card" onclick="connectWallet()">
-        <div class="wallet-info">
-          <span class="wallet-name">WalletConnect</span>
-          <span class="wallet-desc" data-i18n="wcDesc">Trust Wallet, Rainbow and mobile wallets</span>
-        </div>
-      </button>
     </div>
   </div>
 
   <script src="escrow-i18n.js"></script>
   <script>
     const APP_CONFIG = {
-      escrowContract: "0x494FA90cdF2E3ce2B2c07E50773185449F4DD7aF",
+      escrowContract: "0x5230E2Ffa810d04eF2d6add04c47B1a4eE179f38",
       feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D",
       feeRatePercent: 0.25,
       chainIdHex: "0x89",
@@ -479,14 +475,14 @@
       POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
       USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
       USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
-      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714db550b574b3e927fb3d93e26127d15721d4c2", decimals: 18 }
+      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714DB550b574b3e927Fb3d93E26127d15721d4c2", decimals: 18 }
     };
 
     const ESCROW_ABI = [
-      "function createEscrow(address payable _recipient, address _token, uint256 _grossAmount, bytes32 _passwordHash, uint256 _duration) external payable",
-      "function releaseEscrow(uint256 _txId, string memory _password) external",
-      "function refundEscrow(uint256 _txId) external",
-      "function getTransaction(uint256 _txId) external view returns (address sender, address recipient, address token, uint256 amount, bytes32 passwordHash, uint256 timelock, uint256 createdAt, uint8 status)",
+      "function createEscrow(address payable recipient, address token, uint256 grossAmount, bytes32 passwordCommit, uint256 duration) external payable",
+      "function releaseEscrow(uint256 txId, bytes32 passwordCommit) external",
+      "function refundEscrow(uint256 txId) external",
+      "function getTransaction(uint256 txId) external view returns (address sender, address recipient, address token, uint256 amount, uint256 timelock, uint256 createdAt, uint8 status)",
       "event EscrowCreated(uint256 indexed txId, address indexed sender, address indexed recipient, address token, uint256 grossAmount, uint256 feeAmount, uint256 netAmount, uint256 timelock)",
       "event EscrowReleased(uint256 indexed txId)",
       "event EscrowRefunded(uint256 indexed txId)"
@@ -673,6 +669,33 @@
         card.addEventListener('click', () => connectToDiscoveredWallet(walletDetail));
         walletListContainer.append(card);
       }
+
+      if (discoveredWallets.length === 0) {
+        const fallbacks = [
+          { name: "MetaMask", href: "https://metamask.io/download/" },
+          { name: "Trust Wallet", href: "https://trustwallet.com/download" },
+          { name: "Coinbase Wallet", href: "https://www.coinbase.com/wallet/downloads" },
+          { name: "Rabby", href: "https://rabby.io/" }
+        ];
+        for (const wallet of fallbacks) {
+          const card = document.createElement("a");
+          card.className = "wallet-card";
+          card.href = wallet.href;
+          card.target = "_blank";
+          card.rel = "noopener noreferrer";
+          const info = document.createElement("div");
+          info.className = "wallet-info";
+          const name = document.createElement("span");
+          name.className = "wallet-name";
+          name.textContent = wallet.name;
+          const desc = document.createElement("span");
+          desc.className = "wallet-desc";
+          desc.textContent = t("installHint");
+          info.append(name, desc);
+          card.append(info);
+          walletListContainer.append(card);
+        }
+      }
     }
 
     async function connectToDiscoveredWallet(walletDetail) {
@@ -713,33 +736,10 @@
       }
     }
 
-    async function connectWallet() {
+    function connectWallet() {
       openModal();
       window.dispatchEvent(new Event("eip6963:requestProvider"));
-      
-      if (discoveredWallets.length === 0 && window.ethereum) {
-        try {
-          await ensureEthersLoaded();
-          provider = new ethers.BrowserProvider(window.ethereum);
-          const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-          if (chainId !== APP_CONFIG.chainIdHex) {
-            await window.ethereum.request({
-              method: 'wallet_switchEthereumChain',
-              params: [{ chainId: APP_CONFIG.chainIdHex }]
-            });
-          }
-          const accounts = await provider.send('eth_requestAccounts', []);
-          connectedAccount = accounts[0];
-          signer = await provider.getSigner();
-          escrowContract = new ethers.Contract(APP_CONFIG.escrowContract, ESCROW_ABI, signer);
-
-          refreshConnectionLabels();
-          setStatus("statusConnectedOk", "success");
-          closeModal();
-        } catch (e) {
-          setStatus(e.reason || e.message || "statusConnectFail", "error");
-        }
-      }
+      renderWalletList();
     }
 
     /* --- Temel İşlevler --- */
@@ -791,6 +791,14 @@
         lastStatus = { key: null, type, vars: {}, raw: message };
       }
       paintStatus();
+    }
+
+    function isSafeAddress(value) {
+      if (!ethers.isAddress(value)) return false;
+      const lower = value.toLowerCase();
+      const upper = value.toUpperCase();
+      if (value === lower || value === upper) return true;
+      try { return ethers.getAddress(value) === value; } catch (e) { return false; }
     }
 
     function getSelectedToken() {
@@ -852,15 +860,15 @@
       const password = document.getElementById('pass').value.trim();
       const token = getSelectedToken();
 
-      if (!ethers.isAddress(recipient)) return setStatus("statusBadAddress", "error");
+      if (!isSafeAddress(recipient)) return setStatus("statusBadAddress", "error");
       if (!rawAmount || Number(rawAmount) <= 0) return setStatus("statusBadAmount", "error");
       if (!password || password.length < 8) return setStatus("statusShortPassword", "error");
-      if (hours === '' || Number(hours) < 0) return setStatus("statusBadHours", "error");
+      if (hours === '' || Number(hours) < 1) return setStatus("statusBadHours", "error");
 
       try {
         const grossAmountUnits = ethers.parseUnits(rawAmount, token.decimals);
         const durationSeconds = BigInt(hours) * 3600n;
-        const passwordHash = ethers.keccak256(ethers.toUtf8Bytes(password));
+        const passwordCommit = ethers.keccak256(ethers.toUtf8Bytes(password));
 
         if (token.type === 'erc20') {
           const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
@@ -885,7 +893,7 @@
             recipient,
             ethers.ZeroAddress,
             grossAmountUnits,
-            passwordHash,
+            passwordCommit,
             durationSeconds,
             { value: grossAmountUnits }
           );
@@ -894,7 +902,7 @@
             recipient,
             token.address,
             grossAmountUnits,
-            passwordHash,
+            passwordCommit,
             durationSeconds
           );
         }
@@ -956,7 +964,8 @@
 
       try {
         setStatus("statusWaitingChain");
-        const tx = await escrowContract.releaseEscrow(txId, password);
+        const passwordCommit = ethers.keccak256(ethers.toUtf8Bytes(password));
+        const tx = await escrowContract.releaseEscrow(txId, passwordCommit);
         const receipt = await tx.wait();
 
         document.getElementById('resultBox').textContent = JSON.stringify({
