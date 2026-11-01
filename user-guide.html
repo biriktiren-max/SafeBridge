@@ -111,6 +111,7 @@
     <p data-i18n="security">SafeBridge Global operates entirely through non-custodial smart contracts. Only listed tokens are accepted, the lock cannot be shorter than one hour, and the password itself is never written to the chain.</p>
   </div>
 
+  <script src="owner-lang.js"></script>
   <script>
     const LANGS = [
       { id: "en", label: "English", html: "en" },
@@ -335,6 +336,7 @@
     };
 
     let uiLang = "en";
+    let ownerAccount = "";
 
     function t(key) {
       const pack = I18N[uiLang] || I18N.en;
@@ -343,24 +345,28 @@
 
     function initLanguageSelect() {
       const select = document.getElementById("langSelect");
-      if (!select || select.dataset.ready === "1") return;
-      select.dataset.ready = "1";
-      for (const lang of LANGS) {
+      if (!select) return;
+      if (select.dataset.bound !== "1") {
+        select.dataset.bound = "1";
+        select.addEventListener("change", () => applyLanguage(select.value));
+      }
+      select.replaceChildren();
+      for (const lang of window.SB_visibleLangs(LANGS, ownerAccount)) {
         const option = document.createElement("option");
         option.value = lang.id;
         option.textContent = lang.label;
         select.append(option);
       }
-      select.addEventListener("change", () => applyLanguage(select.value));
     }
 
     function applyLanguage(lang) {
+      lang = window.SB_safeLang(lang, ownerAccount);
       if (!I18N[lang]) lang = "en";
       uiLang = lang;
       const meta = LANGS.find((item) => item.id === lang);
       document.documentElement.lang = meta ? meta.html : "en";
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      try { localStorage.setItem("safebridge-lang", lang); } catch (e) {}
+      try { if (lang !== "tr") localStorage.setItem("safebridge-lang", lang); } catch (e) {}
       initLanguageSelect();
       const select = document.getElementById("langSelect");
       if (select) {
@@ -378,6 +384,26 @@
     let saved = "en";
     try { saved = localStorage.getItem("safebridge-lang") || "en"; } catch (e) {}
     applyLanguage(saved);
+
+    async function syncOwnerFromWallet() {
+      if (!window.ethereum) return;
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        ownerAccount = accounts && accounts[0] ? accounts[0] : "";
+        if (window.SB_isOwnerAccount(ownerAccount)) applyLanguage("tr");
+        else if (uiLang === "tr") applyLanguage("en");
+        else initLanguageSelect();
+      } catch (e) {}
+    }
+
+    syncOwnerFromWallet();
+    if (window.ethereum && window.ethereum.on) {
+      window.ethereum.on("accountsChanged", function (accs) {
+        ownerAccount = accs && accs[0] ? accs[0] : "";
+        if (window.SB_isOwnerAccount(ownerAccount)) applyLanguage("tr");
+        else applyLanguage(uiLang === "tr" ? "en" : uiLang);
+      });
+    }
   </script>
 </body>
 </html>

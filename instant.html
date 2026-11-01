@@ -563,6 +563,7 @@
     </div>
   </div>
 
+  <script src="owner-lang.js"></script>
   <script>
     const CONFIG = {
       chainIdHex: "0x89",
@@ -1112,26 +1113,40 @@
       return text;
     }
 
+    function visibleLangs() {
+      return window.SB_visibleLangs(LANGS, connectedAccount);
+    }
+
     function initLanguageSelect() {
       const select = document.getElementById("langSelect");
-      if (!select || select.dataset.ready === "1") return;
-      select.dataset.ready = "1";
-      for (const lang of LANGS) {
+      if (!select) return;
+      if (select.dataset.bound !== "1") {
+        select.dataset.bound = "1";
+        select.addEventListener("change", () => applyLanguage(select.value));
+      }
+      select.replaceChildren();
+      for (const lang of visibleLangs()) {
         const option = document.createElement("option");
         option.value = lang.id;
         option.textContent = lang.label;
         select.append(option);
       }
-      select.addEventListener("change", () => applyLanguage(select.value));
+    }
+
+    function syncOwnerLanguage() {
+      if (window.SB_isOwnerAccount(connectedAccount)) applyLanguage("tr");
+      else if (uiLang === "tr") applyLanguage("en");
+      else initLanguageSelect();
     }
 
     function applyLanguage(lang) {
+      lang = window.SB_safeLang(lang, connectedAccount);
       if (!I18N[lang]) lang = "en";
       uiLang = lang;
       const meta = LANGS.find((item) => item.id === lang);
       document.documentElement.lang = meta ? meta.html : "en";
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      try { localStorage.setItem("safebridge-lang", lang); } catch (e) {}
+      try { if (lang !== "tr") localStorage.setItem("safebridge-lang", lang); } catch (e) {}
       initLanguageSelect();
       const select = document.getElementById("langSelect");
       if (select) {
@@ -1419,6 +1434,7 @@
       connectedAccount = address;
       refreshConnectionLabels();
       renderWalletLinks();
+      syncOwnerLanguage();
     }
 
     function disconnectState() {
@@ -1429,6 +1445,7 @@
       activeWalletName = null;
       refreshConnectionLabels();
       renderWalletLinks();
+      syncOwnerLanguage();
       setStatus("statusDisconnected");
     }
 

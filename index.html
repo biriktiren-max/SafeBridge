@@ -228,6 +228,7 @@
     <a href="user-guide.html" data-i18n="guide">User guide</a>
   </div>
 
+  <script src="owner-lang.js"></script>
   <script>
     const LANGS = [
       { id: "en", label: "English", html: "en" },
@@ -380,18 +381,26 @@
     };
 
     const select = document.getElementById("langSelect");
-    let uiLang = localStorage.getItem("sb_lang") || "en";
+    let ownerAccount = "";
+    let uiLang = window.SB_safeLang(localStorage.getItem("sb_lang") || "en", ownerAccount);
     if (!I18N[uiLang]) uiLang = "en";
 
-    for (const lang of LANGS) {
-      const opt = document.createElement("option");
-      opt.value = lang.id;
-      opt.textContent = lang.label;
-      if (lang.id === uiLang) opt.selected = true;
-      select.append(opt);
+    function fillLangs() {
+      select.replaceChildren();
+      const list = window.SB_visibleLangs(LANGS, ownerAccount);
+      for (const lang of list) {
+        const opt = document.createElement("option");
+        opt.value = lang.id;
+        opt.textContent = lang.label;
+        if (lang.id === uiLang) opt.selected = true;
+        select.append(opt);
+      }
     }
 
     function applyLang(id) {
+      id = window.SB_safeLang(id, ownerAccount);
+      if (!I18N[id]) id = "en";
+      uiLang = id;
       const pack = I18N[id] || I18N.en;
       const meta = LANGS.find((l) => l.id === id) || LANGS[0];
       document.documentElement.lang = meta.html;
@@ -400,15 +409,36 @@
       document.querySelectorAll("[data-i18n]").forEach((el) => {
         el.textContent = pack[el.getAttribute("data-i18n")] || el.textContent;
       });
+      fillLangs();
     }
 
     select.addEventListener("change", () => {
-      uiLang = select.value;
-      localStorage.setItem("sb_lang", uiLang);
+      uiLang = window.SB_safeLang(select.value, ownerAccount);
+      localStorage.setItem("sb_lang", uiLang === "tr" ? "en" : uiLang);
       applyLang(uiLang);
     });
 
     applyLang(uiLang);
+
+    async function syncOwnerFromWallet() {
+      if (!window.ethereum) return;
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        ownerAccount = accounts && accounts[0] ? accounts[0] : "";
+        if (window.SB_isOwnerAccount(ownerAccount)) applyLang("tr");
+        else if (uiLang === "tr") applyLang("en");
+        else fillLangs();
+      } catch (e) {}
+    }
+
+    syncOwnerFromWallet();
+    if (window.ethereum && window.ethereum.on) {
+      window.ethereum.on("accountsChanged", function (accs) {
+        ownerAccount = accs && accs[0] ? accs[0] : "";
+        if (window.SB_isOwnerAccount(ownerAccount)) applyLang("tr");
+        else applyLang(uiLang === "tr" ? "en" : uiLang);
+      });
+    }
   </script>
 </body>
 </html>
