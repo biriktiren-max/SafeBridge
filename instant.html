@@ -51,8 +51,9 @@
       --input-bg: #030712;
       --text: #f3f4f6;
       --muted: #9ca3af;
-      --primary: #6366f1;
-      --primary-hover: #4f46e5;
+      --primary: #0891b2;
+      --primary-hover: #0e7490;
+      --cyan: #22d3ee;
       --emerald: #10b981;
       --red: #ef4444;
     }
@@ -66,7 +67,12 @@
     body {
       margin: 0;
       font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg);
+      background:
+        radial-gradient(700px 420px at 10% 0%, rgba(34, 211, 238, 0.18), transparent 55%),
+        radial-gradient(560px 360px at 55% 0%, rgba(167, 139, 250, 0.14), transparent 52%),
+        radial-gradient(600px 360px at 95% 15%, rgba(251, 146, 60, 0.12), transparent 50%),
+        radial-gradient(520px 300px at 80% 100%, rgba(244, 114, 182, 0.10), transparent 55%),
+        linear-gradient(180deg, #020617 0%, #07111f 100%);
       color: var(--text);
       min-height: 100vh;
       display: flex;
@@ -112,7 +118,17 @@
       gap: 8px;
       font-weight: 800;
       font-size: 18px;
-      color: #38bdf8;
+      background: linear-gradient(90deg, #67e8f9, #a78bfa, #fb923c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo a {
+      background: inherit;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .btn-nav {
@@ -130,8 +146,8 @@
     .btn-nav:hover { background: #334155; }
 
     .btn-connect {
-      background: var(--primary);
-      color: white;
+      background: linear-gradient(90deg, #7c3aed, #a78bfa 50%, #fb7185);
+      color: #fff;
       border: none;
       padding: 10px 18px;
       border-radius: 12px;
@@ -140,16 +156,20 @@
       transition: all 0.2s;
     }
 
-    .btn-connect:hover { background: var(--primary-hover); }
+    .btn-connect:hover { filter: brightness(1.08); }
 
     .card {
       width: 100%;
       max-width: 480px;
-      background: var(--panel);
-      border: 1px solid var(--border);
+      background:
+        radial-gradient(420px 220px at 0% 0%, rgba(34, 211, 238, 0.14), transparent 55%),
+        radial-gradient(380px 200px at 100% 0%, rgba(167, 139, 250, 0.14), transparent 55%),
+        radial-gradient(360px 180px at 100% 100%, rgba(251, 146, 60, 0.10), transparent 55%),
+        linear-gradient(165deg, rgba(11, 18, 32, 0.98), rgba(8, 47, 73, 0.35));
+      border: 1px solid #5b21b6;
       border-radius: 24px;
       padding: 24px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 20px 40px rgba(124, 58, 237, 0.18);
     }
 
     .status-badge-box {
@@ -227,8 +247,8 @@
 
     .btn-send {
       width: 100%;
-      background: linear-gradient(90deg, #6366f1, #818cf8);
-      color: white;
+      background: linear-gradient(90deg, #0891b2, #a78bfa 40%, #fb923c 70%, #34d399);
+      color: #04111a;
       border: none;
       padding: 16px;
       border-radius: 14px;
@@ -509,7 +529,7 @@
     <p class="desc" data-i18n="desc">
       Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.
     </p>
-    <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a wallet first. You approve each transfer inside the wallet.</p>
+    <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a Polygon wallet first and keep a little POL for gas. You approve each transfer inside the wallet.</p>
 
     <div class="field">
       <label data-i18n="recipientLabel">Recipient Wallet Address</label>
@@ -519,7 +539,7 @@
     <div class="grid-2">
       <div class="field">
         <label data-i18n="amountLabel">Amount</label>
-        <input type="number" id="amount" placeholder="0.0" step="0.000001" min="0" />
+        <input type="number" id="amount" placeholder="" step="0.000001" min="0" />
       </div>
       <div class="field">
         <label data-i18n="assetLabel">Asset</label>
@@ -620,7 +640,7 @@
         pickerTitle: "Choose a wallet",
         pickerSubtitle: "Approve the connection in the wallet. SafeBridge never asks for your recovery phrase.",
         pickerClose: "Close",
-        connectHint: "Connect a wallet first. You approve each transfer inside the wallet.",
+        connectHint: "Connect a Polygon wallet first and keep a little POL for gas. You approve each transfer inside the wallet.",
         helpTitle: "Need help?",
         changeWallet: "Change wallet",
         step1: "Choose a wallet. On a phone you can open this page inside the wallet app.",
@@ -682,7 +702,7 @@
         pickerTitle: "Выберите кошелёк",
         pickerSubtitle: "Подтвердите подключение в кошельке. SafeBridge никогда не запрашивает фразу восстановления.",
         pickerClose: "Закрыть",
-        connectHint: "Сначала подключите кошелёк. Каждый перевод вы подтверждаете в кошельке.",
+        connectHint: "Сначала подключите кошелёк Polygon и оставьте немного POL на газ. Каждый перевод вы подтверждаете в кошельке.",
         helpTitle: "Нужна помощь?",
         changeWallet: "Сменить кошелёк",
         step1: "Выберите кошелёк. На телефоне эту страницу можно открыть внутри приложения кошелька.",
@@ -744,7 +764,7 @@
         pickerTitle: "选择钱包",
         pickerSubtitle: "在钱包内确认连接。SafeBridge 绝不会索取助记词。",
         pickerClose: "关闭",
-        connectHint: "请先连接钱包。每笔转账都在钱包内确认。",
+        connectHint: "请先连接 Polygon 钱包并预留少量 POL 作为 gas。每笔转账都在钱包内确认。",
         helpTitle: "需要帮助？",
         changeWallet: "更换钱包",
         step1: "选择一个钱包。在手机上可以在钱包应用内打开本页。",
@@ -806,7 +826,7 @@
         pickerTitle: "Elige una billetera",
         pickerSubtitle: "Aprueba la conexión en la billetera. SafeBridge nunca pide tu frase de recuperación.",
         pickerClose: "Cerrar",
-        connectHint: "Conecta una billetera primero. Apruebas cada transferencia dentro de la billetera.",
+        connectHint: "Conecta primero una billetera Polygon y reserva un poco de POL para gas. Apruebas cada transferencia dentro de la billetera.",
         helpTitle: "¿Necesitas ayuda?",
         changeWallet: "Cambiar billetera",
         step1: "Elige una billetera. En el móvil puedes abrir esta página dentro de la app de la billetera.",
@@ -868,7 +888,7 @@
         pickerTitle: "ウォレットを選ぶ",
         pickerSubtitle: "接続はウォレット内で承認します。SafeBridge がリカバリーフレーズを求めることはありません。",
         pickerClose: "閉じる",
-        connectHint: "先にウォレットを接続してください。各送金はウォレット内で承認します。",
+        connectHint: "先に Polygon ウォレットを接続し、ガス用の少量の POL を用意してください。各送金はウォレット内で承認します。",
         helpTitle: "ヘルプ",
         changeWallet: "ウォレットを変更",
         step1: "ウォレットを選びます。スマホではウォレットアプリ内でこのページを開けます。",
@@ -930,7 +950,7 @@
         pickerTitle: "지갑 선택",
         pickerSubtitle: "연결은 지갑 안에서 승인합니다. SafeBridge는 복구 구문을 절대 요청하지 않습니다.",
         pickerClose: "닫기",
-        connectHint: "먼저 지갑을 연결하세요. 각 전송은 지갑 안에서 승인합니다.",
+        connectHint: "먼저 Polygon 지갑을 연결하고 가스용 POL을 조금 준비하세요. 각 전송은 지갑 안에서 승인합니다.",
         helpTitle: "도움이 필요하신가요?",
         changeWallet: "지갑 변경",
         step1: "지갑을 선택하세요. 모바일에서는 지갑 앱 안에서 이 페이지를 열 수 있습니다.",
@@ -992,7 +1012,7 @@
         pickerTitle: "Cüzdan seç",
         pickerSubtitle: "Bağlantıyı cüzdanın içinde onayla. SafeBridge kurtarma ifadeni asla istemez.",
         pickerClose: "Kapat",
-        connectHint: "Önce bir cüzdan bağla. Her transferi cüzdanın içinde onaylarsın.",
+        connectHint: "Önce Polygon cüzdanını bağla ve biraz POL gas bulundur. Her transferi cüzdanın içinde onaylarsın.",
         helpTitle: "Yardım gerekir mi?",
         changeWallet: "Cüzdan değiştir",
         step1: "Bir cüzdan seç. Telefonda bu sayfayı cüzdan uygulamasının içinde açabilirsin.",
@@ -1054,7 +1074,7 @@
         pickerTitle: "اختر محفظة",
         pickerSubtitle: "وافق على الربط داخل المحفظة. لا يطلب SafeBridge عبارة الاسترداد أبدًا.",
         pickerClose: "إغلاق",
-        connectHint: "اربط محفظة أولًا. توافق على كل تحويل داخل المحفظة.",
+        connectHint: "اربط محفظة Polygon أولًا واترك قليلًا من POL للغاز. توافق على كل تحويل داخل المحفظة.",
         helpTitle: "تحتاج مساعدة؟",
         changeWallet: "تغيير المحفظة",
         step1: "اختر محفظة. على الهاتف يمكنك فتح هذه الصفحة داخل تطبيق المحفظة.",
