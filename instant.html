@@ -189,8 +189,20 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.5;
-      margin-bottom: 24px;
+      margin-bottom: 14px;
     }
+
+    .needs {
+      margin: 0 0 18px;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    html[dir="rtl"] .needs { padding-left: 0; padding-right: 18px; }
+
+    .needs li { margin: 0 0 6px; }
 
     .field {
       margin-bottom: 18px;
@@ -509,6 +521,11 @@
     <p class="desc" data-i18n="desc">
       Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.
     </p>
+    <ul class="needs">
+      <li data-i18n="needWallet">A wallet on Polygon</li>
+      <li data-i18n="needAddress">The other person's address</li>
+      <li data-i18n="needPol">A little POL for the network fee. POL itself sends in one confirmation.</li>
+    </ul>
     <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a wallet first. You approve each transfer inside the wallet.</p>
 
     <div class="field">
@@ -613,6 +630,9 @@
         network: "Polygon Mainnet",
         title: "Instant Transfer",
         desc: "Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.",
+        needWallet: "A wallet on Polygon",
+        needAddress: "The other person's address",
+        needPol: "A little POL for the network fee. POL itself sends in one confirmation.",
         feeNote: "A 0.25% protocol fee is taken on-chain. The recipient receives the remaining amount.",
         feeLine: "Fee 0.25%: {fee} {symbol} · Recipient gets {net} {symbol}",
         guideTitle: "How to connect",
@@ -675,6 +695,9 @@
         network: "Polygon Mainnet",
         title: "Мгновенный перевод",
         desc: "Прямой перевод POL, USDT, USDT.e и PAXG с кошелька на кошелёк в сети Polygon. Комиссия 0,25% списывается в сети.",
+        needWallet: "Кошелёк в сети Polygon",
+        needAddress: "Адрес другой стороны",
+        needPol: "Немного POL на комиссию сети. Сам POL отправляется одним подтверждением.",
         feeNote: "Комиссия протокола 0,25% списывается в сети. Получатель получает оставшуюся сумму.",
         feeLine: "Комиссия 0,25%: {fee} {symbol} · Получатель получит {net} {symbol}",
         guideTitle: "Как подключить",
@@ -737,6 +760,9 @@
         network: "Polygon 主网",
         title: "即时转账",
         desc: "在 Polygon 主网上直接进行 POL、USDT、USDT.e 和 PAXG 的钱包到钱包转账。链上扣除 0.25% 手续费。",
+        needWallet: "Polygon 上的钱包",
+        needAddress: "对方的地址",
+        needPol: "少量 POL 作为网络费。POL 本身只需一次确认。",
         feeNote: "链上收取 0.25% 协议费，收款人收到剩余金额。",
         feeLine: "手续费 0.25%：{fee} {symbol} · 收款人到账 {net} {symbol}",
         guideTitle: "如何连接",
@@ -799,6 +825,9 @@
         network: "Polygon Mainnet",
         title: "Transferencia instantánea",
         desc: "Transferencia directa de billetera a billetera de POL, USDT, USDT.e y PAXG en Polygon Mainnet. Se descuenta una comisión del 0,25% en cadena.",
+        needWallet: "Una cartera en Polygon",
+        needAddress: "La dirección de la otra persona",
+        needPol: "Un poco de POL para la comisión de red. POL se envía con una confirmación.",
         feeNote: "Se cobra una comisión de protocolo del 0,25% en cadena. El destinatario recibe el resto.",
         feeLine: "Comisión 0,25%: {fee} {symbol} · El destinatario recibe {net} {symbol}",
         guideTitle: "Cómo conectar",
@@ -861,6 +890,9 @@
         network: "Polygon メインネット",
         title: "即時送金",
         desc: "Polygon メインネットで POL、USDT、USDT.e、PAXG をウォレット間で直接送金します。0.25% の手数料がオンチェーンで差し引かれます。",
+        needWallet: "Polygon のウォレット",
+        needAddress: "相手のアドレス",
+        needPol: "ネットワーク手数料用の少しの POL。POL 自体は確認1回で送れます。",
         feeNote: "0.25% のプロトコル手数料がオンチェーンで差し引かれ、受取人には残額が届きます。",
         feeLine: "手数料 0.25%: {fee} {symbol} · 受取額 {net} {symbol}",
         guideTitle: "接続方法",
@@ -923,6 +955,9 @@
         network: "Polygon 메인넷",
         title: "즉시 전송",
         desc: "Polygon 메인넷에서 POL, USDT, USDT.e, PAXG를 지갑에서 지갑으로 직접 전송합니다. 온체인에서 0.25% 수수료가 차감됩니다.",
+        needWallet: "Polygon 지갑",
+        needAddress: "상대 주소",
+        needPol: "네트워크 수수료용 POL이 조금 필요합니다. POL 자체는 확인 한 번으로 보내집니다.",
         feeNote: "0.25% 프로토콜 수수료가 온체인에서 차감되며, 받는 사람은 나머지 금액을 받습니다.",
         feeLine: "수수료 0.25%: {fee} {symbol} · 받는 금액 {net} {symbol}",
         guideTitle: "연결 방법",
@@ -985,6 +1020,9 @@
         network: "Polygon Ana Ağ",
         title: "Anında Transfer",
         desc: "Polygon ana ağında POL, USDT, USDT.e ve PAXG için cüzdandan cüzdana doğrudan transfer. Zincir üzerinde %0,25 komisyon kesilir.",
+        needWallet: "Polygon’da bir cüzdan",
+        needAddress: "Karşı tarafın adresi",
+        needPol: "Ağ ücreti için biraz POL. POL’un kendisi tek onayla gider.",
         feeNote: "Zincir üzerinde %0,25 protokol komisyonu kesilir. Alıcı kalan tutarı alır.",
         feeLine: "Komisyon %0,25: {fee} {symbol} · Alıcıya {net} {symbol}",
         guideTitle: "Nasıl bağlanır",
@@ -1047,6 +1085,9 @@
         network: "شبكة Polygon الرئيسية",
         title: "تحويل فوري",
         desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDT.e وPAXG على شبكة Polygon الرئيسية. تُخصم رسوم 0.25% على السلسلة.",
+        needWallet: "محفظة على Polygon",
+        needAddress: "عنوان الطرف الآخر",
+        needPol: "قليل من POL لرسوم الشبكة. POL نفسه يُرسل بتأكيد واحد.",
         feeNote: "تُخصم رسوم بروتوكول 0.25% على السلسلة. يستلم المستلم المبلغ المتبقي.",
         feeLine: "الرسوم 0.25%: {fee} {symbol} · يستلم المستلم {net} {symbol}",
         guideTitle: "كيفية الربط",
@@ -1146,7 +1187,7 @@
       const meta = LANGS.find((item) => item.id === lang);
       document.documentElement.lang = meta ? meta.html : "en";
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      try { if (lang !== "tr") localStorage.setItem("safebridge-lang", lang); } catch (e) {}
+      window.SB_rememberLang(lang);
       initLanguageSelect();
       const select = document.getElementById("langSelect");
       if (select) {
@@ -1628,9 +1669,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      let saved = "en";
-      try { saved = localStorage.getItem("safebridge-lang") || "en"; } catch (e) { saved = "en"; }
-      applyLanguage(saved);
+      applyLanguage(window.SB_detectLang(window.SB_readLang()));
       document.getElementById("amount")?.addEventListener("input", updateFeePreview);
       document.getElementById("assetSelect")?.addEventListener("change", updateFeePreview);
       document.getElementById("walletModal")?.addEventListener("click", (event) => {
