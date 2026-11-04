@@ -101,6 +101,38 @@
       line-height: 1.55;
     }
 
+    .needs {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      list-style: none;
+      margin: 22px auto 0;
+      padding: 0;
+      max-width: 720px;
+    }
+
+    .needs li {
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .start {
+      display: inline-flex;
+      margin-bottom: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.16);
+      color: #6ee7b7;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
     .choices {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -200,19 +232,25 @@
 
   <section class="hero">
     <div class="badge"><span class="dot"></span><span data-i18n="badge">Polygon Mainnet</span></div>
-    <h1 data-i18n="title">Send on Polygon, with a lock when you need one.</h1>
-    <p class="lead" data-i18n="lead">Choose a direct wallet transfer or a password-protected escrow. The fee is 0.25% on-chain. SafeBridge never holds your keys.</p>
+    <h1 data-i18n="title">Send on Polygon.</h1>
+    <p class="lead" data-i18n="lead">Instant send is one confirmation in your wallet. Escrow holds the money until the other person enters a password you share privately.</p>
+    <ul class="needs">
+      <li data-i18n="needWallet">A wallet on Polygon</li>
+      <li data-i18n="needAddress">The other person's address</li>
+      <li data-i18n="needPol">A little POL for the network fee</li>
+    </ul>
   </section>
 
   <div class="choices">
     <a class="choice instant" href="instant.html">
+      <span class="start" data-i18n="startHere">Start here</span>
       <h2 data-i18n="instantTitle">Instant Transfer</h2>
-      <p data-i18n="instantDesc">Send POL, USDT, USDT.e or PAXG now. The recipient gets the net amount in the same transaction.</p>
+      <p data-i18n="instantDesc">The other person receives the amount minus a 0.25% fee, in the same transaction.</p>
       <span class="go" data-i18n="instantGo">Continue to transfer →</span>
     </a>
     <a class="choice escrow" href="escrow.html">
       <h2 data-i18n="escrowTitle">Escrow</h2>
-      <p data-i18n="escrowDesc">Lock funds for at least one hour. The recipient releases them with the password. The chain stores a hash, not the password.</p>
+      <p data-i18n="escrowDesc">Use this when the money should stay locked until they have the password. The lock lasts at least one hour.</p>
       <span class="go" data-i18n="escrowGo">Continue to escrow →</span>
     </a>
   </div>
@@ -245,13 +283,17 @@
       en: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Send on Polygon, with a lock when you need one.",
-        lead: "Choose a direct wallet transfer or a password-protected escrow. The fee is 0.25% on-chain. SafeBridge never holds your keys.",
+        title: "Send on Polygon.",
+        lead: "Instant send is one confirmation in your wallet. Escrow holds the money until the other person enters a password you share privately.",
         instantTitle: "Instant Transfer",
-        instantDesc: "Send POL, USDT, USDT.e or PAXG now. The recipient gets the net amount in the same transaction.",
+        instantDesc: "The other person receives the amount minus a 0.25% fee, in the same transaction.",
         instantGo: "Continue to transfer →",
         escrowTitle: "Escrow",
-        escrowDesc: "Lock funds for at least one hour. The recipient releases them with the password. The chain stores a hash, not the password.",
+        escrowDesc: "Use this when the money should stay locked until they have the password. The lock lasts at least one hour.",
+        startHere: "Start here",
+        needWallet: "A wallet on Polygon",
+        needAddress: "The other person's address",
+        needPol: "A little POL for the network fee",
         escrowGo: "Continue to escrow →",
         factFee: "0.25% sender fee",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -262,13 +304,17 @@
       tr: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Ana Ağ",
-        title: "Polygon’da gönder. Gerektiğinde kilitle.",
-        lead: "Doğrudan cüzdan transferi veya parolalı emanet. Ücret zincirde %0.25. SafeBridge anahtarlarını tutmaz.",
+        title: "Polygon’da gönder.",
+        lead: "Anında gönderim cüzdanda tek onaydır. Emanet, karşı taraf senin özel paylaştığın parolayı girene kadar parayı tutar.",
         instantTitle: "Anında Transfer",
-        instantDesc: "POL, USDT, USDT.e veya PAXG’yi şimdi gönder. Alıcı net tutarı aynı işlemde alır.",
+        instantDesc: "Karşı taraf tutarı, %0,25 ücret düşülmüş haliyle aynı işlemde alır.",
         instantGo: "Transfer’e geç →",
         escrowTitle: "Emanet",
-        escrowDesc: "Fonları en az bir saat kilitle. Alıcı parolayla serbest bırakır. Zincirde parolanın kendisi değil özeti durur.",
+        escrowDesc: "Para, parola ellerine geçene kadar kilitli kalsın istiyorsan bunu kullan. Kilit en az bir saat sürer.",
+        startHere: "Buradan başla",
+        needWallet: "Polygon’da bir cüzdan",
+        needAddress: "Karşı tarafın adresi",
+        needPol: "Ağ ücreti için biraz POL",
         escrowGo: "Emanete geç →",
         factFee: "%0.25 gönderen ücreti",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -279,13 +325,17 @@
       ru: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Перевод в Polygon — с блокировкой, если нужна.",
-        lead: "Прямой перевод или эскроу с паролем. Комиссия 0.25% в сети. SafeBridge не хранит ваши ключи.",
+        title: "Отправьте в сети Polygon.",
+        lead: "Мгновенный перевод — одно подтверждение в кошельке. Эскроу держит деньги, пока другая сторона не введёт пароль, который вы передаёте лично.",
         instantTitle: "Мгновенный перевод",
-        instantDesc: "Отправьте POL, USDT, USDT.e или PAXG сразу. Получатель видит чистую сумму в той же транзакции.",
+        instantDesc: "Другая сторона получает сумму за вычетом 0,25% в той же транзакции.",
         instantGo: "К переводу →",
         escrowTitle: "Эскроу",
-        escrowDesc: "Блокировка минимум на час. Получатель снимает средства паролем. В сети хранится хеш, не пароль.",
+        escrowDesc: "Выберите это, если деньги должны оставаться заблокированными, пока у них нет пароля. Блокировка не короче одного часа.",
+        startHere: "Начните здесь",
+        needWallet: "Кошелёк в сети Polygon",
+        needAddress: "Адрес другой стороны",
+        needPol: "Немного POL на комиссию сети",
         escrowGo: "К эскроу →",
         factFee: "Комиссия отправителя 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -296,13 +346,17 @@
       zh: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon 主网",
-        title: "在 Polygon 上转账，需要时再上锁。",
-        lead: "直接钱包转账，或带密码的托管。链上手续费 0.25%。SafeBridge 不保管你的密钥。",
+        title: "在 Polygon 上转账。",
+        lead: "即时转账只需在钱包里确认一次。托管会保管这笔钱，直到对方输入你私下分享的密码。",
         instantTitle: "即时转账",
-        instantDesc: "立即发送 POL、USDT、USDT.e 或 PAXG。收款人在同一笔交易中收到净额。",
+        instantDesc: "对方在同一笔交易中收到扣除 0.25% 后的金额。",
         instantGo: "前往转账 →",
         escrowTitle: "托管",
-        escrowDesc: "至少锁定一小时。收款人用密码领取。链上只存哈希，不存密码。",
+        escrowDesc: "钱要一直锁着、直到对方拿到密码时再用这项。锁定至少一小时。",
+        startHere: "从这里开始",
+        needWallet: "Polygon 上的钱包",
+        needAddress: "对方的地址",
+        needPol: "少量 POL 作为网络费",
         escrowGo: "前往托管 →",
         factFee: "发送方手续费 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -313,13 +367,17 @@
       es: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Envía en Polygon, con bloqueo si lo necesitas.",
-        lead: "Transferencia directa o custodia con contraseña. La comisión es 0.25% en cadena. SafeBridge no guarda tus claves.",
+        title: "Envía en Polygon.",
+        lead: "El envío instantáneo es una confirmación en tu cartera. La custodia retiene el dinero hasta que la otra persona escribe una contraseña que compartes en privado.",
         instantTitle: "Transferencia instantánea",
-        instantDesc: "Envía POL, USDT, USDT.e o PAXG ahora. El destinatario recibe el neto en la misma transacción.",
+        instantDesc: "La otra persona recibe el importe menos un 0,25% en la misma transacción.",
         instantGo: "Ir a transferir →",
         escrowTitle: "Custodia",
-        escrowDesc: "Bloquea al menos una hora. El destinatario libera con la contraseña. La cadena guarda un hash, no la contraseña.",
+        escrowDesc: "Úsalo cuando el dinero deba seguir bloqueado hasta que tengan la contraseña. El bloqueo dura al menos una hora.",
+        startHere: "Empieza aquí",
+        needWallet: "Una cartera en Polygon",
+        needAddress: "La dirección de la otra persona",
+        needPol: "Un poco de POL para la comisión de red",
         escrowGo: "Ir a custodia →",
         factFee: "Comisión del emisor 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -330,13 +388,17 @@
       ja: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon メインネット",
-        title: "Polygon で送る。必要なときだけロック。",
-        lead: "直接送金か、パスワード付きエスクロー。手数料はオンチェーン 0.25%。鍵は預かりません。",
+        title: "Polygon で送る。",
+        lead: "即時送金はウォレットでの確認1回です。エスクローは、相手があなたが個別に伝えたパスワードを入力するまでお金を預かります。",
         instantTitle: "即時送金",
-        instantDesc: "POL / USDT / USDT.e / PAXG を今すぐ送る。受取人は同じ取引で純額を受け取ります。",
+        instantDesc: "相手は 0.25% を引いた金額を同じ取引で受け取ります。",
         instantGo: "送金へ →",
         escrowTitle: "エスクロー",
-        escrowDesc: "最低1時間ロック。受取人はパスワードで解除。チェーンにはハッシュだけが残ります。",
+        escrowDesc: "パスワードが渡るまでお金をロックしたいときに使います。ロックは最低1時間です。",
+        startHere: "ここから始める",
+        needWallet: "Polygon のウォレット",
+        needAddress: "相手のアドレス",
+        needPol: "ネットワーク手数料用の少しの POL",
         escrowGo: "エスクローへ →",
         factFee: "送金者手数料 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -347,13 +409,17 @@
       ko: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon 메인넷",
-        title: "Polygon에서 보내고, 필요할 때만 잠급니다.",
-        lead: "바로 보내거나 비밀번호 에스크로를 쓰세요. 수수료는 온체인 0.25%. 키는 보관하지 않습니다.",
+        title: "Polygon에서 보내세요.",
+        lead: "즉시 전송은 지갑에서 확인 한 번입니다. 에스크로는 상대가 당신이 따로 알려 준 비밀번호를 입력할 때까지 돈을 보관합니다.",
         instantTitle: "즉시 전송",
-        instantDesc: "POL, USDT, USDT.e, PAXG를 바로 보냅니다. 받는 사람은 같은 거래에서 순액을 받습니다.",
+        instantDesc: "상대는 0.25%를 뺀 금액을 같은 거래에서 받습니다.",
         instantGo: "전송으로 →",
         escrowTitle: "에스크로",
-        escrowDesc: "최소 1시간 잠급니다. 받는 사람이 비밀번호로 해제합니다. 체인에는 해시만 남습니다.",
+        escrowDesc: "비밀번호를 받기 전까지 돈을 잠가야 할 때 사용하세요. 잠금은 최소 1시간입니다.",
+        startHere: "여기서 시작",
+        needWallet: "Polygon 지갑",
+        needAddress: "상대 주소",
+        needPol: "네트워크 수수료용 POL 조금",
         escrowGo: "에스크로로 →",
         factFee: "보낸 사람 수수료 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -364,13 +430,17 @@
       ar: {
         pageTitle: "SafeBridge Global",
         badge: "شبكة Polygon الرئيسية",
-        title: "أرسل على Polygon، وقفّل عند الحاجة.",
-        lead: "تحويل مباشر أو ضمان بكلمة سر. الرسوم 0.25% على السلسلة. لا نحتفظ بمفاتيحك.",
+        title: "أرسل على Polygon.",
+        lead: "التحويل الفوري تأكيد واحد في محفظتك. الضمان يحتفظ بالمال حتى يُدخل الطرف الآخر كلمة سر تشاركها معه على انفراد.",
         instantTitle: "تحويل فوري",
-        instantDesc: "أرسل POL أو USDT أو USDT.e أو PAXG الآن. يستلم المستلم الصافي في نفس المعاملة.",
+        instantDesc: "يستلم الطرف الآخر المبلغ ناقص 0.25% في نفس المعاملة.",
         instantGo: "إلى التحويل ←",
         escrowTitle: "الضمان",
-        escrowDesc: "أقفل ساعة واحدة على الأقل. يحرّر المستلم بالمفتاح. السلسلة تخزّن الهاش لا كلمة السر.",
+        escrowDesc: "استخدمه عندما يجب أن يبقى المال مقفلاً حتى تصلهم كلمة السر. القفل ساعة واحدة على الأقل.",
+        startHere: "ابدأ من هنا",
+        needWallet: "محفظة على Polygon",
+        needAddress: "عنوان الطرف الآخر",
+        needPol: "قليل من POL لرسوم الشبكة",
         escrowGo: "إلى الضمان ←",
         factFee: "رسوم المرسل 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
@@ -382,7 +452,7 @@
 
     const select = document.getElementById("langSelect");
     let ownerAccount = "";
-    let uiLang = window.SB_safeLang(localStorage.getItem("sb_lang") || "en", ownerAccount);
+    let uiLang = window.SB_safeLang(window.SB_detectLang(window.SB_readLang()), ownerAccount);
     if (!I18N[uiLang]) uiLang = "en";
 
     function fillLangs() {
@@ -414,7 +484,7 @@
 
     select.addEventListener("change", () => {
       uiLang = window.SB_safeLang(select.value, ownerAccount);
-      localStorage.setItem("sb_lang", uiLang === "tr" ? "en" : uiLang);
+      window.SB_rememberLang(uiLang);
       applyLang(uiLang);
     });
 

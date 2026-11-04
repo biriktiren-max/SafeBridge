@@ -366,7 +366,7 @@
       const meta = LANGS.find((item) => item.id === lang);
       document.documentElement.lang = meta ? meta.html : "en";
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      try { if (lang !== "tr") localStorage.setItem("safebridge-lang", lang); } catch (e) {}
+      window.SB_rememberLang(lang);
       initLanguageSelect();
       const select = document.getElementById("langSelect");
       if (select) {
@@ -381,9 +381,7 @@
       });
     }
 
-    let saved = "en";
-    try { saved = localStorage.getItem("safebridge-lang") || "en"; } catch (e) {}
-    applyLanguage(saved);
+    applyLanguage(window.SB_detectLang(window.SB_readLang()));
 
     async function syncOwnerFromWallet() {
       if (!window.ethereum) return;
