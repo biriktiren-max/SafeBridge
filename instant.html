@@ -583,6 +583,7 @@
     </div>
   </div>
 
+  <script src="track.js"></script>
   <script src="owner-lang.js"></script>
   <script>
     const CONFIG = {
@@ -1397,6 +1398,7 @@
     }
 
     function openWalletPicker() {
+      if (window.SB && SB.track) SB.track("connect-open-instant");
       window.dispatchEvent(new Event("eip6963:requestProvider"));
       renderWalletLinks();
       const modal = document.getElementById("walletModal");
@@ -1476,6 +1478,7 @@
       provider = new ethers.BrowserProvider(ethereumProvider);
       signer = await provider.getSigner();
       showConnectedWallet(accountAddress);
+      if (window.SB && SB.track) SB.track("connect-instant");
       setStatus(activeWalletName ? "statusConnectedNamed" : "statusConnected", "success", { name: activeWalletName || "" });
     }
 
@@ -1641,6 +1644,7 @@
         setStatus("statusSubmitted", "info", { hash: tx.hash });
         const receipt = await tx.wait();
 
+        if (window.SB && SB.track) SB.track("tx-instant-send");
         setStatus("statusDone", "success", { hash: receipt.hash });
       } catch (e) {
         setStatus(e.reason || e.message || "statusTransferFail", "error");

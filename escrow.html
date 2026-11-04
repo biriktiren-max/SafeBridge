@@ -482,6 +482,7 @@
     </div>
   </div>
 
+  <script src="track.js"></script>
   <script src="escrow-i18n.js"></script>
   <script src="owner-lang.js"></script>
   <script>
@@ -643,6 +644,7 @@
 
         refreshConnectionLabels();
         syncOwnerLanguage();
+        if (window.SB && SB.track) SB.track("connect-escrow");
         setStatus("statusConnectedShort", "success", { address: `${connectedAccount.substring(0, 6)}...${connectedAccount.substring(38)}` });
       } catch (e) {
         console.error("Auto connection failed:", e);
@@ -775,6 +777,7 @@
     }
 
     function connectWallet() {
+      if (window.SB && SB.track) SB.track("connect-open-escrow");
       openModal();
       window.dispatchEvent(new Event("eip6963:requestProvider"));
       renderWalletList();
@@ -986,6 +989,7 @@
         }
 
         document.getElementById('resultBox').textContent = JSON.stringify(resultPayload, null, 2);
+        if (window.SB && SB.track) SB.track("tx-escrow-create");
         setStatus("statusCreated", "success");
       } catch (e) {
         setStatus(e.reason || e.message || "statusCreateFail", "error");
@@ -1012,6 +1016,7 @@
           txId,
           txHash: receipt.hash
         }, null, 2);
+        if (window.SB && SB.track) SB.track("tx-escrow-release");
         setStatus("statusReleased", "success");
       } catch (e) {
         setStatus(e.reason || e.message || "statusReleaseFail", "error");

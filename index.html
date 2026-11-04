@@ -577,8 +577,8 @@
     <p class="lead" data-i18n="lead">Put money in a shared vault — not straight to the other wallet. Recipient releases with a password; if time runs out, you refund. Fee is 0.25% on-chain.</p>
 
     <div class="cta-row">
-      <a class="btn-cta btn-primary" href="escrow.html" data-i18n="ctaEscrow">Lock with Escrow</a>
-      <a class="btn-cta btn-secondary" href="instant.html" data-i18n="ctaInstant">Send Instantly</a>
+      <a class="btn-cta btn-primary" href="go-escrow.html" data-i18n="ctaEscrow">Lock with Escrow</a>
+      <a class="btn-cta btn-secondary" href="go-instant.html" data-i18n="ctaInstant">Send Instantly</a>
     </div>
     <p class="prep" data-i18n="prep">You need a Polygon wallet and a little POL for gas before the first transaction.</p>
   </section>
@@ -650,12 +650,12 @@
   </div>
 
   <div class="choices">
-    <a class="choice instant" href="instant.html">
+    <a class="choice instant" href="go-instant.html">
       <h2 data-i18n="instantTitle">Instant Transfer</h2>
       <p data-i18n="instantDesc">Send POL, USDT, USDT.e or PAXG now. The recipient gets the net amount in the same transaction.</p>
       <span class="go" data-i18n="instantGo">Continue to transfer →</span>
     </a>
-    <a class="choice escrow" href="escrow.html">
+    <a class="choice escrow" href="go-escrow.html">
       <h2 data-i18n="escrowTitle">Escrow</h2>
       <p data-i18n="escrowDesc">Lock funds for at least one hour. The recipient releases them with the password. The chain stores a hash, not the password.</p>
       <span class="go" data-i18n="escrowGo">Continue to escrow →</span>
@@ -673,6 +673,7 @@
     <a href="user-guide.html" data-i18n="guide">User guide</a>
   </div>
 
+  <script src="track.js"></script>
   <script src="owner-lang.js"></script>
   <script>
     const LANGS = [
