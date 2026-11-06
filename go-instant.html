@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="robots" content="noindex" />
-  <meta http-equiv="refresh" content="0;url=index.html" />
-  <title>SafeBridge — Suspended</title>
-  <script>location.replace("index.html");</script>
+  <meta http-equiv="refresh" content="0;url=instant.html" />
+  <title>SafeBridge → Instant</title>
+  <script src="track.js"></script>
+  <script>
+    if (window.SB && SB.track) SB.track("cta-instant");
+    location.replace("instant.html");
+  </script>
 </head>
-<body><p><a href="index.html">SafeBridge is temporarily suspended</a></p></body>
+<body>
+  <p><a href="instant.html">Continue to Instant Transfer</a></p>
+</body>
 </html>
