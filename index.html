@@ -287,6 +287,31 @@
       28%, 100% { opacity: 0; transform: translateY(-8px); }
     }
 
+    .send-box {
+      width: 88px;
+      height: 64px;
+      border: 2.5px solid var(--violet);
+      border-radius: 16px;
+      background: #12081f;
+      position: relative;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 28px rgba(167, 139, 250, 0.28);
+      animation: sendPulse 1.6s ease-in-out infinite;
+    }
+
+    .send-arrow {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ddd6fe;
+      line-height: 1;
+    }
+
+    @keyframes sendPulse {
+      0%, 100% { transform: translateX(-4px); box-shadow: 0 0 18px rgba(167, 139, 250, 0.18); }
+      50% { transform: translateX(4px); box-shadow: 0 0 32px rgba(167, 139, 250, 0.38); }
+    }
+
     .vault {
       width: 72px;
       height: 64px;
@@ -573,12 +598,12 @@
 
   <section class="hero">
     <div class="badge"><span class="dot"></span><span data-i18n="badge">Polygon Mainnet</span></div>
-    <h1 data-i18n="title">Lock funds on Polygon until the job is done.</h1>
-    <p class="lead" data-i18n="lead">Put money in a shared vault — not straight to the other wallet. Recipient releases with a password; if time runs out, you refund. Fee is 0.25% on-chain.</p>
+    <h1 data-i18n="title">Send crypto now. Recipient gets the net amount in one transaction.</h1>
+    <p class="lead" data-i18n="lead">Instant Transfer moves POL, USDT, USDT.e or PAXG on Polygon. Fee is 0.25% on-chain — no password, no waiting. Need a lock for a deal? Escrow is still here as a second option.</p>
 
     <div class="cta-row">
-      <a class="btn-cta btn-primary" href="go-escrow.html" data-i18n="ctaEscrow">Lock with Escrow</a>
-      <a class="btn-cta btn-secondary" href="go-instant.html" data-i18n="ctaInstant">Send Instantly</a>
+      <a class="btn-cta btn-primary" href="go-instant.html" data-i18n="ctaInstant">Send Instantly</a>
+      <a class="btn-cta btn-secondary" href="go-escrow.html" data-i18n="ctaEscrow">Need a lock? Escrow</a>
     </div>
     <p class="prep" data-i18n="prep">You need a Polygon wallet and a little POL for gas before the first transaction.</p>
   </section>
@@ -586,41 +611,41 @@
   <div class="steps">
     <div class="step">
       <div class="step-n">1</div>
-      <strong data-i18n="step1Title">Connect on Polygon</strong>
-      <span data-i18n="step1Desc">Open escrow or instant and connect your wallet on network 137.</span>
+      <strong data-i18n="step1Title">Open Instant</strong>
+      <span data-i18n="step1Desc">Connect your wallet on Polygon (network 137).</span>
     </div>
     <div class="step">
       <div class="step-n">2</div>
-      <strong data-i18n="step2Title">Lock or send</strong>
-      <span data-i18n="step2Desc">Escrow: set recipient, amount, lock time, password. Instant: send net amount now.</span>
+      <strong data-i18n="step2Title">Set recipient & amount</strong>
+      <span data-i18n="step2Desc">Choose token and how much to send. Fee is 0.25% from the sender.</span>
     </div>
     <div class="step">
       <div class="step-n">3</div>
-      <strong data-i18n="step3Title">Release or refund</strong>
-      <span data-i18n="step3Desc">Share the password when done. If the lock expires, the sender refunds.</span>
+      <strong data-i18n="step3Title">Send in one tx</strong>
+      <span data-i18n="step3Desc">Confirm once. Recipient receives the net amount in the same transaction.</span>
     </div>
   </div>
 
   <div class="demo-wrap">
     <div class="demo" aria-hidden="true">
-      <div class="demo-label" data-i18n="demoLabel">How escrow works</div>
+      <div class="demo-label" data-i18n="demoLabel">How Instant Transfer works</div>
       <div class="demo-stage">
-        <div class="demo-scene s1"><div class="vault"><span class="lock-dot"></span></div></div>
+        <div class="demo-scene s1"><div class="send-box"><span class="send-arrow">→</span></div></div>
         <div class="demo-scene s2">
-          <div class="timer-ring"><div class="key-chip" data-i18n="demoKey">password stays with you</div></div>
+          <div class="key-chip" data-i18n="demoKey">0.25% on-chain fee</div>
         </div>
         <div class="demo-scene s3">
           <div class="vault" style="border-color:#34d399;box-shadow:0 0 24px rgba(52,211,153,.28)"><span class="lock-dot" style="background:#34d399"></span></div>
         </div>
         <div class="demo-scene s4">
-          <div class="timer-ring" style="border-top-color:#f87171;border-right-color:#fb7185;animation-duration:1.2s"></div>
+          <div class="timer-ring" style="border-top-color:#34d399;border-right-color:#67e8f9;animation-duration:1.4s"></div>
         </div>
       </div>
       <div class="demo-caption-wrap">
-        <div class="cap c1 demo-caption" data-i18n="demo1">Funds lock in the vault — not the other wallet.</div>
-        <div class="cap c2 demo-caption" data-i18n="demo2">Time lock runs. Password stays with the sender.</div>
-        <div class="cap c3 demo-caption" data-i18n="demo3">Job done → share password → recipient releases.</div>
-        <div class="cap c4 demo-caption" data-i18n="demo4">Time up with no release → sender refunds.</div>
+        <div class="cap c1 demo-caption" data-i18n="demo1">You pick recipient, token, and amount.</div>
+        <div class="cap c2 demo-caption" data-i18n="demo2">0.25% fee is taken on-chain in the same send.</div>
+        <div class="cap c3 demo-caption" data-i18n="demo3">Recipient gets the net amount — no password, no wait.</div>
+        <div class="cap c4 demo-caption" data-i18n="demo4">One wallet confirm. Done.</div>
       </div>
     </div>
   </div>
@@ -629,21 +654,21 @@
     <div class="proof-box">
       <div class="proof-title" data-i18n="proofTitle">On-chain proof</div>
       <div class="proof-grid">
-        <a class="proof-item" href="https://polygonscan.com/address/0x5230E2Ffa810d04eF2d6add04c47B1a4eE179f38" target="_blank" rel="noopener">
-          <small data-i18n="proofEscrow">Escrow contract</small>
-          <span>0x5230…9f38</span>
-        </a>
         <a class="proof-item" href="https://polygonscan.com/address/0x1119eADB98A205fd4237bc258d46eA15261D50bC" target="_blank" rel="noopener">
           <small data-i18n="proofInstant">Instant contract</small>
           <span>0x1119…50bC</span>
         </a>
-        <a class="proof-item" href="https://polygonscan.com/tx/0xc044cb4effe20515e77486ac04a6de53d2b0b34c93d80d3add6790548fe71332" target="_blank" rel="noopener">
-          <small data-i18n="proofEscrowTx">Live escrow create</small>
-          <span>0xc044…1332</span>
-        </a>
         <a class="proof-item" href="https://polygonscan.com/tx/0x45262a6860329d993ece4e2afcf80b7fa5403b46b633658b4f27d23101fc5ba3" target="_blank" rel="noopener">
           <small data-i18n="proofInstantTx">Live instant send</small>
           <span>0x4526…5ba3</span>
+        </a>
+        <a class="proof-item" href="https://polygonscan.com/address/0x5230E2Ffa810d04eF2d6add04c47B1a4eE179f38" target="_blank" rel="noopener">
+          <small data-i18n="proofEscrow">Escrow contract</small>
+          <span>0x5230…9f38</span>
+        </a>
+        <a class="proof-item" href="https://polygonscan.com/tx/0xc044cb4effe20515e77486ac04a6de53d2b0b34c93d80d3add6790548fe71332" target="_blank" rel="noopener">
+          <small data-i18n="proofEscrowTx">Live escrow create</small>
+          <span>0xc044…1332</span>
         </a>
       </div>
     </div>
@@ -666,7 +691,7 @@
     <span class="fact" data-i18n="factFee">0.25% sender fee</span>
     <span class="fact" data-i18n="factTokens">POL · USDT · USDT.e · PAXG</span>
     <span class="fact" data-i18n="factKeys">Non-custodial</span>
-    <span class="fact" data-i18n="factLock">Escrow lock ≥ 1 hour</span>
+    <span class="fact" data-i18n="factLock">Same-tx net amount</span>
   </div>
 
   <div class="footer">
@@ -691,23 +716,23 @@
       en: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Lock funds on Polygon until the job is done.",
-        lead: "Put money in a shared vault — not straight to the other wallet. Recipient releases with a password; if time runs out, you refund. Fee is 0.25% on-chain.",
-        ctaEscrow: "Lock with Escrow",
+        title: "Send crypto now. Recipient gets the net amount in one transaction.",
+        lead: "Instant Transfer moves POL, USDT, USDT.e or PAXG on Polygon. Fee is 0.25% on-chain — no password, no waiting. Need a lock for a deal? Escrow is still here as a second option.",
+        ctaEscrow: "Need a lock? Escrow",
         ctaInstant: "Send Instantly",
         prep: "You need a Polygon wallet and a little POL for gas before the first transaction.",
-        step1Title: "Connect on Polygon",
-        step1Desc: "Open escrow or instant and connect your wallet on network 137.",
-        step2Title: "Lock or send",
-        step2Desc: "Escrow: set recipient, amount, lock time, password. Instant: send net amount now.",
-        step3Title: "Release or refund",
-        step3Desc: "Share the password when done. If the lock expires, the sender refunds.",
-        demoLabel: "How escrow works",
-        demoKey: "password stays with you",
-        demo1: "Funds lock in the vault — not the other wallet.",
-        demo2: "Time lock runs. Password stays with the sender.",
-        demo3: "Job done → share password → recipient releases.",
-        demo4: "Time up with no release → sender refunds.",
+        step1Title: "Open Instant",
+        step1Desc: "Connect your wallet on Polygon (network 137).",
+        step2Title: "Set recipient & amount",
+        step2Desc: "Choose token and how much to send. Fee is 0.25% from the sender.",
+        step3Title: "Send in one tx",
+        step3Desc: "Confirm once. Recipient receives the net amount in the same transaction.",
+        demoLabel: "How Instant Transfer works",
+        demoKey: "0.25% on-chain fee",
+        demo1: "You pick recipient, token, and amount.",
+        demo2: "0.25% fee is taken on-chain in the same send.",
+        demo3: "Recipient gets the net amount — no password, no wait.",
+        demo4: "One wallet confirm. Done.",
         proofTitle: "On-chain proof",
         proofEscrow: "Escrow contract",
         proofInstant: "Instant contract",
@@ -717,34 +742,34 @@
         instantDesc: "Send POL, USDT, USDT.e or PAXG now. The recipient gets the net amount in the same transaction.",
         instantGo: "Continue to transfer →",
         escrowTitle: "Escrow",
-        escrowDesc: "Lock funds for at least one hour. The recipient releases them with the password. The chain stores a hash, not the password.",
+        escrowDesc: "Need a lock for a deal? Lock funds for at least one hour. Recipient releases with a password.",
         escrowGo: "Continue to escrow →",
         factFee: "0.25% sender fee",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Non-custodial",
-        factLock: "Escrow lock ≥ 1 hour",
+        factLock: "Same-tx net amount",
         guide: "User guide"
       },
       tr: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Ana Ağ",
-        title: "İş bitene kadar Polygon’da kilitle.",
-        lead: "Parayı karşı cüzdana değil, ortak kasaya koy. Alıcı şifreyle serbest bırakır; süre dolarsa iade alırsın. Ücret zincirde %0.25.",
-        ctaEscrow: "Emanet ile kilitle",
+        title: "Kripto’yu şimdi gönder. Alıcı net tutarı tek işlemde alır.",
+        lead: "Anında Transfer, Polygon’da POL, USDT, USDT.e veya PAXG taşır. Ücret zincirde %0.25 — şifre yok, bekleme yok. Anlaşma için kilit mi lazım? Emanet ikinci seçenek olarak duruyor.",
+        ctaEscrow: "Kilit lazım? Emanet",
         ctaInstant: "Anında gönder",
         prep: "İlk işlemden önce Polygon cüzdanı ve biraz POL gas gerekir.",
-        step1Title: "Polygon’a bağlan",
-        step1Desc: "Emanet veya anında transferi aç; cüzdanı 137 ağında bağla.",
-        step2Title: "Kilitle veya gönder",
-        step2Desc: "Emanet: alıcı, tutar, süre, şifre. Anında: net tutarı şimdi gönder.",
-        step3Title: "Serbest bırak veya iade",
-        step3Desc: "İş bitince şifreyi paylaş. Kilit dolarsa gönderen iade alır.",
-        demoLabel: "Emanet nasıl çalışır",
-        demoKey: "şifre sende kalır",
-        demo1: "Para kasada kilitlenir — karşı cüzdana gitmez.",
-        demo2: "Zaman kilidi işler. Şifre gönderende kalır.",
-        demo3: "İş bitti → şifreyi ver → alıcı serbest bırakır.",
-        demo4: "Süre doldu, açılmadı → gönderen iade alır.",
+        step1Title: "Anında Transfer’i aç",
+        step1Desc: "Cüzdanını Polygon’da (ağ 137) bağla.",
+        step2Title: "Alıcı ve tutar",
+        step2Desc: "Token ve tutarı seç. Ücret gönderenden %0.25.",
+        step3Title: "Tek işlemde gönder",
+        step3Desc: "Bir kez onayla. Alıcı net tutarı aynı işlemde alır.",
+        demoLabel: "Anında Transfer nasıl çalışır",
+        demoKey: "zincirde %0.25 ücret",
+        demo1: "Alıcı, token ve tutarı seçersin.",
+        demo2: "%0.25 ücret aynı gönderimde zincirde kesilir.",
+        demo3: "Alıcı net tutarı alır — şifre yok, bekleme yok.",
+        demo4: "Tek cüzdan onayı. Bitti.",
         proofTitle: "Zincir kanıtı",
         proofEscrow: "Emanet sözleşmesi",
         proofInstant: "Anında transfer sözleşmesi",
@@ -754,34 +779,34 @@
         instantDesc: "POL, USDT, USDT.e veya PAXG’yi şimdi gönder. Alıcı net tutarı aynı işlemde alır.",
         instantGo: "Transfer’e geç →",
         escrowTitle: "Emanet",
-        escrowDesc: "Fonları en az bir saat kilitle. Alıcı parolayla serbest bırakır. Zincirde parolanın kendisi değil özeti durur.",
+        escrowDesc: "Anlaşma için kilit mi lazım? En az bir saat kilitle. Alıcı şifreyle serbest bırakır.",
         escrowGo: "Emanete geç →",
         factFee: "%0.25 gönderen ücreti",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Saklama yok",
-        factLock: "Emanet kilidi ≥ 1 saat",
+        factLock: "Aynı işlemde net tutar",
         guide: "Kullanım kılavuzu"
       },
       ru: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Заблокируйте средства в Polygon до завершения работы.",
-        lead: "Кладите деньги в общий сейф, а не сразу на другой кошелёк. Получатель снимает паролем; если срок вышел — возврат. Комиссия 0.25% в сети.",
-        ctaEscrow: "Заблокировать в эскроу",
+        title: "Отправьте крипту сейчас. Получатель видит чистую сумму в одной транзакции.",
+        lead: "Мгновенный перевод двигает POL, USDT, USDT.e или PAXG в Polygon. Комиссия 0.25% в сети — без пароля и ожидания. Нужен замок для сделки? Эскроу остаётся второй опцией.",
+        ctaEscrow: "Нужен замок? Эскроу",
         ctaInstant: "Отправить сразу",
         prep: "Нужен кошелёк Polygon и немного POL на газ перед первой транзакцией.",
-        step1Title: "Подключитесь к Polygon",
-        step1Desc: "Откройте эскроу или мгновенный перевод и подключите кошелёк в сети 137.",
-        step2Title: "Блокировка или перевод",
-        step2Desc: "Эскроу: получатель, сумма, срок, пароль. Мгновенно: отправьте чистую сумму сейчас.",
-        step3Title: "Снятие или возврат",
-        step3Desc: "Отдайте пароль по завершении. Если срок истёк — возврат отправителю.",
-        demoLabel: "Как работает эскроу",
-        demoKey: "пароль у вас",
-        demo1: "Средства в сейфе — не на другом кошельке.",
-        demo2: "Таймер идёт. Пароль у отправителя.",
-        demo3: "Работа сдана → пароль → получатель снимает.",
-        demo4: "Срок вышел без снятия → возврат отправителю.",
+        step1Title: "Откройте Instant",
+        step1Desc: "Подключите кошелёк в сети Polygon (137).",
+        step2Title: "Получатель и сумма",
+        step2Desc: "Выберите токен и сумму. Комиссия 0.25% с отправителя.",
+        step3Title: "Одна транзакция",
+        step3Desc: "Подтвердите один раз. Получатель видит чистую сумму в той же транзакции.",
+        demoLabel: "Как работает мгновенный перевод",
+        demoKey: "комиссия 0.25% в сети",
+        demo1: "Выбираете получателя, токен и сумму.",
+        demo2: "0.25% списывается в той же отправке.",
+        demo3: "Получатель получает чистую сумму — без пароля и ожидания.",
+        demo4: "Одно подтверждение кошелька. Готово.",
         proofTitle: "Доказательства в сети",
         proofEscrow: "Контракт эскроу",
         proofInstant: "Контракт мгновенного перевода",
@@ -791,34 +816,34 @@
         instantDesc: "Отправьте POL, USDT, USDT.e или PAXG сразу. Получатель видит чистую сумму в той же транзакции.",
         instantGo: "К переводу →",
         escrowTitle: "Эскроу",
-        escrowDesc: "Блокировка минимум на час. Получатель снимает средства паролем. В сети хранится хеш, не пароль.",
+        escrowDesc: "Нужен замок для сделки? Блокировка минимум на час. Получатель снимает паролем.",
         escrowGo: "К эскроу →",
         factFee: "Комиссия отправителя 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Без кастодиала",
-        factLock: "Блокировка ≥ 1 часа",
+        factLock: "Чистая сумма в той же tx",
         guide: "Руководство"
       },
       zh: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon 主网",
-        title: "在 Polygon 上锁定资金，直到工作完成。",
-        lead: "把钱放进共享金库，而不是直接打到对方钱包。收款人用密码领取；超时则可退回。链上手续费 0.25%。",
-        ctaEscrow: "使用托管锁定",
+        title: "立刻发送加密资产。收款人在同一笔交易收到净额。",
+        lead: "即时转账在 Polygon 上发送 POL、USDT、USDT.e 或 PAXG。链上手续费 0.25%——无需密码、无需等待。交易需要锁定？托管仍是第二选项。",
+        ctaEscrow: "需要锁定？托管",
         ctaInstant: "立即发送",
         prep: "首次交易前需要 Polygon 钱包和少量 POL 作为 gas。",
-        step1Title: "连接 Polygon",
-        step1Desc: "打开托管或即时转账，并在网络 137 连接钱包。",
-        step2Title: "锁定或发送",
-        step2Desc: "托管：收款人、金额、时限、密码。即时：现在发送净额。",
-        step3Title: "领取或退回",
-        step3Desc: "完成后分享密码。锁定期结束则发送方可退回。",
-        demoLabel: "托管如何运作",
-        demoKey: "密码由你保管",
-        demo1: "资金锁在金库——不到对方钱包。",
-        demo2: "计时进行中。密码在发送方。",
-        demo3: "完工 → 给密码 → 收款人领取。",
-        demo4: "超时未领取 → 发送方退回。",
+        step1Title: "打开即时转账",
+        step1Desc: "在 Polygon（网络 137）连接钱包。",
+        step2Title: "设置收款人与金额",
+        step2Desc: "选择代币和金额。发送方手续费 0.25%。",
+        step3Title: "一笔交易发送",
+        step3Desc: "确认一次。收款人在同一笔交易收到净额。",
+        demoLabel: "即时转账如何运作",
+        demoKey: "链上手续费 0.25%",
+        demo1: "选择收款人、代币和金额。",
+        demo2: "0.25% 手续费在同一次发送中链上扣除。",
+        demo3: "收款人收到净额——无密码、无等待。",
+        demo4: "一次钱包确认。完成。",
         proofTitle: "链上证明",
         proofEscrow: "托管合约",
         proofInstant: "即时转账合约",
@@ -828,34 +853,34 @@
         instantDesc: "立即发送 POL、USDT、USDT.e 或 PAXG。收款人在同一笔交易中收到净额。",
         instantGo: "前往转账 →",
         escrowTitle: "托管",
-        escrowDesc: "至少锁定一小时。收款人用密码领取。链上只存哈希，不存密码。",
+        escrowDesc: "交易需要锁定？至少锁定一小时。收款人用密码领取。",
         escrowGo: "前往托管 →",
         factFee: "发送方手续费 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "非托管",
-        factLock: "托管锁定 ≥ 1 小时",
+        factLock: "同笔交易净额",
         guide: "使用指南"
       },
       es: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Bloquea fondos en Polygon hasta terminar el trabajo.",
-        lead: "Pon el dinero en una caja compartida, no directo a la otra billetera. El destinatario libera con contraseña; si vence el plazo, reembolsas. Comisión 0.25% on-chain.",
-        ctaEscrow: "Bloquear con Escrow",
+        title: "Envía crypto ahora. El destinatario recibe el neto en una sola transacción.",
+        lead: "Instant Transfer mueve POL, USDT, USDT.e o PAXG en Polygon. Comisión 0.25% on-chain — sin contraseña ni espera. ¿Necesitas un bloqueo? Escrow sigue como segunda opción.",
+        ctaEscrow: "¿Necesitas bloqueo? Escrow",
         ctaInstant: "Enviar al instante",
         prep: "Necesitas una billetera Polygon y un poco de POL para gas antes de la primera transacción.",
-        step1Title: "Conéctate a Polygon",
-        step1Desc: "Abre escrow o instantánea y conecta la billetera en la red 137.",
-        step2Title: "Bloquear o enviar",
-        step2Desc: "Escrow: destinatario, monto, plazo, contraseña. Instantánea: envía el neto ahora.",
-        step3Title: "Liberar o reembolsar",
-        step3Desc: "Comparte la contraseña al terminar. Si vence el bloqueo, el emisor reembolsa.",
-        demoLabel: "Cómo funciona el escrow",
-        demoKey: "la contraseña es tuya",
-        demo1: "Los fondos se bloquean en la caja — no en la otra billetera.",
-        demo2: "Corre el tiempo. La contraseña queda con el emisor.",
-        demo3: "Trabajo listo → contraseña → el destinatario libera.",
-        demo4: "Sin liberación a tiempo → reembolso al emisor.",
+        step1Title: "Abre Instant",
+        step1Desc: "Conecta tu billetera en Polygon (red 137).",
+        step2Title: "Destinatario y monto",
+        step2Desc: "Elige token y monto. Comisión 0.25% del emisor.",
+        step3Title: "Envía en una tx",
+        step3Desc: "Confirma una vez. El destinatario recibe el neto en la misma transacción.",
+        demoLabel: "Cómo funciona Instant Transfer",
+        demoKey: "comisión 0.25% on-chain",
+        demo1: "Eliges destinatario, token y monto.",
+        demo2: "El 0.25% se toma on-chain en el mismo envío.",
+        demo3: "El destinatario recibe el neto — sin contraseña ni espera.",
+        demo4: "Una confirmación de billetera. Listo.",
         proofTitle: "Prueba on-chain",
         proofEscrow: "Contrato escrow",
         proofInstant: "Contrato instantáneo",
@@ -865,34 +890,34 @@
         instantDesc: "Envía POL, USDT, USDT.e o PAXG ahora. El destinatario recibe el neto en la misma transacción.",
         instantGo: "Ir a transferir →",
         escrowTitle: "Custodia",
-        escrowDesc: "Bloquea al menos una hora. El destinatario libera con la contraseña. La cadena guarda un hash, no la contraseña.",
+        escrowDesc: "¿Necesitas un bloqueo? Bloquea al menos una hora. El destinatario libera con contraseña.",
         escrowGo: "Ir a custodia →",
         factFee: "Comisión del emisor 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Sin custodia",
-        factLock: "Bloqueo ≥ 1 hora",
+        factLock: "Neto en la misma tx",
         guide: "Guía"
       },
       ja: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon メインネット",
-        title: "仕事が終わるまで Polygon でロック。",
-        lead: "相手のウォレットへ直接送らず、共有ボルトへ。受取人はパスワードで解除。期限切れなら返金。手数料はオンチェーン 0.25%。",
-        ctaEscrow: "エスクローでロック",
+        title: "今すぐ送金。受取人は同じ取引で純額を受け取ります。",
+        lead: "Instant Transfer は Polygon で POL / USDT / USDT.e / PAXG を動かします。手数料はオンチェーン 0.25% — パスワードも待ち時間もなし。取引にロックが必要ならエスクローが第二の選択肢です。",
+        ctaEscrow: "ロックが必要？エスクロー",
         ctaInstant: "今すぐ送る",
         prep: "初回取引の前に Polygon ウォレットとガス用の少量 POL が必要です。",
-        step1Title: "Polygon に接続",
-        step1Desc: "エスクローまたは即時送金を開き、ネットワーク 137 で接続。",
-        step2Title: "ロックまたは送金",
-        step2Desc: "エスクロー：受取人・金額・期間・パスワード。即時：純額を今送る。",
-        step3Title: "解除または返金",
-        step3Desc: "完了したらパスワードを共有。期限切れなら送信者が返金。",
-        demoLabel: "エスクローの流れ",
-        demoKey: "パスワードはあなたが保持",
-        demo1: "資金はボルトへ — 相手ウォレットではない。",
-        demo2: "タイムロック進行中。パスワードは送信者側。",
-        demo3: "完了 → パスワード共有 → 受取人が解除。",
-        demo4: "未解除のまま期限切れ → 送信者へ返金。",
+        step1Title: "Instant を開く",
+        step1Desc: "Polygon（ネットワーク 137）でウォレットを接続。",
+        step2Title: "受取人と金額",
+        step2Desc: "トークンと金額を選ぶ。手数料は送信者から 0.25%。",
+        step3Title: "1 回の取引で送金",
+        step3Desc: "一度確認。受取人は同じ取引で純額を受け取ります。",
+        demoLabel: "Instant Transfer の流れ",
+        demoKey: "オンチェーン手数料 0.25%",
+        demo1: "受取人・トークン・金額を選ぶ。",
+        demo2: "0.25% は同じ送金でオンチェーン控除。",
+        demo3: "受取人は純額を受け取る — パスワードも待ちもなし。",
+        demo4: "ウォレット確認は 1 回。完了。",
         proofTitle: "オンチェーン証明",
         proofEscrow: "エスクロー契約",
         proofInstant: "即時送金契約",
@@ -902,34 +927,34 @@
         instantDesc: "POL / USDT / USDT.e / PAXG を今すぐ送る。受取人は同じ取引で純額を受け取ります。",
         instantGo: "送金へ →",
         escrowTitle: "エスクロー",
-        escrowDesc: "最低1時間ロック。受取人はパスワードで解除。チェーンにはハッシュだけが残ります。",
+        escrowDesc: "取引にロックが必要？最低1時間ロック。受取人はパスワードで解除。",
         escrowGo: "エスクローへ →",
         factFee: "送金者手数料 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "ノンカストディアル",
-        factLock: "ロック ≥ 1時間",
+        factLock: "同じ tx で純額",
         guide: "ガイド"
       },
       ko: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon 메인넷",
-        title: "일이 끝날 때까지 Polygon에서 잠급니다.",
-        lead: "상대 지갑이 아니라 공유 금고에 넣으세요. 받는 사람이 비밀번호로 해제하고, 시간이 지나면 환불됩니다. 수수료는 온체인 0.25%.",
-        ctaEscrow: "에스크로로 잠그기",
+        title: "지금 보내세요. 받는 사람은 같은 거래에서 순액을 받습니다.",
+        lead: "Instant Transfer는 Polygon에서 POL, USDT, USDT.e, PAXG를 보냅니다. 수수료는 온체인 0.25% — 비밀번호·대기 없음. 거래에 잠금이 필요하면 에스크로가 두 번째 옵션입니다.",
+        ctaEscrow: "잠금이 필요하세요? 에스크로",
         ctaInstant: "즉시 보내기",
         prep: "첫 거래 전에 Polygon 지갑과 가스용 POL이 조금 필요합니다.",
-        step1Title: "Polygon 연결",
-        step1Desc: "에스크로 또는 즉시 전송을 열고 네트워크 137에서 지갑을 연결하세요.",
-        step2Title: "잠그거나 보내기",
-        step2Desc: "에스크로: 수신자, 금액, 기간, 비밀번호. 즉시: 지금 순액을 보냅니다.",
-        step3Title: "해제 또는 환불",
-        step3Desc: "끝나면 비밀번호를 공유하세요. 잠금이 만료되면 보낸 사람이 환불받습니다.",
-        demoLabel: "에스크로 작동 방식",
-        demoKey: "비밀번호는 당신에게",
-        demo1: "자금은 금고에 — 상대 지갑이 아닙니다.",
-        demo2: "타이머 진행. 비밀번호는 보낸 사람에게.",
-        demo3: "완료 → 비밀번호 공유 → 받는 사람 해제.",
-        demo4: "미해제 만료 → 보낸 사람 환불.",
+        step1Title: "Instant 열기",
+        step1Desc: "Polygon(네트워크 137)에서 지갑을 연결하세요.",
+        step2Title: "수신자와 금액",
+        step2Desc: "토큰과 금액을 선택합니다. 보낸 사람 수수료 0.25%.",
+        step3Title: "한 번의 tx로 전송",
+        step3Desc: "한 번 확인. 받는 사람은 같은 거래에서 순액을 받습니다.",
+        demoLabel: "Instant Transfer 작동 방식",
+        demoKey: "온체인 수수료 0.25%",
+        demo1: "수신자, 토큰, 금액을 고릅니다.",
+        demo2: "0.25% 수수료는 같은 전송에서 온체인 차감.",
+        demo3: "받는 사람은 순액을 받습니다 — 비밀번호·대기 없음.",
+        demo4: "지갑 확인 한 번. 끝.",
         proofTitle: "온체인 증명",
         proofEscrow: "에스크로 계약",
         proofInstant: "즉시 전송 계약",
@@ -939,34 +964,34 @@
         instantDesc: "POL, USDT, USDT.e, PAXG를 바로 보냅니다. 받는 사람은 같은 거래에서 순액을 받습니다.",
         instantGo: "전송으로 →",
         escrowTitle: "에스크로",
-        escrowDesc: "최소 1시간 잠급니다. 받는 사람이 비밀번호로 해제합니다. 체인에는 해시만 남습니다.",
+        escrowDesc: "거래에 잠금이 필요하세요? 최소 1시간 잠급니다. 받는 사람이 비밀번호로 해제합니다.",
         escrowGo: "에스크로로 →",
         factFee: "보낸 사람 수수료 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "비수탁",
-        factLock: "잠금 ≥ 1시간",
+        factLock: "같은 tx에서 순액",
         guide: "안내"
       },
       ar: {
         pageTitle: "SafeBridge Global",
         badge: "شبكة Polygon الرئيسية",
-        title: "اقفل الأموال على Polygon حتى انتهاء العمل.",
-        lead: "ضع المال في خزنة مشتركة لا في محفظة الطرف مباشرة. يحرّر المستلم بكلمة السر؛ وإن انتهى الوقت تسترد. الرسوم 0.25% على السلسلة.",
-        ctaEscrow: "اقفل بالضمان",
+        title: "أرسل العملة الآن. يستلم المستلم الصافي في معاملة واحدة.",
+        lead: "التحويل الفوري ينقل POL أو USDT أو USDT.e أو PAXG على Polygon. الرسوم 0.25% على السلسلة — بلا كلمة سر وبلا انتظار. تحتاج قفلًا لصفقة؟ الضمان يبقى خيارًا ثانيًا.",
+        ctaEscrow: "تحتاج قفلًا؟ الضمان",
         ctaInstant: "أرسل فورًا",
         prep: "تحتاج محفظة Polygon وقليلًا من POL للغاز قبل أول معاملة.",
-        step1Title: "اتصل بـ Polygon",
-        step1Desc: "افتح الضمان أو التحويل الفوري واربط المحفظة على الشبكة 137.",
-        step2Title: "اقفل أو أرسل",
-        step2Desc: "الضمان: المستلم والمبلغ والمدة وكلمة السر. الفوري: أرسل الصافي الآن.",
-        step3Title: "تحرير أو استرداد",
-        step3Desc: "شارك كلمة السر عند الإنجاز. إن انتهى القفل يسترد المرسل.",
-        demoLabel: "كيف يعمل الضمان",
-        demoKey: "كلمة السر معك",
-        demo1: "الأموال في الخزنة — لا في المحفظة الأخرى.",
-        demo2: "العدّاد يعمل. كلمة السر مع المرسل.",
-        demo3: "انتهى العمل → كلمة السر → المستلم يحرّر.",
-        demo4: "انتهى الوقت بلا تحرير → استرداد للمرسل.",
+        step1Title: "افتح التحويل الفوري",
+        step1Desc: "اربط محفظتك على Polygon (الشبكة 137).",
+        step2Title: "المستلم والمبلغ",
+        step2Desc: "اختر الرمز والمبلغ. الرسوم 0.25% من المرسل.",
+        step3Title: "أرسل في معاملة واحدة",
+        step3Desc: "أكّد مرة واحدة. يستلم المستلم الصافي في نفس المعاملة.",
+        demoLabel: "كيف يعمل التحويل الفوري",
+        demoKey: "رسوم 0.25% على السلسلة",
+        demo1: "تختار المستلم والرمز والمبلغ.",
+        demo2: "تُقتطع 0.25% على السلسلة في نفس الإرسال.",
+        demo3: "المستلم يأخذ الصافي — بلا كلمة سر وبلا انتظار.",
+        demo4: "تأكيد محفظة واحد. انتهى.",
         proofTitle: "إثبات على السلسلة",
         proofEscrow: "عقد الضمان",
         proofInstant: "عقد التحويل الفوري",
@@ -976,12 +1001,12 @@
         instantDesc: "أرسل POL أو USDT أو USDT.e أو PAXG الآن. يستلم المستلم الصافي في نفس المعاملة.",
         instantGo: "إلى التحويل ←",
         escrowTitle: "الضمان",
-        escrowDesc: "أقفل ساعة واحدة على الأقل. يحرّر المستلم بالمفتاح. السلسلة تخزّن الهاش لا كلمة السر.",
+        escrowDesc: "تحتاج قفلًا لصفقة؟ أقفل ساعة واحدة على الأقل. يحرّر المستلم بكلمة السر.",
         escrowGo: "إلى الضمان ←",
         factFee: "رسوم المرسل 0.25%",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "بدون حضانة",
-        factLock: "قفل ≥ ساعة",
+        factLock: "صافي في نفس المعاملة",
         guide: "دليل الاستخدام"
       }
     };
