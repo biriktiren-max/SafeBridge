@@ -317,10 +317,98 @@
       color: var(--muted);
       font-size: 12px;
       line-height: 1.5;
-      margin: -6px 0 16px;
+      margin: 8px 0 0;
     }
 
-    .connect-hint[hidden] { display: none; }
+    .connect-hint[hidden],
+    .connect-panel[hidden],
+    .fee-preview-live[hidden],
+    .fee-preview-idle[hidden] { display: none; }
+
+    .trust-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+
+    .trust-strip a,
+    .trust-strip span {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: rgba(15, 23, 42, 0.75);
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 700;
+      text-decoration: none;
+      line-height: 1.3;
+    }
+
+    .trust-strip a {
+      border-color: #7c3aed;
+      color: #ddd6fe;
+    }
+
+    .trust-strip a:hover { filter: brightness(1.1); }
+
+    .connect-panel {
+      margin: 0 0 18px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid #5b21b6;
+      background: linear-gradient(160deg, rgba(76, 29, 149, 0.28), rgba(8, 47, 73, 0.35));
+    }
+
+    .btn-connect-main {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 15px;
+    }
+
+    .fee-preview {
+      margin: 0 0 8px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid #155e75;
+      background: linear-gradient(160deg, rgba(8, 47, 73, 0.55), rgba(17, 24, 39, 0.9));
+    }
+
+    .fee-preview.has-amount {
+      border-color: #34d399;
+      box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.12);
+    }
+
+    .fee-preview-idle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .fee-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .fee-row:last-child { margin-bottom: 0; }
+
+    .fee-row strong {
+      color: #e2e8f0;
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .fee-row.net span { color: #a7f3d0; font-weight: 700; }
+    .fee-row.net strong { color: #6ee7b7; font-size: 16px; }
 
     .wallet-row {
       display: flex;
@@ -509,7 +597,7 @@
     <div class="nav-actions">
       <select id="langSelect" class="lang-select"></select>
       <a href="escrow.html" class="btn-nav" data-i18n="escrowLink">Escrow App</a>
-      <button id="connectBtn" class="btn-connect" type="button" onclick="openWalletPicker()">Connect Wallet</button>
+      <button id="connectBtn" class="btn-connect" type="button" data-connect-btn="1" onclick="openWalletPicker()">Connect Wallet</button>
     </div>
   </div>
 
@@ -529,7 +617,17 @@
     <p class="desc" data-i18n="desc">
       Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.
     </p>
-    <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a Polygon wallet first and keep a little POL for gas. You approve each transfer inside the wallet.</p>
+
+    <div class="trust-strip" aria-label="Trust">
+      <a href="https://polygonscan.com/address/0x1119eADB98A205fd4237bc258d46eA15261D50bC" target="_blank" rel="noopener" data-i18n="trustContract">Contract 0x1119…50bC</a>
+      <span data-i18n="trustNoSeed">Never asks for recovery phrase</span>
+      <span data-i18n="trustGas">Need a little POL for gas</span>
+    </div>
+
+    <div class="connect-panel" id="connectPanel">
+      <button id="connectBtnMain" class="btn-connect btn-connect-main" type="button" data-connect-btn="1" onclick="openWalletPicker()" data-i18n="connectBtn">Connect Wallet</button>
+      <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a Polygon wallet first and keep a little POL for gas. You approve each transfer inside the wallet.</p>
+    </div>
 
     <div class="field">
       <label data-i18n="recipientLabel">Recipient Wallet Address</label>
@@ -552,7 +650,19 @@
       </div>
     </div>
 
-    <p id="feePreview" class="desc" data-i18n="feeNote">A 0.25% protocol fee is taken on-chain. The recipient receives the remaining amount.</p>
+    <div id="feePreview" class="fee-preview">
+      <p class="fee-preview-idle" id="feePreviewIdle" data-i18n="feeNote">A 0.25% protocol fee is taken on-chain. The recipient receives the remaining amount.</p>
+      <div class="fee-preview-live" id="feePreviewLive" hidden>
+        <div class="fee-row">
+          <span data-i18n="feeLabel">Fee (0.25%)</span>
+          <strong id="feeAmount">—</strong>
+        </div>
+        <div class="fee-row net">
+          <span data-i18n="netLabel">Recipient gets</span>
+          <strong id="netAmount">—</strong>
+        </div>
+      </div>
+    </div>
 
     <button class="btn-send" onclick="sendTransfer()" data-i18n="sendBtn">⚡ Send Instant Transfer</button>
 
@@ -634,8 +744,13 @@
         network: "Polygon Mainnet",
         title: "Instant Transfer",
         desc: "Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.",
-        feeNote: "A 0.25% protocol fee is taken on-chain. The recipient receives the remaining amount.",
+        feeNote: "Enter an amount to see the 0.25% fee and what the recipient gets.",
         feeLine: "Fee 0.25%: {fee} {symbol} · Recipient gets {net} {symbol}",
+        feeLabel: "Fee (0.25%)",
+        netLabel: "Recipient gets",
+        trustContract: "Contract 0x1119…50bC",
+        trustNoSeed: "Never asks for recovery phrase",
+        trustGas: "Need a little POL for gas",
         guideTitle: "How to connect",
         guideLead: "Use your own wallet. SafeBridge never asks for your secret recovery phrase.",
         pickerTitle: "Choose a wallet",
@@ -696,8 +811,13 @@
         network: "Polygon Mainnet",
         title: "Мгновенный перевод",
         desc: "Прямой перевод POL, USDT, USDT.e и PAXG с кошелька на кошелёк в сети Polygon. Комиссия 0,25% списывается в сети.",
-        feeNote: "Комиссия протокола 0,25% списывается в сети. Получатель получает оставшуюся сумму.",
+        feeNote: "Введите сумму, чтобы увидеть комиссию 0,25% и сумму получателя.",
         feeLine: "Комиссия 0,25%: {fee} {symbol} · Получатель получит {net} {symbol}",
+        feeLabel: "Комиссия (0,25%)",
+        netLabel: "Получатель получит",
+        trustContract: "Контракт 0x1119…50bC",
+        trustNoSeed: "Не просим seed-фразу",
+        trustGas: "Нужен немного POL на газ",
         guideTitle: "Как подключить",
         guideLead: "Используйте свой кошелёк. SafeBridge никогда не запрашивает секретную фразу.",
         pickerTitle: "Выберите кошелёк",
@@ -758,8 +878,13 @@
         network: "Polygon 主网",
         title: "即时转账",
         desc: "在 Polygon 主网上直接进行 POL、USDT、USDT.e 和 PAXG 的钱包到钱包转账。链上扣除 0.25% 手续费。",
-        feeNote: "链上收取 0.25% 协议费，收款人收到剩余金额。",
+        feeNote: "输入金额即可查看 0.25% 手续费和收款人到账净额。",
         feeLine: "手续费 0.25%：{fee} {symbol} · 收款人到账 {net} {symbol}",
+        feeLabel: "手续费 (0.25%)",
+        netLabel: "收款人到账",
+        trustContract: "合约 0x1119…50bC",
+        trustNoSeed: "从不索要助记词",
+        trustGas: "需要少量 POL 作为 gas",
         guideTitle: "如何连接",
         guideLead: "请使用你自己的钱包。SafeBridge 绝不会索取你的密钥助记词。",
         pickerTitle: "选择钱包",
@@ -820,8 +945,13 @@
         network: "Polygon Mainnet",
         title: "Transferencia instantánea",
         desc: "Transferencia directa de billetera a billetera de POL, USDT, USDT.e y PAXG en Polygon Mainnet. Se descuenta una comisión del 0,25% en cadena.",
-        feeNote: "Se cobra una comisión de protocolo del 0,25% en cadena. El destinatario recibe el resto.",
+        feeNote: "Introduce un importe para ver la comisión del 0,25% y lo que recibe el destinatario.",
         feeLine: "Comisión 0,25%: {fee} {symbol} · El destinatario recibe {net} {symbol}",
+        feeLabel: "Comisión (0,25%)",
+        netLabel: "El destinatario recibe",
+        trustContract: "Contrato 0x1119…50bC",
+        trustNoSeed: "Nunca pide la frase de recuperación",
+        trustGas: "Necesitas un poco de POL para gas",
         guideTitle: "Cómo conectar",
         guideLead: "Usa tu propia billetera. SafeBridge nunca pide tu frase secreta de recuperación.",
         pickerTitle: "Elige una billetera",
@@ -882,8 +1012,13 @@
         network: "Polygon メインネット",
         title: "即時送金",
         desc: "Polygon メインネットで POL、USDT、USDT.e、PAXG をウォレット間で直接送金します。0.25% の手数料がオンチェーンで差し引かれます。",
-        feeNote: "0.25% のプロトコル手数料がオンチェーンで差し引かれ、受取人には残額が届きます。",
+        feeNote: "金額を入力すると 0.25% 手数料と受取純額が表示されます。",
         feeLine: "手数料 0.25%: {fee} {symbol} · 受取額 {net} {symbol}",
+        feeLabel: "手数料 (0.25%)",
+        netLabel: "受取額",
+        trustContract: "コントラクト 0x1119…50bC",
+        trustNoSeed: "リカバリーフレーズは求めません",
+        trustGas: "ガス用に少量の POL が必要",
         guideTitle: "接続方法",
         guideLead: "ご自身のウォレットを使ってください。SafeBridge がシークレットリカバリーフレーズを求めることはありません。",
         pickerTitle: "ウォレットを選ぶ",
@@ -944,8 +1079,13 @@
         network: "Polygon 메인넷",
         title: "즉시 전송",
         desc: "Polygon 메인넷에서 POL, USDT, USDT.e, PAXG를 지갑에서 지갑으로 직접 전송합니다. 온체인에서 0.25% 수수료가 차감됩니다.",
-        feeNote: "0.25% 프로토콜 수수료가 온체인에서 차감되며, 받는 사람은 나머지 금액을 받습니다.",
+        feeNote: "금액을 입력하면 0.25% 수수료와 받는 순액을 볼 수 있습니다.",
         feeLine: "수수료 0.25%: {fee} {symbol} · 받는 금액 {net} {symbol}",
+        feeLabel: "수수료 (0.25%)",
+        netLabel: "받는 금액",
+        trustContract: "계약 0x1119…50bC",
+        trustNoSeed: "복구 문구를 묻지 않습니다",
+        trustGas: "가스용 POL이 조금 필요합니다",
         guideTitle: "연결 방법",
         guideLead: "본인 지갑을 사용하세요. SafeBridge는 시크릿 복구 구문을 절대 요청하지 않습니다.",
         pickerTitle: "지갑 선택",
@@ -1006,8 +1146,13 @@
         network: "Polygon Ana Ağ",
         title: "Anında Transfer",
         desc: "Polygon ana ağında POL, USDT, USDT.e ve PAXG için cüzdandan cüzdana doğrudan transfer. Zincir üzerinde %0,25 komisyon kesilir.",
-        feeNote: "Zincir üzerinde %0,25 protokol komisyonu kesilir. Alıcı kalan tutarı alır.",
+        feeNote: "Tutarı yaz; %0,25 ücret ve alıcıya gidecek net tutarı gör.",
         feeLine: "Komisyon %0,25: {fee} {symbol} · Alıcıya {net} {symbol}",
+        feeLabel: "Ücret (%0,25)",
+        netLabel: "Alıcıya giden",
+        trustContract: "Sözleşme 0x1119…50bC",
+        trustNoSeed: "Kurtarma ifadesi istemeyiz",
+        trustGas: "Biraz POL gas gerekir",
         guideTitle: "Nasıl bağlanır",
         guideLead: "Kendi cüzdanını kullan. SafeBridge gizli kurtarma ifadeni asla istemez.",
         pickerTitle: "Cüzdan seç",
@@ -1068,8 +1213,13 @@
         network: "شبكة Polygon الرئيسية",
         title: "تحويل فوري",
         desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDT.e وPAXG على شبكة Polygon الرئيسية. تُخصم رسوم 0.25% على السلسلة.",
-        feeNote: "تُخصم رسوم بروتوكول 0.25% على السلسلة. يستلم المستلم المبلغ المتبقي.",
+        feeNote: "أدخل المبلغ لترى رسوم 0.25% وما يستلمه المستلم.",
         feeLine: "الرسوم 0.25%: {fee} {symbol} · يستلم المستلم {net} {symbol}",
+        feeLabel: "الرسوم (0.25%)",
+        netLabel: "يستلم المستلم",
+        trustContract: "العقد 0x1119…50bC",
+        trustNoSeed: "لا نطلب عبارة الاسترداد",
+        trustGas: "تحتاج قليلًا من POL للغاز",
         guideTitle: "كيفية الربط",
         guideLead: "استخدم محفظتك الخاصة. لا يطلب SafeBridge عبارة الاسترداد السرية أبدًا.",
         pickerTitle: "اختر محفظة",
@@ -1393,8 +1543,11 @@
     }
 
     function updateConnectHint() {
+      const connected = Boolean(connectedAccount);
       const hint = document.getElementById("connectHint");
-      if (hint) hint.hidden = Boolean(connectedAccount);
+      if (hint) hint.hidden = connected;
+      const panel = document.getElementById("connectPanel");
+      if (panel) panel.hidden = connected;
     }
 
     function openWalletPicker() {
@@ -1434,20 +1587,20 @@
 
     function refreshConnectionLabels() {
       const addrDisplay = document.getElementById('addrDisplay');
-      const connectBtn = document.getElementById('connectBtn');
+      const connectButtons = document.querySelectorAll("[data-connect-btn]");
       if (connectedAccount) {
         const shortAddr = shortAddress(connectedAccount);
         if (addrDisplay) addrDisplay.textContent = shortAddr;
-        if (connectBtn) {
-          connectBtn.textContent = shortAddr;
-          connectBtn.title = t("changeWallet");
-        }
+        connectButtons.forEach((btn) => {
+          btn.textContent = shortAddr;
+          btn.title = t("changeWallet");
+        });
       } else {
         if (addrDisplay) addrDisplay.textContent = t("notConnected");
-        if (connectBtn) {
-          connectBtn.textContent = t("connectBtn");
-          connectBtn.title = t("connectBtn");
-        }
+        connectButtons.forEach((btn) => {
+          btn.textContent = t("connectBtn");
+          btn.title = t("connectBtn");
+        });
       }
       updateConnectHint();
     }
@@ -1581,22 +1734,33 @@
 
     function updateFeePreview() {
       const box = document.getElementById("feePreview");
+      const idle = document.getElementById("feePreviewIdle");
+      const live = document.getElementById("feePreviewLive");
+      const feeEl = document.getElementById("feeAmount");
+      const netEl = document.getElementById("netAmount");
       if (!box) return;
       const rawAmount = document.getElementById("amount")?.value.trim();
       const selectedKey = document.getElementById("assetSelect")?.value;
       const token = TOKENS[selectedKey] || TOKENS.POL;
       const gross = Number(rawAmount);
       if (!Number.isFinite(gross) || gross <= 0) {
-        box.textContent = t("feeNote");
+        box.classList.remove("has-amount");
+        if (idle) {
+          idle.hidden = false;
+          idle.textContent = t("feeNote");
+        }
+        if (live) live.hidden = true;
         return;
       }
       const fee = gross * (CONFIG.feeBps / 10000);
       const net = gross - fee;
-      box.textContent = t("feeLine", {
-        fee: formatFeeAmount(fee),
-        net: formatFeeAmount(net),
-        symbol: token.symbol
-      });
+      const feeText = `${formatFeeAmount(fee)} ${token.symbol}`;
+      const netText = `${formatFeeAmount(net)} ${token.symbol}`;
+      box.classList.add("has-amount");
+      if (idle) idle.hidden = true;
+      if (live) live.hidden = false;
+      if (feeEl) feeEl.textContent = feeText;
+      if (netEl) netEl.textContent = netText;
     }
 
     function isSafeAddress(value) {
