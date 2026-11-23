@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,8 +13,15 @@
       --text: #f3f4f6;
       --muted: #94a3b8;
       --cyan: #38bdf8;
-      --indigo: #6366f1;
+      --sky: #0ea5e9;
+      --indigo: #818cf8;
+      --violet: #a78bfa;
       --emerald: #10b981;
+      --lime: #a3e635;
+      --amber: #fbbf24;
+      --orange: #fb923c;
+      --rose: #fb7185;
+      --coral: #f472b6;
     }
 
     * { box-sizing: border-box; }
@@ -25,9 +32,12 @@
       font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       color: var(--text);
       background:
-        radial-gradient(900px 500px at 15% -10%, rgba(99, 102, 241, 0.28), transparent 55%),
-        radial-gradient(700px 420px at 90% 10%, rgba(56, 189, 248, 0.16), transparent 50%),
-        var(--bg);
+        radial-gradient(820px 480px at 8% -8%, rgba(34, 211, 238, 0.22), transparent 58%),
+        radial-gradient(640px 400px at 55% -5%, rgba(167, 139, 250, 0.14), transparent 52%),
+        radial-gradient(720px 420px at 95% 5%, rgba(251, 146, 60, 0.12), transparent 50%),
+        radial-gradient(700px 380px at 80% 95%, rgba(244, 114, 182, 0.10), transparent 55%),
+        radial-gradient(640px 360px at 15% 90%, rgba(16, 185, 129, 0.12), transparent 55%),
+        linear-gradient(180deg, #020617 0%, #07111f 48%, #030712 100%);
     }
 
     html[dir="rtl"] body { font-family: "Segoe UI", Tahoma, Arial, sans-serif; }
@@ -44,8 +54,11 @@
     .brand {
       font-weight: 800;
       font-size: 18px;
-      color: var(--cyan);
       letter-spacing: 0.02em;
+      background: linear-gradient(90deg, #67e8f9, #a78bfa 45%, #fb923c 78%, #34d399);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .lang-select {
@@ -62,7 +75,7 @@
     .hero {
       max-width: 920px;
       margin: 0 auto;
-      padding: 56px 20px 28px;
+      padding: 40px 20px 18px;
       text-align: center;
     }
 
@@ -72,9 +85,9 @@
       gap: 8px;
       padding: 6px 12px;
       border-radius: 999px;
-      border: 1px solid #1e3a4c;
-      background: rgba(8, 47, 73, 0.5);
-      color: #7dd3fc;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+      background: linear-gradient(90deg, rgba(8, 47, 73, 0.75), rgba(6, 78, 59, 0.55));
+      color: #a5f3fc;
       font-size: 12px;
       font-weight: 700;
     }
@@ -84,13 +97,18 @@
       height: 8px;
       border-radius: 50%;
       background: var(--emerald);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
     }
 
     h1 {
-      margin: 18px 0 12px;
-      font-size: clamp(32px, 5vw, 48px);
+      margin: 16px 0 10px;
+      font-size: clamp(30px, 5vw, 46px);
       line-height: 1.15;
       letter-spacing: -0.03em;
+      background: linear-gradient(115deg, #f8fafc 0%, #67e8f9 28%, #c4b5fd 52%, #fdba74 78%, #6ee7b7 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
     }
 
     .lead {
@@ -101,57 +119,423 @@
       line-height: 1.55;
     }
 
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 22px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-cta:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      color: #04111a;
+      background: linear-gradient(90deg, #22d3ee, #a78bfa 48%, #34d399);
+      box-shadow: 0 10px 28px rgba(167, 139, 250, 0.28);
+    }
+
+    .btn-secondary {
+      color: #ffedd5;
+      background: linear-gradient(90deg, #7c2d12, #9a3412 40%, #c2410c);
+      border-color: #fb923c;
+      box-shadow: 0 8px 22px rgba(251, 146, 60, 0.22);
+    }
+
+    .prep {
+      margin: 14px auto 0;
+      max-width: 520px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 920px;
+      margin: 22px auto 0;
+      padding: 0 20px;
+    }
+
+    .step {
+      background: linear-gradient(160deg, rgba(8, 47, 73, 0.5), rgba(11, 18, 32, 0.92));
+      border: 1px solid #164e63;
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      text-align: left;
+      box-shadow: 0 10px 24px rgba(2, 6, 23, 0.35);
+    }
+
+    .step:nth-child(2) {
+      background: linear-gradient(160deg, rgba(76, 29, 149, 0.35), rgba(11, 18, 32, 0.92));
+      border-color: #6d28d9;
+    }
+
+    .step:nth-child(3) {
+      background: linear-gradient(160deg, rgba(157, 23, 77, 0.32), rgba(11, 18, 32, 0.92));
+      border-color: #be123c;
+    }
+
+    .step-n {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0284c7, #22d3ee);
+      color: #04111a;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .step:nth-child(2) .step-n {
+      background: linear-gradient(135deg, #7c3aed, #c4b5fd);
+      color: #1e1b4b;
+    }
+
+    .step:nth-child(3) .step-n {
+      background: linear-gradient(135deg, #e11d48, #fb7185);
+      color: #fff1f2;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .demo-wrap {
+      max-width: 920px;
+      margin: 28px auto 8px;
+      padding: 0 20px;
+    }
+
+    .demo {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #155e75;
+      border-radius: 22px;
+      background:
+        radial-gradient(500px 220px at 20% 0%, rgba(34, 211, 238, 0.20), transparent 60%),
+        radial-gradient(420px 180px at 70% 10%, rgba(167, 139, 250, 0.16), transparent 55%),
+        radial-gradient(420px 180px at 90% 100%, rgba(251, 113, 133, 0.14), transparent 55%),
+        radial-gradient(380px 160px at 10% 100%, rgba(251, 191, 36, 0.12), transparent 55%),
+        linear-gradient(180deg, #0b1220 0%, #071a24 100%);
+      min-height: 220px;
+      padding: 22px 18px 18px;
+      box-shadow: 0 18px 40px rgba(167, 139, 250, 0.12);
+    }
+
+    .demo-label {
+      text-align: center;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .demo-stage {
+      position: relative;
+      height: 140px;
+      display: grid;
+      place-items: center;
+    }
+
+    .demo-scene {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: demoBeat 12s linear infinite;
+    }
+
+    .demo-scene.s2 { animation-delay: -3s; }
+    .demo-scene.s3 { animation-delay: -6s; }
+    .demo-scene.s4 { animation-delay: -9s; }
+
+    @keyframes demoBeat {
+      0%, 2% { opacity: 0; transform: translateY(10px); }
+      8%, 22% { opacity: 1; transform: translateY(0); }
+      28%, 100% { opacity: 0; transform: translateY(-8px); }
+    }
+
+    .send-box {
+      width: 88px;
+      height: 64px;
+      border: 2.5px solid var(--violet);
+      border-radius: 16px;
+      background: #12081f;
+      position: relative;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 0 28px rgba(167, 139, 250, 0.28);
+      animation: sendPulse 1.6s ease-in-out infinite;
+    }
+
+    .send-arrow {
+      font-size: 28px;
+      font-weight: 800;
+      color: #ddd6fe;
+      line-height: 1;
+    }
+
+    @keyframes sendPulse {
+      0%, 100% { transform: translateX(-4px); box-shadow: 0 0 18px rgba(167, 139, 250, 0.18); }
+      50% { transform: translateX(4px); box-shadow: 0 0 32px rgba(167, 139, 250, 0.38); }
+    }
+
+    .vault {
+      width: 72px;
+      height: 64px;
+      border: 2.5px solid var(--cyan);
+      border-radius: 14px;
+      background: #07111f;
+      position: relative;
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.25);
+    }
+
+    .vault::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: -16px;
+      width: 28px;
+      height: 16px;
+      margin-left: -14px;
+      border: 2.5px solid var(--cyan);
+      border-bottom: 0;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .vault .lock-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      margin: -5px 0 0 -5px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .timer-ring {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 3px solid #1e293b;
+      border-top-color: var(--amber);
+      border-right-color: var(--cyan);
+      animation: spin 2.4s linear infinite;
+      display: grid;
+      place-items: center;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .key-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #854d0e;
+      background: rgba(120, 53, 15, 0.35);
+      color: #fde68a;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .demo-caption {
+      text-align: center;
+      min-height: 2.6em;
+      margin-top: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+
+    .cap {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      opacity: 0;
+      animation: demoBeat 12s linear infinite;
+    }
+
+    .cap.c2 { animation-delay: -3s; }
+    .cap.c3 { animation-delay: -6s; }
+    .cap.c4 { animation-delay: -9s; }
+
+    .demo-caption-wrap { position: relative; min-height: 2.6em; }
+
+    .proof {
+      max-width: 920px;
+      margin: 18px auto 8px;
+      padding: 0 20px;
+    }
+
+    .proof-box {
+      border: 1px solid #1e3a5f;
+      background:
+        linear-gradient(135deg, rgba(8, 47, 73, 0.35), rgba(17, 24, 39, 0.92)),
+        rgba(17, 24, 39, 0.9);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+    }
+
+    .proof-title {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .proof-item {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid #1e3a5f;
+      background: linear-gradient(160deg, #0c1a2e, #0b1220);
+      border-radius: 14px;
+      padding: 12px;
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+
+    .proof-item:nth-child(1) { border-color: #0891b2; }
+    .proof-item:nth-child(2) { border-color: #7c3aed; }
+    .proof-item:nth-child(3) { border-color: #ea580c; }
+    .proof-item:nth-child(4) { border-color: #db2777; }
+
+    .proof-item:nth-child(1) span { color: #67e8f9; }
+    .proof-item:nth-child(2) span { color: #c4b5fd; }
+    .proof-item:nth-child(3) span { color: #fdba74; }
+    .proof-item:nth-child(4) span { color: #f9a8d4; }
+
+    .proof-item:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .proof-item.static { cursor: default; }
+    .proof-item.static:hover { transform: none; filter: none; }
+    .proof-item.static span {
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .proof-item small {
+      display: block;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .proof-item span {
+      display: block;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      color: #93c5fd;
+      word-break: break-all;
+    }
+
     .choices {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 16px;
       max-width: 920px;
       margin: 0 auto;
-      padding: 12px 20px 28px;
+      padding: 18px 20px 20px;
     }
 
     .choice {
       display: block;
       text-decoration: none;
       color: inherit;
-      background: var(--panel);
+      background: linear-gradient(165deg, rgba(15, 23, 42, 0.95), rgba(11, 18, 32, 0.98));
       border: 1px solid var(--border);
       border-radius: 22px;
-      padding: 26px 24px 22px;
+      padding: 22px 20px 18px;
       text-align: left;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
       transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
     }
 
+    .choice.instant {
+      border-color: #7c3aed;
+      background: linear-gradient(165deg, rgba(76, 29, 149, 0.35), rgba(11, 18, 32, 0.98));
+      box-shadow: inset 0 0 0 1px rgba(167, 139, 250, 0.22);
+    }
+
+    .choice.escrow {
+      border-color: #0891b2;
+      background: linear-gradient(165deg, rgba(8, 145, 178, 0.28), rgba(6, 78, 59, 0.18), rgba(11, 18, 32, 0.98));
+      box-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.18);
+    }
+
     .choice:hover {
-      transform: translateY(-3px);
-      border-color: #334155;
-      box-shadow: 0 22px 48px rgba(56, 189, 248, 0.12);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(244, 114, 182, 0.14);
     }
 
     .choice h2 {
       margin: 0 0 8px;
-      font-size: 22px;
+      font-size: 20px;
     }
 
     .choice p {
-      margin: 0 0 18px;
+      margin: 0 0 14px;
       color: var(--muted);
       font-size: 14px;
       line-height: 1.5;
-      min-height: 63px;
     }
 
     .go {
       display: inline-flex;
-      align-items: center;
       font-size: 14px;
       font-weight: 700;
-      color: #c7d2fe;
     }
 
-    .instant h2 { color: #a5b4fc; }
+    .instant h2 { color: #ddd6fe; }
+    .instant .go { color: #c4b5fd; }
     .escrow h2 { color: #67e8f9; }
+    .escrow .go { color: #6ee7b7; }
 
     .facts {
       display: flex;
@@ -160,17 +544,36 @@
       gap: 10px;
       max-width: 920px;
       margin: 0 auto;
-      padding: 0 20px 36px;
+      padding: 0 20px 28px;
     }
 
     .fact {
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--muted);
       border-radius: 999px;
       padding: 8px 12px;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .fact:nth-child(1) {
+      color: #e0f2fe;
+      border-color: #0284c7;
+      background: linear-gradient(90deg, rgba(3, 105, 161, 0.45), rgba(8, 47, 73, 0.55));
+    }
+    .fact:nth-child(2) {
+      color: #dcfce7;
+      border-color: #16a34a;
+      background: linear-gradient(90deg, rgba(21, 128, 61, 0.4), rgba(6, 78, 59, 0.45));
+    }
+    .fact:nth-child(3) {
+      color: #fae8ff;
+      border-color: #c026d3;
+      background: linear-gradient(90deg, rgba(162, 28, 175, 0.35), rgba(76, 29, 149, 0.35));
+    }
+    .fact:nth-child(4) {
+      color: #ffedd5;
+      border-color: #ea580c;
+      background: linear-gradient(90deg, rgba(194, 65, 12, 0.4), rgba(157, 23, 77, 0.3));
     }
 
     .footer {
@@ -185,94 +588,128 @@
       text-decoration: none;
     }
 
-
-    .needs {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      list-style: none;
-      margin: 22px auto 0;
-      padding: 0;
-      max-width: 720px;
-    }
-
-    .needs li {
-      background: rgba(17, 24, 39, 0.85);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: 650;
-    }
-
-    .start {
-      display: inline-flex;
-      margin-bottom: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: rgba(16, 185, 129, 0.16);
-      color: #6ee7b7;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
     @media (max-width: 720px) {
-      .hero { padding-top: 36px; }
+      .hero { padding-top: 28px; }
+      .steps { grid-template-columns: 1fr; }
+      .proof-grid { grid-template-columns: 1fr; }
       .choices { grid-template-columns: 1fr; }
-      .choice p { min-height: 0; }
+      .cta-row { flex-direction: column; }
+      .btn-cta { width: 100%; }
     }
   </style>
 </head>
 <body>
   <div class="top">
     <div class="brand">SafeBridge Global</div>
-    <select id="langSelect" class="lang-select" aria-label="Language"></select>
+    <select id="langSelect" class="lang-select" aria-label="Idioma"></select>
   </div>
 
   <section class="hero">
     <div class="badge"><span class="dot"></span><span data-i18n="badge">Polygon Mainnet</span></div>
-    <h1 data-i18n="title">Send on Polygon.</h1>
-    <p class="lead" data-i18n="lead">Instant send is one confirmation in your wallet. Escrow holds the money until the other person enters a password you share privately.</p>
-    <ul class="needs">
-      <li data-i18n="needWallet">A wallet on Polygon</li>
-      <li data-i18n="needAddress">The other person's address</li>
-      <li data-i18n="needPol">A little POL for the network fee</li>
-    </ul>
+    <h1 data-i18n="title">Envía cripto ahora. El destinatario recibe el neto en una sola transacción.</h1>
+    <p class="lead" data-i18n="lead">Instant Transfer mueve POL, USDT, USDT.e o PAXG en Polygon. SafeBridge no cobra comisión. ¿Necesitas un bloqueo? Escrow sigue, con una comisión del 0.25%.</p>
+
+    <div class="cta-row">
+      <a class="btn-cta btn-primary" href="go-instant.html" data-i18n="ctaInstant">Enviar al instante</a>
+      <a class="btn-cta btn-secondary" href="go-escrow.html" data-i18n="ctaEscrow">¿Necesitas bloqueo? Escrow</a>
+    </div>
+    <p class="prep" data-i18n="prep">Necesitas una billetera Polygon y un poco de POL para gas antes de la primera transacción.</p>
   </section>
 
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">1</div>
+      <strong data-i18n="step1Title">Abre Instant</strong>
+      <span data-i18n="step1Desc">Conecta tu billetera en Polygon (red 137).</span>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <strong data-i18n="step2Title">Destinatario y monto</strong>
+      <span data-i18n="step2Desc">Elige token y monto. SafeBridge no cobra comisión.</span>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <strong data-i18n="step3Title">Envía en una tx</strong>
+      <span data-i18n="step3Desc">Confirma una vez. El destinatario recibe el neto en la misma transacción.</span>
+    </div>
+  </div>
+
+  <div class="demo-wrap">
+    <div class="demo" aria-hidden="true">
+      <div class="demo-label" data-i18n="demoLabel">Cómo funciona Instant Transfer</div>
+      <div class="demo-stage">
+        <div class="demo-scene s1"><div class="send-box"><span class="send-arrow">→</span></div></div>
+        <div class="demo-scene s2">
+          <div class="key-chip" data-i18n="demoKey">Sin comisión</div>
+        </div>
+        <div class="demo-scene s3">
+          <div class="vault" style="border-color:#34d399;box-shadow:0 0 24px rgba(52,211,153,.28)"><span class="lock-dot" style="background:#34d399"></span></div>
+        </div>
+        <div class="demo-scene s4">
+          <div class="timer-ring" style="border-top-color:#34d399;border-right-color:#67e8f9;animation-duration:1.4s"></div>
+        </div>
+      </div>
+      <div class="demo-caption-wrap">
+        <div class="cap c1 demo-caption" data-i18n="demo1">Eliges destinatario, token y monto.</div>
+        <div class="cap c2 demo-caption" data-i18n="demo2">SafeBridge no cobra comisión. El destinatario recibe el importe completo.</div>
+        <div class="cap c3 demo-caption" data-i18n="demo3">El destinatario recibe el neto — sin contraseña ni espera.</div>
+        <div class="cap c4 demo-caption" data-i18n="demo4">Una confirmación de billetera. Listo.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="proof-box">
+      <div class="proof-title" data-i18n="proofTitle">Prueba on-chain</div>
+      <div class="proof-grid">
+        <div class="proof-item static">
+          <small data-i18n="proofInstant">Transferencia instantánea</small>
+          <span data-i18n="proofInstantFee">Sin comisión</span>
+        </div>
+        <a class="proof-item" href="https://polygonscan.com/address/0x5230E2Ffa810d04eF2d6add04c47B1a4eE179f38" target="_blank" rel="noopener">
+          <small data-i18n="proofEscrow">Contrato escrow</small>
+          <span>0x5230…9f38</span>
+        </a>
+        <a class="proof-item" href="https://polygonscan.com/tx/0xc044cb4effe20515e77486ac04a6de53d2b0b34c93d80d3add6790548fe71332" target="_blank" rel="noopener">
+          <small data-i18n="proofEscrowTx">Creación escrow real</small>
+          <span>0xc044…1332</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <div class="choices">
-    <a class="choice instant" href="instant.html">
-      <span class="start" data-i18n="startHere">Start here</span>
-      <h2 data-i18n="instantTitle">Instant Transfer</h2>
-      <p data-i18n="instantDesc">The other person receives the amount minus a 0.25% fee, in the same transaction.</p>
-      <span class="go" data-i18n="instantGo">Continue to transfer →</span>
+    <a class="choice instant" href="go-instant.html">
+      <h2 data-i18n="instantTitle">Transferencia instantánea</h2>
+      <p data-i18n="instantDesc">Envía POL, USDT, USDT.e o PAXG ahora. El destinatario recibe el neto en la misma transacción.</p>
+      <span class="go" data-i18n="instantGo">Ir a transferir →</span>
     </a>
-    <a class="choice escrow" href="escrow.html">
-      <h2 data-i18n="escrowTitle">Escrow</h2>
-      <p data-i18n="escrowDesc">Use this when the money should stay locked until they have the password. The lock lasts at least one hour.</p>
-      <span class="go" data-i18n="escrowGo">Continue to escrow →</span>
+    <a class="choice escrow" href="go-escrow.html">
+      <h2 data-i18n="escrowTitle">Custodia</h2>
+      <p data-i18n="escrowDesc">¿Necesitas un bloqueo? Bloquea al menos una hora. El destinatario libera con contraseña.</p>
+      <span class="go" data-i18n="escrowGo">Ir a custodia →</span>
     </a>
   </div>
 
   <div class="facts">
-    <span class="fact" data-i18n="factFee">0.25% sender fee</span>
+    <span class="fact" data-i18n="factFee">Sin comisión</span>
     <span class="fact" data-i18n="factTokens">POL · USDT · USDT.e · PAXG</span>
-    <span class="fact" data-i18n="factKeys">Non-custodial</span>
-    <span class="fact" data-i18n="factLock">Escrow lock ≥ 1 hour</span>
+    <span class="fact" data-i18n="factKeys">Sin custodia</span>
+    <span class="fact" data-i18n="factLock">Importe completo al destinatario</span>
   </div>
 
   <div class="footer">
-    <a href="user-guide.html" data-i18n="guide">User guide</a>
+    <a href="user-guide.html" data-i18n="guide">Guía</a>
   </div>
 
+  <script src="track.js"></script>
   <script src="owner-lang.js"></script>
   <script>
     const LANGS = [
+      { id: "es", label: "Español", html: "es" },
       { id: "en", label: "English", html: "en" },
       { id: "ru", label: "Русский", html: "ru" },
       { id: "zh", label: "中文", html: "zh-CN" },
-      { id: "es", label: "Español", html: "es" },
       { id: "ja", label: "日本語", html: "ja" },
       { id: "ko", label: "한국어", html: "ko" },
       { id: "ar", label: "العربية", html: "ar" },
@@ -283,177 +720,314 @@
       en: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Send on Polygon.",
-        lead: "Instant send is one confirmation in your wallet. Escrow holds the money until the other person enters a password you share privately.",
+        title: "Send crypto now. The recipient gets the full amount.",
+        lead: "Instant Transfer moves POL, USDT, USDT.e or PAXG on Polygon. SafeBridge takes no commission. Need a lock for a deal? Escrow is still here, with a 0.25% fee.",
+        ctaEscrow: "Need a lock? Escrow",
+        ctaInstant: "Send Instantly",
+        prep: "You need a Polygon wallet and a little POL for network gas before the first transaction.",
+        step1Title: "Open Instant",
+        step1Desc: "Connect your wallet on Polygon (network 137).",
+        step2Title: "Set recipient & amount",
+        step2Desc: "Choose token and how much to send. SafeBridge takes no commission.",
+        step3Title: "Send in one tx",
+        step3Desc: "Confirm once. The recipient gets the full amount.",
+        demoLabel: "How Instant Transfer works",
+        demoKey: "No commission",
+        demo1: "You pick recipient, token, and amount.",
+        demo2: "SafeBridge takes no commission. The recipient gets the full amount.",
+        demo3: "The recipient gets the full amount.",
+        demo4: "One wallet confirm. Done.",
+        proofTitle: "On-chain proof",
+        proofEscrow: "Escrow contract",
+        proofInstant: "Instant transfer",
+        proofInstantFee: "No commission",
+        proofEscrowTx: "Live escrow create",
+        proofInstantTx: "Live instant send",
         instantTitle: "Instant Transfer",
-        instantDesc: "The other person receives the amount minus a 0.25% fee, in the same transaction.",
+        instantDesc: "Send POL, USDT, USDT.e or PAXG now. SafeBridge takes no commission. The recipient gets the full amount.",
         instantGo: "Continue to transfer →",
         escrowTitle: "Escrow",
-        escrowDesc: "Use this when the money should stay locked until they have the password. The lock lasts at least one hour.",
+        escrowDesc: "Lock funds for at least one hour. The recipient releases them with the password. Escrow fee is 0.25%.",
         escrowGo: "Continue to escrow →",
-        factFee: "0.25% sender fee",
+        factFee: "No SafeBridge commission",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Non-custodial",
-        factLock: "Escrow lock ≥ 1 hour",
-        guide: "User guide",
-        startHere: "Start here",
-        needWallet: "A wallet on Polygon",
-        needAddress: "The other person's address",
-        needPol: "A little POL for the network fee"
+        factLock: "No commission",
+        guide: "User guide"
       },
       tr: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Ana Ağ",
-        title: "Polygon’da gönder.",
-        lead: "Anında gönderim cüzdanda tek onaydır. Emanet, karşı taraf senin özel paylaştığın parolayı girene kadar parayı tutar.",
+        title: "Kripto’yu şimdi gönder. Alıcı tutarın tamamını alır.",
+        lead: "Anında Transfer, Polygon’da POL, USDT, USDT.e veya PAXG taşır. SafeBridge komisyon almaz. Anlaşma için kilit mi lazım? Emanet duruyor, ücreti %0.25.",
+        ctaEscrow: "Kilit lazım? Emanet",
+        ctaInstant: "Anında gönder",
+        prep: "İlk işlemden önce Polygon cüzdanı ve ağ gas’ı için biraz POL gerekir.",
+        step1Title: "Anında Transfer’i aç",
+        step1Desc: "Cüzdanını Polygon’da (ağ 137) bağla.",
+        step2Title: "Alıcı ve tutar",
+        step2Desc: "Token ve tutarı seç. SafeBridge komisyon almaz.",
+        step3Title: "Tek işlemde gönder",
+        step3Desc: "Bir kez onayla. Alıcı tutarın tamamını alır.",
+        demoLabel: "Anında Transfer nasıl çalışır",
+        demoKey: "Komisyon yok",
+        demo1: "Alıcı, token ve tutarı seçersin.",
+        demo2: "SafeBridge komisyon almaz. Alıcı tutarın tamamını alır.",
+        demo3: "Alıcı tutarın tamamını alır.",
+        demo4: "Tek cüzdan onayı. Bitti.",
+        proofTitle: "Zincir kanıtı",
+        proofEscrow: "Emanet sözleşmesi",
+        proofInstant: "Anında transfer",
+        proofInstantFee: "Komisyon yok",
+        proofEscrowTx: "Canlı emanet oluşturma",
+        proofInstantTx: "Canlı anında gönderim",
         instantTitle: "Anında Transfer",
-        instantDesc: "Karşı taraf tutarı, %0,25 ücret düşülmüş haliyle aynı işlemde alır.",
+        instantDesc: "POL, USDT, USDT.e veya PAXG’yi şimdi gönder. SafeBridge komisyon almaz. Alıcı tutarın tamamını alır.",
         instantGo: "Transfer’e geç →",
         escrowTitle: "Emanet",
-        escrowDesc: "Para, parola ellerine geçene kadar kilitli kalsın istiyorsan bunu kullan. Kilit en az bir saat sürer.",
+        escrowDesc: "En az bir saat kilitle. Alıcı şifreyle serbest bırakır. Emanet ücreti %0.25.",
         escrowGo: "Emanete geç →",
-        factFee: "%0.25 gönderen ücreti",
+        factFee: "Komisyon yok",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Saklama yok",
-        factLock: "Emanet kilidi ≥ 1 saat",
-        guide: "Kullanım kılavuzu",
-        startHere: "Buradan başla",
-        needWallet: "Polygon’da bir cüzdan",
-        needAddress: "Karşı tarafın adresi",
-        needPol: "Ağ ücreti için biraz POL"
+        factLock: "Alıcıya tam tutar",
+        guide: "Kullanım kılavuzu"
       },
       ru: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Отправьте в сети Polygon.",
-        lead: "Мгновенный перевод — одно подтверждение в кошельке. Эскроу держит деньги, пока другая сторона не введёт пароль, который вы передаёте лично.",
+        title: "Отправьте крипту сейчас. Получатель видит чистую сумму в одной транзакции.",
+        lead: "Мгновенный перевод двигает POL, USDT, USDT.e или PAXG в Polygon. SafeBridge не берёт комиссию. Нужен замок? Эскроу остаётся, комиссия 0.25%.",
+        ctaEscrow: "Нужен замок? Эскроу",
+        ctaInstant: "Отправить сразу",
+        prep: "Нужен кошелёк Polygon и немного POL на газ перед первой транзакцией.",
+        step1Title: "Откройте Instant",
+        step1Desc: "Подключите кошелёк в сети Polygon (137).",
+        step2Title: "Получатель и сумма",
+        step2Desc: "Выберите токен и сумму. SafeBridge не берёт комиссию.",
+        step3Title: "Одна транзакция",
+        step3Desc: "Подтвердите один раз. Получатель видит чистую сумму в той же транзакции.",
+        demoLabel: "Как работает мгновенный перевод",
+        demoKey: "Без комиссии",
+        demo1: "Выбираете получателя, токен и сумму.",
+        demo2: "SafeBridge не берёт комиссию. Получатель получает всю сумму.",
+        demo3: "Получатель получает чистую сумму — без пароля и ожидания.",
+        demo4: "Одно подтверждение кошелька. Готово.",
+        proofTitle: "Доказательства в сети",
+        proofEscrow: "Контракт эскроу",
+        proofInstant: "Мгновенный перевод",
+        proofInstantFee: "Без комиссии",
+        proofEscrowTx: "Живое создание эскроу",
+        proofInstantTx: "Живой мгновенный перевод",
         instantTitle: "Мгновенный перевод",
-        instantDesc: "Другая сторона получает сумму за вычетом 0,25% в той же транзакции.",
+        instantDesc: "Отправьте POL, USDT, USDT.e или PAXG сразу. Получатель видит чистую сумму в той же транзакции.",
         instantGo: "К переводу →",
         escrowTitle: "Эскроу",
-        escrowDesc: "Выберите это, если деньги должны оставаться заблокированными, пока у них нет пароля. Блокировка не короче одного часа.",
+        escrowDesc: "Нужен замок для сделки? Блокировка минимум на час. Получатель снимает паролем.",
         escrowGo: "К эскроу →",
-        factFee: "Комиссия отправителя 0.25%",
+        factFee: "Без комиссии",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Без кастодиала",
-        factLock: "Блокировка ≥ 1 часа",
-        guide: "Руководство",
-        startHere: "Начните здесь",
-        needWallet: "Кошелёк в сети Polygon",
-        needAddress: "Адрес другой стороны",
-        needPol: "Немного POL на комиссию сети"
+        factLock: "Полная сумма получателю",
+        guide: "Руководство"
       },
       zh: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon 主网",
-        title: "在 Polygon 上转账。",
-        lead: "即时转账只需在钱包里确认一次。托管会保管这笔钱，直到对方输入你私下分享的密码。",
+        title: "立刻发送加密资产。收款人在同一笔交易收到净额。",
+        lead: "即时转账在 Polygon 上发送 POL、USDT、USDT.e 或 PAXG。SafeBridge 不收取佣金。交易需要锁定？托管仍在，手续费 0.25%。",
+        ctaEscrow: "需要锁定？托管",
+        ctaInstant: "立即发送",
+        prep: "首次交易前需要 Polygon 钱包和少量 POL 作为 gas。",
+        step1Title: "打开即时转账",
+        step1Desc: "在 Polygon（网络 137）连接钱包。",
+        step2Title: "设置收款人与金额",
+        step2Desc: "选择代币和金额。SafeBridge 不收取佣金。",
+        step3Title: "一笔交易发送",
+        step3Desc: "确认一次。收款人在同一笔交易收到净额。",
+        demoLabel: "即时转账如何运作",
+        demoKey: "无佣金",
+        demo1: "选择收款人、代币和金额。",
+        demo2: "SafeBridge 不收取佣金。收款人收到全额。",
+        demo3: "收款人收到净额——无密码、无等待。",
+        demo4: "一次钱包确认。完成。",
+        proofTitle: "链上证明",
+        proofEscrow: "托管合约",
+        proofInstant: "即时转账",
+        proofInstantFee: "无佣金",
+        proofEscrowTx: "真实托管创建",
+        proofInstantTx: "真实即时发送",
         instantTitle: "即时转账",
-        instantDesc: "对方在同一笔交易中收到扣除 0.25% 后的金额。",
+        instantDesc: "立即发送 POL、USDT、USDT.e 或 PAXG。收款人在同一笔交易中收到净额。",
         instantGo: "前往转账 →",
         escrowTitle: "托管",
-        escrowDesc: "钱要一直锁着、直到对方拿到密码时再用这项。锁定至少一小时。",
+        escrowDesc: "交易需要锁定？至少锁定一小时。收款人用密码领取。",
         escrowGo: "前往托管 →",
-        factFee: "发送方手续费 0.25%",
+        factFee: "无佣金",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "非托管",
-        factLock: "托管锁定 ≥ 1 小时",
-        guide: "使用指南",
-        startHere: "从这里开始",
-        needWallet: "Polygon 上的钱包",
-        needAddress: "对方的地址",
-        needPol: "少量 POL 作为网络费"
+        factLock: "全额给收款人",
+        guide: "使用指南"
       },
       es: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon Mainnet",
-        title: "Envía en Polygon.",
-        lead: "El envío instantáneo es una confirmación en tu cartera. La custodia retiene el dinero hasta que la otra persona escribe una contraseña que compartes en privado.",
+        title: "Envía cripto ahora. El destinatario recibe el neto en una sola transacción.",
+        lead: "Instant Transfer mueve POL, USDT, USDT.e o PAXG en Polygon. SafeBridge no cobra comisión. ¿Necesitas un bloqueo? Escrow sigue, con una comisión del 0.25%.",
+        ctaEscrow: "¿Necesitas bloqueo? Escrow",
+        ctaInstant: "Enviar al instante",
+        prep: "Necesitas una billetera Polygon y un poco de POL para gas antes de la primera transacción.",
+        step1Title: "Abre Instant",
+        step1Desc: "Conecta tu billetera en Polygon (red 137).",
+        step2Title: "Destinatario y monto",
+        step2Desc: "Elige token y monto. SafeBridge no cobra comisión.",
+        step3Title: "Envía en una tx",
+        step3Desc: "Confirma una vez. El destinatario recibe el neto en la misma transacción.",
+        demoLabel: "Cómo funciona Instant Transfer",
+        demoKey: "Sin comisión",
+        demo1: "Eliges destinatario, token y monto.",
+        demo2: "SafeBridge no cobra comisión. El destinatario recibe el importe completo.",
+        demo3: "El destinatario recibe el neto — sin contraseña ni espera.",
+        demo4: "Una confirmación de billetera. Listo.",
+        proofTitle: "Prueba on-chain",
+        proofEscrow: "Contrato escrow",
+        proofInstant: "Transferencia instantánea",
+        proofInstantFee: "Sin comisión",
+        proofEscrowTx: "Creación escrow real",
+        proofInstantTx: "Envío instantáneo real",
         instantTitle: "Transferencia instantánea",
-        instantDesc: "La otra persona recibe el importe menos un 0,25% en la misma transacción.",
+        instantDesc: "Envía POL, USDT, USDT.e o PAXG ahora. El destinatario recibe el neto en la misma transacción.",
         instantGo: "Ir a transferir →",
         escrowTitle: "Custodia",
-        escrowDesc: "Úsalo cuando el dinero deba seguir bloqueado hasta que tengan la contraseña. El bloqueo dura al menos una hora.",
+        escrowDesc: "¿Necesitas un bloqueo? Bloquea al menos una hora. El destinatario libera con contraseña.",
         escrowGo: "Ir a custodia →",
-        factFee: "Comisión del emisor 0.25%",
+        factFee: "Sin comisión",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "Sin custodia",
-        factLock: "Bloqueo ≥ 1 hora",
-        guide: "Guía",
-        startHere: "Empieza aquí",
-        needWallet: "Una cartera en Polygon",
-        needAddress: "La dirección de la otra persona",
-        needPol: "Un poco de POL para la comisión de red"
+        factLock: "Importe completo al destinatario",
+        guide: "Guía"
       },
       ja: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon メインネット",
-        title: "Polygon で送る。",
-        lead: "即時送金はウォレットでの確認1回です。エスクローは、相手があなたが個別に伝えたパスワードを入力するまでお金を預かります。",
+        title: "今すぐ送金。受取人は同じ取引で純額を受け取ります。",
+        lead: "Instant Transfer は Polygon で POL / USDT / USDT.e / PAXG を動かします。SafeBridge は手数料を取りません。ロックが必要ならエスクローが残り、手数料は 0.25% です。",
+        ctaEscrow: "ロックが必要？エスクロー",
+        ctaInstant: "今すぐ送る",
+        prep: "初回取引の前に Polygon ウォレットとガス用の少量 POL が必要です。",
+        step1Title: "Instant を開く",
+        step1Desc: "Polygon（ネットワーク 137）でウォレットを接続。",
+        step2Title: "受取人と金額",
+        step2Desc: "トークンと金額を選ぶ。SafeBridge は手数料を取りません。",
+        step3Title: "1 回の取引で送金",
+        step3Desc: "一度確認。受取人は同じ取引で純額を受け取ります。",
+        demoLabel: "Instant Transfer の流れ",
+        demoKey: "手数料なし",
+        demo1: "受取人・トークン・金額を選ぶ。",
+        demo2: "SafeBridge は手数料を取りません。受取人は全額を受け取ります。",
+        demo3: "受取人は純額を受け取る — パスワードも待ちもなし。",
+        demo4: "ウォレット確認は 1 回。完了。",
+        proofTitle: "オンチェーン証明",
+        proofEscrow: "エスクロー契約",
+        proofInstant: "即時送金",
+        proofInstantFee: "手数料なし",
+        proofEscrowTx: "実際のエスクロー作成",
+        proofInstantTx: "実際の即時送金",
         instantTitle: "即時送金",
-        instantDesc: "相手は 0.25% を引いた金額を同じ取引で受け取ります。",
+        instantDesc: "POL / USDT / USDT.e / PAXG を今すぐ送る。受取人は同じ取引で純額を受け取ります。",
         instantGo: "送金へ →",
         escrowTitle: "エスクロー",
-        escrowDesc: "パスワードが渡るまでお金をロックしたいときに使います。ロックは最低1時間です。",
+        escrowDesc: "取引にロックが必要？最低1時間ロック。受取人はパスワードで解除。",
         escrowGo: "エスクローへ →",
-        factFee: "送金者手数料 0.25%",
+        factFee: "手数料なし",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "ノンカストディアル",
-        factLock: "ロック ≥ 1時間",
-        guide: "ガイド",
-        startHere: "ここから始める",
-        needWallet: "Polygon のウォレット",
-        needAddress: "相手のアドレス",
-        needPol: "ネットワーク手数料用の少しの POL"
+        factLock: "受取人に全額",
+        guide: "ガイド"
       },
       ko: {
         pageTitle: "SafeBridge Global",
         badge: "Polygon 메인넷",
-        title: "Polygon에서 보내세요.",
-        lead: "즉시 전송은 지갑에서 확인 한 번입니다. 에스크로는 상대가 당신이 따로 알려 준 비밀번호를 입력할 때까지 돈을 보관합니다.",
+        title: "지금 보내세요. 받는 사람은 같은 거래에서 순액을 받습니다.",
+        lead: "Instant Transfer는 Polygon에서 POL, USDT, USDT.e, PAXG를 보냅니다. SafeBridge는 수수료를 받지 않습니다. 잠금이 필요하면 에스크로가 남고, 수수료는 0.25%입니다.",
+        ctaEscrow: "잠금이 필요하세요? 에스크로",
+        ctaInstant: "즉시 보내기",
+        prep: "첫 거래 전에 Polygon 지갑과 가스용 POL이 조금 필요합니다.",
+        step1Title: "Instant 열기",
+        step1Desc: "Polygon(네트워크 137)에서 지갑을 연결하세요.",
+        step2Title: "수신자와 금액",
+        step2Desc: "토큰과 금액을 선택합니다. SafeBridge는 수수료를 받지 않습니다.",
+        step3Title: "한 번의 tx로 전송",
+        step3Desc: "한 번 확인. 받는 사람은 같은 거래에서 순액을 받습니다.",
+        demoLabel: "Instant Transfer 작동 방식",
+        demoKey: "수수료 없음",
+        demo1: "수신자, 토큰, 금액을 고릅니다.",
+        demo2: "SafeBridge는 수수료를 받지 않습니다. 받는 사람은 전액을 받습니다.",
+        demo3: "받는 사람은 순액을 받습니다 — 비밀번호·대기 없음.",
+        demo4: "지갑 확인 한 번. 끝.",
+        proofTitle: "온체인 증명",
+        proofEscrow: "에스크로 계약",
+        proofInstant: "즉시 전송",
+        proofInstantFee: "수수료 없음",
+        proofEscrowTx: "실제 에스크로 생성",
+        proofInstantTx: "실제 즉시 전송",
         instantTitle: "즉시 전송",
-        instantDesc: "상대는 0.25%를 뺀 금액을 같은 거래에서 받습니다.",
+        instantDesc: "POL, USDT, USDT.e, PAXG를 바로 보냅니다. 받는 사람은 같은 거래에서 순액을 받습니다.",
         instantGo: "전송으로 →",
         escrowTitle: "에스크로",
-        escrowDesc: "비밀번호를 받기 전까지 돈을 잠가야 할 때 사용하세요. 잠금은 최소 1시간입니다.",
+        escrowDesc: "거래에 잠금이 필요하세요? 최소 1시간 잠급니다. 받는 사람이 비밀번호로 해제합니다.",
         escrowGo: "에스크로로 →",
-        factFee: "보낸 사람 수수료 0.25%",
+        factFee: "수수료 없음",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "비수탁",
-        factLock: "잠금 ≥ 1시간",
-        guide: "안내",
-        startHere: "여기서 시작",
-        needWallet: "Polygon 지갑",
-        needAddress: "상대 주소",
-        needPol: "네트워크 수수료용 POL 조금"
+        factLock: "받는 사람에게 전액",
+        guide: "안내"
       },
       ar: {
         pageTitle: "SafeBridge Global",
         badge: "شبكة Polygon الرئيسية",
-        title: "أرسل على Polygon.",
-        lead: "التحويل الفوري تأكيد واحد في محفظتك. الضمان يحتفظ بالمال حتى يُدخل الطرف الآخر كلمة سر تشاركها معه على انفراد.",
+        title: "أرسل العملة الآن. يستلم المستلم الصافي في معاملة واحدة.",
+        lead: "التحويل الفوري ينقل POL أو USDT أو USDT.e أو PAXG على Polygon. SafeBridge لا يأخذ عمولة. تحتاج قفلًا؟ الضمان يبقى برسوم 0.25%.",
+        ctaEscrow: "تحتاج قفلًا؟ الضمان",
+        ctaInstant: "أرسل فورًا",
+        prep: "تحتاج محفظة Polygon وقليلًا من POL للغاز قبل أول معاملة.",
+        step1Title: "افتح التحويل الفوري",
+        step1Desc: "اربط محفظتك على Polygon (الشبكة 137).",
+        step2Title: "المستلم والمبلغ",
+        step2Desc: "اختر الرمز والمبلغ. SafeBridge لا يأخذ عمولة.",
+        step3Title: "أرسل في معاملة واحدة",
+        step3Desc: "أكّد مرة واحدة. يستلم المستلم الصافي في نفس المعاملة.",
+        demoLabel: "كيف يعمل التحويل الفوري",
+        demoKey: "بلا عمولة",
+        demo1: "تختار المستلم والرمز والمبلغ.",
+        demo2: "SafeBridge لا يأخذ عمولة. يستلم المستلم المبلغ كاملًا.",
+        demo3: "المستلم يأخذ الصافي — بلا كلمة سر وبلا انتظار.",
+        demo4: "تأكيد محفظة واحد. انتهى.",
+        proofTitle: "إثبات على السلسلة",
+        proofEscrow: "عقد الضمان",
+        proofInstant: "تحويل فوري",
+        proofInstantFee: "بلا عمولة",
+        proofEscrowTx: "إنشاء ضمان حي",
+        proofInstantTx: "إرسال فوري حي",
         instantTitle: "تحويل فوري",
-        instantDesc: "يستلم الطرف الآخر المبلغ ناقص 0.25% في نفس المعاملة.",
+        instantDesc: "أرسل POL أو USDT أو USDT.e أو PAXG الآن. يستلم المستلم الصافي في نفس المعاملة.",
         instantGo: "إلى التحويل ←",
         escrowTitle: "الضمان",
-        escrowDesc: "استخدمه عندما يجب أن يبقى المال مقفلاً حتى تصلهم كلمة السر. القفل ساعة واحدة على الأقل.",
+        escrowDesc: "تحتاج قفلًا لصفقة؟ أقفل ساعة واحدة على الأقل. يحرّر المستلم بكلمة السر.",
         escrowGo: "إلى الضمان ←",
-        factFee: "رسوم المرسل 0.25%",
+        factFee: "بلا عمولة",
         factTokens: "POL · USDT · USDT.e · PAXG",
         factKeys: "بدون حضانة",
-        factLock: "قفل ≥ ساعة",
-        guide: "دليل الاستخدام",
-        startHere: "ابدأ من هنا",
-        needWallet: "محفظة على Polygon",
-        needAddress: "عنوان الطرف الآخر",
-        needPol: "قليل من POL لرسوم الشبكة"
+        factLock: "المبلغ كامل للمستلم",
+        guide: "دليل الاستخدام"
       }
     };
 
     const select = document.getElementById("langSelect");
     let ownerAccount = "";
-    let uiLang = window.SB_safeLang(window.SB_detectLang(window.SB_readLang()), ownerAccount);
-    if (!I18N[uiLang]) uiLang = "en";
+    const storedLang = window.SB_readLang();
+    let uiLang = storedLang && I18N[storedLang] ? storedLang : "es";
+    if (uiLang === "tr" && !window.SB_isOwnerAccount(ownerAccount)) uiLang = "es";
 
     function fillLangs() {
       select.replaceChildren();
@@ -469,9 +1043,9 @@
 
     function applyLang(id) {
       id = window.SB_safeLang(id, ownerAccount);
-      if (!I18N[id]) id = "en";
+      if (!I18N[id]) id = "es";
       uiLang = id;
-      const pack = I18N[id] || I18N.en;
+      const pack = I18N[id] || I18N.es;
       const meta = LANGS.find((l) => l.id === id) || LANGS[0];
       document.documentElement.lang = meta.html;
       document.documentElement.dir = id === "ar" ? "rtl" : "ltr";
@@ -496,7 +1070,7 @@
         const accounts = await window.ethereum.request({ method: "eth_accounts" });
         ownerAccount = accounts && accounts[0] ? accounts[0] : "";
         if (window.SB_isOwnerAccount(ownerAccount)) applyLang("tr");
-        else if (uiLang === "tr") applyLang("en");
+        else if (uiLang === "tr") applyLang("es");
         else fillLangs();
       } catch (e) {}
     }
@@ -506,7 +1080,7 @@
       window.ethereum.on("accountsChanged", function (accs) {
         ownerAccount = accs && accs[0] ? accs[0] : "";
         if (window.SB_isOwnerAccount(ownerAccount)) applyLang("tr");
-        else applyLang(uiLang === "tr" ? "en" : uiLang);
+        else applyLang(uiLang === "tr" ? "es" : uiLang);
       });
     }
   </script>

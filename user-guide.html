@@ -348,7 +348,11 @@
       if (!select) return;
       if (select.dataset.bound !== "1") {
         select.dataset.bound = "1";
-        select.addEventListener("change", () => applyLanguage(select.value));
+        select.addEventListener("change", () => {
+          const picked = window.SB_safeLang(select.value, ownerAccount);
+          window.SB_rememberLang(picked);
+          applyLanguage(picked);
+        });
       }
       select.replaceChildren();
       for (const lang of window.SB_visibleLangs(LANGS, ownerAccount)) {
@@ -366,7 +370,6 @@
       const meta = LANGS.find((item) => item.id === lang);
       document.documentElement.lang = meta ? meta.html : "en";
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      window.SB_rememberLang(lang);
       initLanguageSelect();
       const select = document.getElementById("langSelect");
       if (select) {
@@ -381,7 +384,7 @@
       });
     }
 
-    applyLanguage(window.SB_detectLang(window.SB_readLang()));
+    applyLanguage(window.SB_readLang() || "en");
 
     async function syncOwnerFromWallet() {
       if (!window.ethereum) return;
