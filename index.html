@@ -1025,7 +1025,7 @@
 
     const select = document.getElementById("langSelect");
     let ownerAccount = "";
-    const storedLang = localStorage.getItem("sb_lang");
+    const storedLang = window.SB_readLang();
     let uiLang = storedLang && I18N[storedLang] ? storedLang : "es";
     if (uiLang === "tr" && !window.SB_isOwnerAccount(ownerAccount)) uiLang = "es";
 
@@ -1058,7 +1058,7 @@
 
     select.addEventListener("change", () => {
       uiLang = window.SB_safeLang(select.value, ownerAccount);
-      localStorage.setItem("sb_lang", uiLang === "tr" ? "en" : uiLang);
+      window.SB_rememberLang(uiLang);
       applyLang(uiLang);
     });
 

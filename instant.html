@@ -1321,7 +1321,11 @@
       if (!select) return;
       if (select.dataset.bound !== "1") {
         select.dataset.bound = "1";
-        select.addEventListener("change", () => applyLanguage(select.value));
+        select.addEventListener("change", () => {
+          const picked = window.SB_safeLang(select.value, connectedAccount);
+          window.SB_rememberLang(picked);
+          applyLanguage(picked);
+        });
       }
       select.replaceChildren();
       for (const lang of visibleLangs()) {
@@ -1345,7 +1349,6 @@
       const meta = LANGS.find((item) => item.id === lang);
       document.documentElement.lang = meta ? meta.html : "en";
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-      try { if (lang !== "tr") localStorage.setItem("safebridge-lang", lang); } catch (e) {}
       initLanguageSelect();
       const select = document.getElementById("langSelect");
       if (select) {
@@ -1834,9 +1837,7 @@
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      let saved = "en";
-      try { saved = localStorage.getItem("safebridge-lang") || "en"; } catch (e) { saved = "en"; }
-      applyLanguage(saved);
+      applyLanguage(window.SB_readLang() || "en");
       document.getElementById("amount")?.addEventListener("input", updateFeePreview);
       document.getElementById("assetSelect")?.addEventListener("change", updateFeePreview);
       document.getElementById("walletModal")?.addEventListener("click", (event) => {
