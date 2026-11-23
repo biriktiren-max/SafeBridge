@@ -354,6 +354,18 @@
 
     .trust-strip a:hover { filter: brightness(1.1); }
 
+    .trust-strip .fee-free {
+      border-color: #059669;
+      color: #6ee7b7;
+      background: rgba(6, 78, 59, 0.45);
+    }
+
+    .trust-strip .gas-stays {
+      border-color: #b45309;
+      color: #fcd34d;
+      background: rgba(120, 53, 15, 0.45);
+    }
+
     .connect-panel {
       margin: 0 0 18px;
       padding: 14px;
@@ -407,6 +419,8 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .fee-row.free strong { color: #6ee7b7; }
+    .fee-row.gas strong { color: #fcd34d; }
     .fee-row.net span { color: #a7f3d0; font-weight: 700; }
     .fee-row.net strong { color: #6ee7b7; font-size: 16px; }
 
@@ -615,18 +629,18 @@
 
     <h2 data-i18n="title">Instant Transfer</h2>
     <p class="desc" data-i18n="desc">
-      Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.
+      Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon. SafeBridge takes no commission. The recipient gets the full amount.
     </p>
 
     <div class="trust-strip" aria-label="Trust">
-      <a href="https://polygonscan.com/address/0x1119eADB98A205fd4237bc258d46eA15261D50bC" target="_blank" rel="noopener" data-i18n="trustContract">Contract 0x1119…50bC</a>
+      <span class="fee-free" data-i18n="trustContract">No commission</span>
       <span data-i18n="trustNoSeed">Never asks for recovery phrase</span>
-      <span data-i18n="trustGas">Need a little POL for gas</span>
+      <span data-i18n="trustGas">A little POL for network gas</span>
     </div>
 
     <div class="connect-panel" id="connectPanel">
       <button id="connectBtnMain" class="btn-connect btn-connect-main" type="button" data-connect-btn="1" onclick="openWalletPicker()" data-i18n="connectBtn">Connect Wallet</button>
-      <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a Polygon wallet first and keep a little POL for gas. You approve each transfer inside the wallet.</p>
+      <p class="connect-hint" id="connectHint" data-i18n="connectHint">Connect a Polygon wallet first and keep a little POL for network gas. You confirm each transfer in the wallet.</p>
     </div>
 
     <div class="field">
@@ -650,13 +664,13 @@
       </div>
     </div>
 
-    <div id="feePreview" class="fee-preview">
-      <p class="fee-preview-idle" id="feePreviewIdle" data-i18n="feeNote">A 0.25% protocol fee is taken on-chain. The recipient receives the remaining amount.</p>
+    <div id="feePreview" class="fee-preview has-amount">
+      <div class="fee-row free">
+        <span data-i18n="feeLabel">Our commission</span>
+        <strong id="feeAmount" data-i18n="feeFree">None</strong>
+      </div>
+      <p class="fee-preview-idle" id="feePreviewIdle" data-i18n="feeNote">SafeBridge takes no commission. Enter an amount to see the full amount the recipient gets.</p>
       <div class="fee-preview-live" id="feePreviewLive" hidden>
-        <div class="fee-row">
-          <span data-i18n="feeLabel">Fee (0.25%)</span>
-          <strong id="feeAmount">—</strong>
-        </div>
         <div class="fee-row net">
           <span data-i18n="netLabel">Recipient gets</span>
           <strong id="netAmount">—</strong>
@@ -698,10 +712,7 @@
   <script>
     const CONFIG = {
       chainIdHex: "0x89",
-      chainIdDec: 137,
-      instantContract: "0x1119eADB98A205fd4237bc258d46eA15261D50bC",
-      feeBps: 25,
-      feeRecipient: "0x68E0c1948900699E23a5490fcE4e376EDe21588D"
+      chainIdDec: 137
     };
 
     const TOKENS = {
@@ -711,15 +722,8 @@
       PAXG: { symbol: "PAXG", type: "erc20", address: "0x714DB550b574b3e927Fb3d93E26127d15721d4c2", decimals: 18 }
     };
 
-    const INSTANT_ABI = [
-      "function send(address payable recipient, address token, uint256 grossAmount) external payable"
-    ];
-
     const ERC20_ABI = [
-      "function transfer(address to, uint256 amount) external returns (bool)",
-      "function balanceOf(address account) external view returns (uint256)",
-      "function approve(address spender, uint256 amount) external returns (bool)",
-      "function allowance(address owner, address spender) external view returns (uint256)"
+      "function transfer(address to, uint256 amount) external returns (bool)"
     ];
 
     const LANGS = [
@@ -743,20 +747,23 @@
         notConnected: "Not connected",
         network: "Polygon Mainnet",
         title: "Instant Transfer",
-        desc: "Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon Mainnet. A 0.25% on-chain fee is deducted.",
-        feeNote: "Enter an amount to see the 0.25% fee and what the recipient gets.",
-        feeLine: "Fee 0.25%: {fee} {symbol} · Recipient gets {net} {symbol}",
-        feeLabel: "Fee (0.25%)",
+        desc: "Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon. SafeBridge takes no commission. The recipient gets the full amount.",
+        feeNote: "SafeBridge takes no commission. Enter an amount to see the full amount the recipient gets.",
+        feeLine: "Our commission: none · Recipient gets {net} {symbol}",
+        feeLabel: "Our commission",
+        feeFree: "None",
+        gasLabel: "Network gas",
+        gasStays: "Paid in the wallet",
         netLabel: "Recipient gets",
-        trustContract: "Contract 0x1119…50bC",
+        trustContract: "No commission",
         trustNoSeed: "Never asks for recovery phrase",
-        trustGas: "Need a little POL for gas",
+        trustGas: "A little POL for network gas",
         guideTitle: "How to connect",
         guideLead: "Use your own wallet. SafeBridge never asks for your secret recovery phrase.",
         pickerTitle: "Choose a wallet",
         pickerSubtitle: "Approve the connection in the wallet. SafeBridge never asks for your recovery phrase.",
         pickerClose: "Close",
-        connectHint: "Connect a Polygon wallet first and keep a little POL for gas. You approve each transfer inside the wallet.",
+        connectHint: "Connect a Polygon wallet first and keep a little POL for network gas. You confirm each transfer in the wallet.",
         helpTitle: "Need help?",
         changeWallet: "Change wallet",
         step1: "Choose a wallet. On a phone you can open this page inside the wallet app.",
@@ -810,14 +817,17 @@
         notConnected: "Не подключён",
         network: "Polygon Mainnet",
         title: "Мгновенный перевод",
-        desc: "Прямой перевод POL, USDT, USDT.e и PAXG с кошелька на кошелёк в сети Polygon. Комиссия 0,25% списывается в сети.",
-        feeNote: "Введите сумму, чтобы увидеть комиссию 0,25% и сумму получателя.",
-        feeLine: "Комиссия 0,25%: {fee} {symbol} · Получатель получит {net} {symbol}",
-        feeLabel: "Комиссия (0,25%)",
+        desc: "Прямой перевод POL, USDT, USDT.e и PAXG с кошелька на кошелёк в Polygon. SafeBridge не берёт комиссию. Получатель получает всю сумму.",
+        feeNote: "Введите сумму, чтобы увидеть полную сумму получателя.",
+        feeLine: "Комиссия SafeBridge: бесплатно · Газ остаётся · Получатель получит {net} {symbol}",
+        feeLabel: "Наша комиссия",
+        feeFree: "Нет",
+        gasLabel: "Газ сети",
+        gasStays: "Оплачивается в кошельке",
         netLabel: "Получатель получит",
-        trustContract: "Контракт 0x1119…50bC",
+        trustContract: "Без комиссии",
         trustNoSeed: "Не просим seed-фразу",
-        trustGas: "Нужен немного POL на газ",
+        trustGas: "Немного POL на газ сети",
         guideTitle: "Как подключить",
         guideLead: "Используйте свой кошелёк. SafeBridge никогда не запрашивает секретную фразу.",
         pickerTitle: "Выберите кошелёк",
@@ -877,14 +887,17 @@
         notConnected: "未连接",
         network: "Polygon 主网",
         title: "即时转账",
-        desc: "在 Polygon 主网上直接进行 POL、USDT、USDT.e 和 PAXG 的钱包到钱包转账。链上扣除 0.25% 手续费。",
-        feeNote: "输入金额即可查看 0.25% 手续费和收款人到账净额。",
-        feeLine: "手续费 0.25%：{fee} {symbol} · 收款人到账 {net} {symbol}",
-        feeLabel: "手续费 (0.25%)",
+        desc: "在 Polygon 上直接进行 POL、USDT、USDT.e 和 PAXG 的钱包到钱包转账。SafeBridge 不收取佣金。收款人收到全额。",
+        feeNote: "输入金额即可查看收款人收到的全额。",
+        feeLine: "SafeBridge 手续费：免费 · Gas 费保留 · 收款人到账 {net} {symbol}",
+        feeLabel: "我们的佣金",
+        feeFree: "无",
+        gasLabel: "网络 gas",
+        gasStays: "在钱包中支付",
         netLabel: "收款人到账",
-        trustContract: "合约 0x1119…50bC",
+        trustContract: "无佣金",
         trustNoSeed: "从不索要助记词",
-        trustGas: "需要少量 POL 作为 gas",
+        trustGas: "网络 gas 需要少量 POL",
         guideTitle: "如何连接",
         guideLead: "请使用你自己的钱包。SafeBridge 绝不会索取你的密钥助记词。",
         pickerTitle: "选择钱包",
@@ -944,14 +957,17 @@
         notConnected: "Sin conexión",
         network: "Polygon Mainnet",
         title: "Transferencia instantánea",
-        desc: "Transferencia directa de billetera a billetera de POL, USDT, USDT.e y PAXG en Polygon Mainnet. Se descuenta una comisión del 0,25% en cadena.",
-        feeNote: "Introduce un importe para ver la comisión del 0,25% y lo que recibe el destinatario.",
-        feeLine: "Comisión 0,25%: {fee} {symbol} · El destinatario recibe {net} {symbol}",
-        feeLabel: "Comisión (0,25%)",
+        desc: "Transferencia directa de billetera a billetera de POL, USDT, USDT.e y PAXG en Polygon. SafeBridge no cobra comisión. El destinatario recibe el importe completo.",
+        feeNote: "Introduce un importe para ver el total que recibe el destinatario.",
+        feeLine: "Comisión SafeBridge: gratis · El gas se mantiene · El destinatario recibe {net} {symbol}",
+        feeLabel: "Nuestra comisión",
+        feeFree: "Ninguna",
+        gasLabel: "Gas de la red",
+        gasStays: "Se paga en la billetera",
         netLabel: "El destinatario recibe",
-        trustContract: "Contrato 0x1119…50bC",
+        trustContract: "Sin comisión",
         trustNoSeed: "Nunca pide la frase de recuperación",
-        trustGas: "Necesitas un poco de POL para gas",
+        trustGas: "Un poco de POL para el gas de la red",
         guideTitle: "Cómo conectar",
         guideLead: "Usa tu propia billetera. SafeBridge nunca pide tu frase secreta de recuperación.",
         pickerTitle: "Elige una billetera",
@@ -1011,14 +1027,17 @@
         notConnected: "未接続",
         network: "Polygon メインネット",
         title: "即時送金",
-        desc: "Polygon メインネットで POL、USDT、USDT.e、PAXG をウォレット間で直接送金します。0.25% の手数料がオンチェーンで差し引かれます。",
-        feeNote: "金額を入力すると 0.25% 手数料と受取純額が表示されます。",
-        feeLine: "手数料 0.25%: {fee} {symbol} · 受取額 {net} {symbol}",
-        feeLabel: "手数料 (0.25%)",
+        desc: "Polygon で POL、USDT、USDT.e、PAXG をウォレットからウォレットへ直接送金します。SafeBridge は手数料を取りません。受取人は全額を受け取ります。",
+        feeNote: "金額を入れると受取人が受け取る全額が見えます。",
+        feeLine: "SafeBridge 手数料: 無料 · ガス手数料は残る · 受取額 {net} {symbol}",
+        feeLabel: "当社の手数料",
+        feeFree: "なし",
+        gasLabel: "ネットワークガス",
+        gasStays: "ウォレットで支払う",
         netLabel: "受取額",
-        trustContract: "コントラクト 0x1119…50bC",
+        trustContract: "手数料なし",
         trustNoSeed: "リカバリーフレーズは求めません",
-        trustGas: "ガス用に少量の POL が必要",
+        trustGas: "ネットワークガス用に少量の POL",
         guideTitle: "接続方法",
         guideLead: "ご自身のウォレットを使ってください。SafeBridge がシークレットリカバリーフレーズを求めることはありません。",
         pickerTitle: "ウォレットを選ぶ",
@@ -1078,14 +1097,17 @@
         notConnected: "연결 안 됨",
         network: "Polygon 메인넷",
         title: "즉시 전송",
-        desc: "Polygon 메인넷에서 POL, USDT, USDT.e, PAXG를 지갑에서 지갑으로 직접 전송합니다. 온체인에서 0.25% 수수료가 차감됩니다.",
-        feeNote: "금액을 입력하면 0.25% 수수료와 받는 순액을 볼 수 있습니다.",
-        feeLine: "수수료 0.25%: {fee} {symbol} · 받는 금액 {net} {symbol}",
-        feeLabel: "수수료 (0.25%)",
+        desc: "Polygon에서 POL, USDT, USDT.e, PAXG를 지갑에서 지갑으로 직접 전송합니다. SafeBridge는 수수료를 받지 않습니다. 받는 사람은 전액을 받습니다.",
+        feeNote: "금액을 입력하면 받는 전액이 보입니다.",
+        feeLine: "SafeBridge 수수료: 무료 · 가스 수수료는 유지 · 받는 금액 {net} {symbol}",
+        feeLabel: "우리 수수료",
+        feeFree: "없음",
+        gasLabel: "네트워크 가스",
+        gasStays: "지갑에서 결제",
         netLabel: "받는 금액",
-        trustContract: "계약 0x1119…50bC",
+        trustContract: "수수료 없음",
         trustNoSeed: "복구 문구를 묻지 않습니다",
-        trustGas: "가스용 POL이 조금 필요합니다",
+        trustGas: "네트워크 가스용 POL 조금",
         guideTitle: "연결 방법",
         guideLead: "본인 지갑을 사용하세요. SafeBridge는 시크릿 복구 구문을 절대 요청하지 않습니다.",
         pickerTitle: "지갑 선택",
@@ -1145,14 +1167,17 @@
         notConnected: "Bağlı değil",
         network: "Polygon Ana Ağ",
         title: "Anında Transfer",
-        desc: "Polygon ana ağında POL, USDT, USDT.e ve PAXG için cüzdandan cüzdana doğrudan transfer. Zincir üzerinde %0,25 komisyon kesilir.",
-        feeNote: "Tutarı yaz; %0,25 ücret ve alıcıya gidecek net tutarı gör.",
-        feeLine: "Komisyon %0,25: {fee} {symbol} · Alıcıya {net} {symbol}",
-        feeLabel: "Ücret (%0,25)",
+        desc: "Polygon’da POL, USDT, USDT.e ve PAXG için cüzdandan cüzdana doğrudan transfer. SafeBridge komisyon almaz. Alıcı tutarın tamamını alır.",
+        feeNote: "SafeBridge komisyon almaz. Tutarı yaz; alıcıya gidecek tam tutarı gör.",
+        feeLine: "Komisyonumuz: yok · Alıcıya {net} {symbol}",
+        feeLabel: "Komisyonumuz",
+        feeFree: "Yok",
+        gasLabel: "Ağ gas’ı",
+        gasStays: "Cüzdanda ödenir",
         netLabel: "Alıcıya giden",
-        trustContract: "Sözleşme 0x1119…50bC",
+        trustContract: "Komisyon yok",
         trustNoSeed: "Kurtarma ifadesi istemeyiz",
-        trustGas: "Biraz POL gas gerekir",
+        trustGas: "Ağ gas’ı için biraz POL",
         guideTitle: "Nasıl bağlanır",
         guideLead: "Kendi cüzdanını kullan. SafeBridge gizli kurtarma ifadeni asla istemez.",
         pickerTitle: "Cüzdan seç",
@@ -1212,14 +1237,17 @@
         notConnected: "غير متصل",
         network: "شبكة Polygon الرئيسية",
         title: "تحويل فوري",
-        desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDT.e وPAXG على شبكة Polygon الرئيسية. تُخصم رسوم 0.25% على السلسلة.",
-        feeNote: "أدخل المبلغ لترى رسوم 0.25% وما يستلمه المستلم.",
-        feeLine: "الرسوم 0.25%: {fee} {symbol} · يستلم المستلم {net} {symbol}",
-        feeLabel: "الرسوم (0.25%)",
+        desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDT.e وPAXG على Polygon. SafeBridge لا يأخذ عمولة. يستلم المستلم المبلغ كاملًا.",
+        feeNote: "أدخل المبلغ لترى المبلغ الكامل الذي يستلمه المستلم.",
+        feeLine: "رسوم SafeBridge: مجاني · رسوم الغاز تبقى · يستلم المستلم {net} {symbol}",
+        feeLabel: "عمولتنا",
+        feeFree: "لا شيء",
+        gasLabel: "غاز الشبكة",
+        gasStays: "يُدفع في المحفظة",
         netLabel: "يستلم المستلم",
-        trustContract: "العقد 0x1119…50bC",
+        trustContract: "بلا عمولة",
         trustNoSeed: "لا نطلب عبارة الاسترداد",
-        trustGas: "تحتاج قليلًا من POL للغاز",
+        trustGas: "قليل من POL لغاز الشبكة",
         guideTitle: "كيفية الربط",
         guideLead: "استخدم محفظتك الخاصة. لا يطلب SafeBridge عبارة الاسترداد السرية أبدًا.",
         pickerTitle: "اختر محفظة",
@@ -1752,14 +1780,11 @@
         if (live) live.hidden = true;
         return;
       }
-      const fee = gross * (CONFIG.feeBps / 10000);
-      const net = gross - fee;
-      const feeText = `${formatFeeAmount(fee)} ${token.symbol}`;
-      const netText = `${formatFeeAmount(net)} ${token.symbol}`;
+      const netText = `${formatFeeAmount(gross)} ${token.symbol}`;
       box.classList.add("has-amount");
       if (idle) idle.hidden = true;
       if (live) live.hidden = false;
-      if (feeEl) feeEl.textContent = feeText;
+      if (feeEl) feeEl.textContent = t("feeFree");
       if (netEl) netEl.textContent = netText;
     }
 
@@ -1787,23 +1812,16 @@
 
       try {
         const parsedAmount = ethers.parseUnits(rawAmount, token.decimals);
-        const instant = new ethers.Contract(CONFIG.instantContract, INSTANT_ABI, signer);
-        const tokenAddress = token.type === "native" ? ethers.ZeroAddress : token.address;
-
-        if (token.type !== "native") {
-          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
-          const currentAllowance = await tokenContract.allowance(connectedAccount, CONFIG.instantContract);
-          if (currentAllowance < parsedAmount) {
-            setStatus("statusApproving", "info", { symbol: token.symbol });
-            const approveTx = await tokenContract.approve(CONFIG.instantContract, parsedAmount);
-            await approveTx.wait();
-          }
-        }
-
         setStatus("statusPreparing", "info", { symbol: token.symbol });
-        const tx = await instant.send(recipient, tokenAddress, parsedAmount, {
-          value: token.type === "native" ? parsedAmount : 0n
-        });
+
+        let tx;
+        if (token.type === "native") {
+          tx = await signer.sendTransaction({ to: recipient, value: parsedAmount });
+        } else {
+          const tokenContract = new ethers.Contract(token.address, ERC20_ABI, signer);
+          const data = tokenContract.interface.encodeFunctionData("transfer", [recipient, parsedAmount]);
+          tx = await signer.sendTransaction({ to: token.address, data });
+        }
 
         setStatus("statusSubmitted", "info", { hash: tx.hash });
         const receipt = await tx.wait();
