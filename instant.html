@@ -629,7 +629,7 @@
 
     <h2 data-i18n="title">Instant Transfer</h2>
     <p class="desc" data-i18n="desc">
-      Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon. SafeBridge takes no commission. The recipient gets the full amount.
+      Direct wallet-to-wallet transfer for POL, USDT, USDC and PAXG on Polygon. SafeBridge takes no commission. The recipient gets the full amount.
     </p>
 
     <div class="trust-strip" aria-label="Trust">
@@ -658,7 +658,7 @@
         <select id="assetSelect">
           <option value="POL" data-i18n="polNative">POL (Native)</option>
           <option value="USDT">USDT</option>
-          <option value="USDTE">USDT.e</option>
+          <option value="USDC">USDC</option>
           <option value="PAXG">PAXG</option>
         </select>
       </div>
@@ -717,9 +717,9 @@
 
     const TOKENS = {
       POL: { symbol: "POL", type: "native", address: null, decimals: 18 },
-      USDT: { symbol: "USDT", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
-      USDTE: { symbol: "USDT.e", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
-      PAXG: { symbol: "PAXG", type: "erc20", address: "0x714DB550b574b3e927Fb3d93E26127d15721d4c2", decimals: 18 }
+      USDT: { symbol: "USDT", type: "erc20", address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", decimals: 6 },
+      USDC: { symbol: "USDC", type: "erc20", address: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", decimals: 6 },
+      PAXG: { symbol: "PAXG", type: "erc20", address: "0x553d3d295e0f695b9228246232edf400ed3560b5", decimals: 18 }
     };
 
     const ERC20_ABI = [
@@ -747,7 +747,7 @@
         notConnected: "Not connected",
         network: "Polygon Mainnet",
         title: "Instant Transfer",
-        desc: "Direct wallet-to-wallet transfer for POL, USDT, USDT.e and PAXG on Polygon. SafeBridge takes no commission. The recipient gets the full amount.",
+        desc: "Direct wallet-to-wallet transfer for POL, USDT, USDC and PAXG on Polygon. SafeBridge takes no commission. The recipient gets the full amount.",
         feeNote: "SafeBridge takes no commission. Enter an amount to see the full amount the recipient gets.",
         feeLine: "Our commission: none · Recipient gets {net} {symbol}",
         feeLabel: "Our commission",
@@ -817,7 +817,7 @@
         notConnected: "Не подключён",
         network: "Polygon Mainnet",
         title: "Мгновенный перевод",
-        desc: "Прямой перевод POL, USDT, USDT.e и PAXG с кошелька на кошелёк в Polygon. SafeBridge не берёт комиссию. Получатель получает всю сумму.",
+        desc: "Прямой перевод POL, USDT, USDC и PAXG с кошелька на кошелёк в Polygon. SafeBridge не берёт комиссию. Получатель получает всю сумму.",
         feeNote: "Введите сумму, чтобы увидеть полную сумму получателя.",
         feeLine: "Комиссия SafeBridge: бесплатно · Газ остаётся · Получатель получит {net} {symbol}",
         feeLabel: "Наша комиссия",
@@ -887,7 +887,7 @@
         notConnected: "未连接",
         network: "Polygon 主网",
         title: "即时转账",
-        desc: "在 Polygon 上直接进行 POL、USDT、USDT.e 和 PAXG 的钱包到钱包转账。SafeBridge 不收取佣金。收款人收到全额。",
+        desc: "在 Polygon 上直接进行 POL、USDT、USDC 和 PAXG 的钱包到钱包转账。SafeBridge 不收取佣金。收款人收到全额。",
         feeNote: "输入金额即可查看收款人收到的全额。",
         feeLine: "SafeBridge 手续费：免费 · Gas 费保留 · 收款人到账 {net} {symbol}",
         feeLabel: "我们的佣金",
@@ -957,7 +957,7 @@
         notConnected: "Sin conexión",
         network: "Polygon Mainnet",
         title: "Transferencia instantánea",
-        desc: "Transferencia directa de billetera a billetera de POL, USDT, USDT.e y PAXG en Polygon. SafeBridge no cobra comisión. El destinatario recibe el importe completo.",
+        desc: "Transferencia directa de billetera a billetera de POL, USDT, USDC y PAXG en Polygon. SafeBridge no cobra comisión. El destinatario recibe el importe completo.",
         feeNote: "Introduce un importe para ver el total que recibe el destinatario.",
         feeLine: "Comisión SafeBridge: gratis · El gas se mantiene · El destinatario recibe {net} {symbol}",
         feeLabel: "Nuestra comisión",
@@ -1027,7 +1027,7 @@
         notConnected: "未接続",
         network: "Polygon メインネット",
         title: "即時送金",
-        desc: "Polygon で POL、USDT、USDT.e、PAXG をウォレットからウォレットへ直接送金します。SafeBridge は手数料を取りません。受取人は全額を受け取ります。",
+        desc: "Polygon で POL、USDT、USDC、PAXG をウォレットからウォレットへ直接送金します。SafeBridge は手数料を取りません。受取人は全額を受け取ります。",
         feeNote: "金額を入れると受取人が受け取る全額が見えます。",
         feeLine: "SafeBridge 手数料: 無料 · ガス手数料は残る · 受取額 {net} {symbol}",
         feeLabel: "当社の手数料",
@@ -1097,7 +1097,7 @@
         notConnected: "연결 안 됨",
         network: "Polygon 메인넷",
         title: "즉시 전송",
-        desc: "Polygon에서 POL, USDT, USDT.e, PAXG를 지갑에서 지갑으로 직접 전송합니다. SafeBridge는 수수료를 받지 않습니다. 받는 사람은 전액을 받습니다.",
+        desc: "Polygon에서 POL, USDT, USDC, PAXG를 지갑에서 지갑으로 직접 전송합니다. SafeBridge는 수수료를 받지 않습니다. 받는 사람은 전액을 받습니다.",
         feeNote: "금액을 입력하면 받는 전액이 보입니다.",
         feeLine: "SafeBridge 수수료: 무료 · 가스 수수료는 유지 · 받는 금액 {net} {symbol}",
         feeLabel: "우리 수수료",
@@ -1167,7 +1167,7 @@
         notConnected: "Bağlı değil",
         network: "Polygon Ana Ağ",
         title: "Anında Transfer",
-        desc: "Polygon’da POL, USDT, USDT.e ve PAXG için cüzdandan cüzdana doğrudan transfer. SafeBridge komisyon almaz. Alıcı tutarın tamamını alır.",
+        desc: "Polygon’da POL, USDT, USDC ve PAXG için cüzdandan cüzdana doğrudan transfer. SafeBridge komisyon almaz. Alıcı tutarın tamamını alır.",
         feeNote: "SafeBridge komisyon almaz. Tutarı yaz; alıcıya gidecek tam tutarı gör.",
         feeLine: "Komisyonumuz: yok · Alıcıya {net} {symbol}",
         feeLabel: "Komisyonumuz",
@@ -1237,7 +1237,7 @@
         notConnected: "غير متصل",
         network: "شبكة Polygon الرئيسية",
         title: "تحويل فوري",
-        desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDT.e وPAXG على Polygon. SafeBridge لا يأخذ عمولة. يستلم المستلم المبلغ كاملًا.",
+        desc: "تحويل مباشر من محفظة إلى محفظة لـ POL وUSDT وUSDC وPAXG على Polygon. SafeBridge لا يأخذ عمولة. يستلم المستلم المبلغ كاملًا.",
         feeNote: "أدخل المبلغ لترى المبلغ الكامل الذي يستلمه المستلم.",
         feeLine: "رسوم SafeBridge: مجاني · رسوم الغاز تبقى · يستلم المستلم {net} {symbol}",
         feeLabel: "عمولتنا",
